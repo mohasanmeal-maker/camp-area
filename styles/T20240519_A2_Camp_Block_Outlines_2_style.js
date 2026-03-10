@@ -9,7 +9,7 @@ var style_T20240519_A2_Camp_Block_Outlines_2 = function(feature, resolution){
     
     var labelText = ""; 
     var value = feature.get("");
-    var labelFont = "16.900000000000002px \'Times New Roman\', sans-serif";
+    var labelFont = "23.400000000000002px \'Times New Roman\', sans-serif";
     var labelFill = "#ff7f00";
     var bufferColor = "#000000";
     var bufferWidth = 1.5;

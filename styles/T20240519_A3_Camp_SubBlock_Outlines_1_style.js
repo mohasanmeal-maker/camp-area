@@ -9,7 +9,7 @@ var style_T20240519_A3_Camp_SubBlock_Outlines_1 = function(feature, resolution){
     
     var labelText = ""; 
     var value = feature.get("");
-    var labelFont = "13.0px \'Times New Roman\', sans-serif";
+    var labelFont = "19.5px \'Times New Roman\', sans-serif";
     var labelFill = "#ffffff";
     var bufferColor = "#000000";
     var bufferWidth = 1.5;
@@ -21,7 +21,7 @@ var style_T20240519_A3_Camp_SubBlock_Outlines_1 = function(feature, resolution){
         labelText = String(feature.get("SBlockName"));
     }
     var style = [ new ol.style.Style({
-        stroke: new ol.style.Stroke({color: 'rgba(226,226,226,1.0)', lineDash: null, lineCap: 'butt', lineJoin: 'miter', width: 0.988}),fill: new ol.style.Fill({color: 'rgba(247,247,247,0.0)'}),
+        stroke: new ol.style.Stroke({color: 'rgba(208,208,208,1.0)', lineDash: [4.9399999999999995,0.988,1.976,0.988,1.976,0.988], lineCap: 'butt', lineJoin: 'miter', width: 0.988}),fill: new ol.style.Fill({color: 'rgba(247,247,247,0.0)'}),
         text: createTextStyle(feature, resolution, labelText, labelFont,
                               labelFill, placement, bufferColor,
                               bufferWidth)
