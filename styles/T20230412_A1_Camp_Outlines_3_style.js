@@ -9,10 +9,10 @@ var style_T20230412_A1_Camp_Outlines_3 = function(feature, resolution){
     
     var labelText = ""; 
     var value = feature.get("");
-    var labelFont = "27.3px \'Times New Roman\', sans-serif";
+    var labelFont = "19.5px \'Times New Roman\', sans-serif";
     var labelFill = "#ffffff";
-    var bufferColor = "#1f78b4";
-    var bufferWidth = 3.0;
+    var bufferColor = "";
+    var bufferWidth = 0;
     var textAlign = "left";
     var offsetX = 0;
     var offsetY = 0;
@@ -21,7 +21,7 @@ var style_T20230412_A1_Camp_Outlines_3 = function(feature, resolution){
         labelText = String(feature.get("CampName"));
     }
     var style = [ new ol.style.Style({
-        stroke: new ol.style.Stroke({color: 'rgba(31,120,180,1.0)', lineDash: null, lineCap: 'square', lineJoin: 'bevel', width: 3.6479999999999997}),
+        stroke: new ol.style.Stroke({color: 'rgba(255,127,0,1.0)', lineDash: null, lineCap: 'butt', lineJoin: 'miter', width: 1.52}),fill: new ol.style.Fill({color: 'rgba(255,158,23,0.0)'}),
         text: createTextStyle(feature, resolution, labelText, labelFont,
                               labelFill, placement, bufferColor,
                               bufferWidth)

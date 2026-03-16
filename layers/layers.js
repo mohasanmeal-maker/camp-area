@@ -39,8 +39,18 @@ var lyr_T20240519_A2_Camp_Block_Outlines_2 = new ol.layer.Vector({
                 style: style_T20240519_A2_Camp_Block_Outlines_2,
                 popuplayertitle: 'T20240519_A2_Camp_Block_Outlines',
                 interactive: false,
-                title: '<img src="styles/legend/T20240519_A2_Camp_Block_Outlines_2.png" /> T20240519_A2_Camp_Block_Outlines'
-            });
+    title: 'T20240519_A2_Camp_Block_Outlines<br />\
+    <img src="styles/legend/T20240519_A2_Camp_Block_Outlines_2_0.png" /> A<br />\
+    <img src="styles/legend/T20240519_A2_Camp_Block_Outlines_2_1.png" /> B<br />\
+    <img src="styles/legend/T20240519_A2_Camp_Block_Outlines_2_2.png" /> C<br />\
+    <img src="styles/legend/T20240519_A2_Camp_Block_Outlines_2_3.png" /> D<br />\
+    <img src="styles/legend/T20240519_A2_Camp_Block_Outlines_2_4.png" /> E<br />\
+    <img src="styles/legend/T20240519_A2_Camp_Block_Outlines_2_5.png" /> F<br />\
+    <img src="styles/legend/T20240519_A2_Camp_Block_Outlines_2_6.png" /> G<br />\
+    <img src="styles/legend/T20240519_A2_Camp_Block_Outlines_2_7.png" /> H<br />\
+    <img src="styles/legend/T20240519_A2_Camp_Block_Outlines_2_8.png" /> I<br />\
+    <img src="styles/legend/T20240519_A2_Camp_Block_Outlines_2_9.png" /> P<br />\
+    <img src="styles/legend/T20240519_A2_Camp_Block_Outlines_2_10.png" /> <br />' });
 var format_T20230412_A1_Camp_Outlines_3 = new ol.format.GeoJSON();
 var features_T20230412_A1_Camp_Outlines_3 = format_T20230412_A1_Camp_Outlines_3.readFeatures(json_T20230412_A1_Camp_Outlines_3, 
             {dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'});
@@ -81,7 +91,7 @@ lyr_FacilityInfo_4.set('fieldAliases', {'New Facility ID': 'New Facility ID', 'N
 lyr_T20240519_A3_Camp_SubBlock_Outlines_1.set('fieldImages', {'OBJECTID': 'TextEdit', 'District': 'TextEdit', 'Upazila': 'TextEdit', 'Union': 'TextEdit', 'SBlockSSID': 'TextEdit', 'SBlockName': 'TextEdit', 'SBlockLabe': 'TextEdit', 'BlockSSID': 'TextEdit', 'BlockName': 'TextEdit', 'BlockLabel': 'TextEdit', 'CampSSID': 'TextEdit', 'CampName': 'TextEdit', 'SMSDCamp': 'TextEdit', 'NPMCamp': 'TextEdit', 'CampLabel': 'TextEdit', 'CNameAlias': 'TextEdit', 'AreaAcres': 'TextEdit', 'AreaSqM': 'TextEdit', 'AreaSqKM': 'TextEdit', 'CentroidX': 'TextEdit', 'CentroidY': 'TextEdit', 'Shape_Length': 'TextEdit', 'Shape_Area': 'TextEdit', });
 lyr_T20240519_A2_Camp_Block_Outlines_2.set('fieldImages', {'OBJECTID_1': 'TextEdit', 'OBJECTID': 'Range', 'District': 'TextEdit', 'Upazila': 'TextEdit', 'Union': 'TextEdit', 'BlockSSID': 'TextEdit', 'BlockName': 'TextEdit', 'BlockLabel': 'TextEdit', 'CampSSID': 'TextEdit', 'CampName_1': 'TextEdit', 'SMSDCamp': 'TextEdit', 'NPMCamp': 'TextEdit', 'CampLabel': 'TextEdit', 'CNameAlias': 'TextEdit', 'CentroidX': 'TextEdit', 'CentroidY': 'TextEdit', 'AreaAcres': 'TextEdit', 'AreaSqM': 'TextEdit', 'AreaSqKM': 'TextEdit', 'Shape_Leng': 'TextEdit', 'Shape_Length': 'TextEdit', 'Shape_Area': 'TextEdit', });
 lyr_T20230412_A1_Camp_Outlines_3.set('fieldImages', {'OBJECTID': 'TextEdit', 'District': 'TextEdit', 'Upazila': 'TextEdit', 'Union': 'TextEdit', 'CampSSID': 'TextEdit', 'CampName': 'TextEdit', 'SMSDCamp': 'TextEdit', 'NPMCamp': 'TextEdit', 'CNameAlias': 'TextEdit', 'CampLabel': 'TextEdit', 'Settlement': 'TextEdit', 'CentroidX': 'TextEdit', 'CentroidY': 'TextEdit', 'AreaAcres': 'TextEdit', 'AreaSqM': 'TextEdit', 'AreaSqKM': 'TextEdit', 'Type': 'TextEdit', 'Camp_Let': 'TextEdit', 'Shape_Length': 'TextEdit', 'Shape_Area': 'TextEdit', });
-lyr_FacilityInfo_4.set('fieldImages', {'New Facility ID': 'TextEdit', 'NAME OF VOLUNTEER': 'TextEdit', 'CAMP': 'TextEdit', 'BLOCK': 'TextEdit', 'SUB-BLOCK': 'TextEdit', 'LATITUDE': 'TextEdit', 'LONGITUDE': 'TextEdit', });
+lyr_FacilityInfo_4.set('fieldImages', {'New Facility ID': '', 'NAME OF VOLUNTEER': '', 'CAMP': '', 'BLOCK': '', 'SUB-BLOCK': '', 'LATITUDE': '', 'LONGITUDE': '', });
 lyr_T20240519_A3_Camp_SubBlock_Outlines_1.set('fieldLabels', {'OBJECTID': 'no label', 'District': 'no label', 'Upazila': 'no label', 'Union': 'no label', 'SBlockSSID': 'no label', 'SBlockName': 'no label', 'SBlockLabe': 'no label', 'BlockSSID': 'no label', 'BlockName': 'no label', 'BlockLabel': 'no label', 'CampSSID': 'no label', 'CampName': 'no label', 'SMSDCamp': 'no label', 'NPMCamp': 'no label', 'CampLabel': 'no label', 'CNameAlias': 'no label', 'AreaAcres': 'no label', 'AreaSqM': 'no label', 'AreaSqKM': 'no label', 'CentroidX': 'no label', 'CentroidY': 'no label', 'Shape_Length': 'no label', 'Shape_Area': 'no label', });
 lyr_T20240519_A2_Camp_Block_Outlines_2.set('fieldLabels', {'OBJECTID_1': 'no label', 'OBJECTID': 'no label', 'District': 'no label', 'Upazila': 'no label', 'Union': 'no label', 'BlockSSID': 'no label', 'BlockName': 'no label', 'BlockLabel': 'no label', 'CampSSID': 'no label', 'CampName_1': 'no label', 'SMSDCamp': 'no label', 'NPMCamp': 'no label', 'CampLabel': 'no label', 'CNameAlias': 'no label', 'CentroidX': 'no label', 'CentroidY': 'no label', 'AreaAcres': 'no label', 'AreaSqM': 'no label', 'AreaSqKM': 'no label', 'Shape_Leng': 'no label', 'Shape_Length': 'no label', 'Shape_Area': 'no label', });
 lyr_T20230412_A1_Camp_Outlines_3.set('fieldLabels', {'OBJECTID': 'no label', 'District': 'no label', 'Upazila': 'no label', 'Union': 'no label', 'CampSSID': 'no label', 'CampName': 'no label', 'SMSDCamp': 'no label', 'NPMCamp': 'no label', 'CNameAlias': 'no label', 'CampLabel': 'no label', 'Settlement': 'no label', 'CentroidX': 'no label', 'CentroidY': 'no label', 'AreaAcres': 'no label', 'AreaSqM': 'no label', 'AreaSqKM': 'no label', 'Type': 'no label', 'Camp_Let': 'no label', 'Shape_Length': 'no label', 'Shape_Area': 'no label', });
