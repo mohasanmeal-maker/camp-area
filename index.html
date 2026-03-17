@@ -71,6 +71,17 @@ Disclaimer: Red dots on the map represent Learning Centers.
 Nearest LF info
 </div>
 
+<button onclick="toggleLC()" style="position:absolute; top:80px; right:01px; z-index:9999;">
+Toggle LC
+</button>
+
+<script>
+function toggleLC(){
+    var visible = layer_FacilityInfo_4.getVisible();
+    layer_FacilityInfo_4.setVisible(!visible);
+}
+</script>
+            
 <div id="popup" class="ol-popup">
 <a href="#" id="popup-closer" class="ol-popup-closer"></a>
 <div id="popup-content"></div>
