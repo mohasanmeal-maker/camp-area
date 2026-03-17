@@ -95,10 +95,8 @@ navigator.geolocation.getCurrentPosition(function(position) {
             position.coords.latitude
         ]);
 
-        console.log("GPS OK");
-
         // 🟡 USER LOCATION
-        var userLayer = new ol.layer.Vector({
+        map.addLayer(new ol.layer.Vector({
             source: new ol.source.Vector({
                 features: [new ol.Feature({
                     geometry: new ol.geom.Point(userLocation)
@@ -111,32 +109,32 @@ navigator.geolocation.getCurrentPosition(function(position) {
                     stroke: new ol.style.Stroke({ color: '#333', width: 2 })
                 })
             })
-        });
-
-        map.addLayer(userLayer);
+        }));
 
         var wgs84Sphere = new ol.Sphere(6378137);
         var features = json_FacilityInfo_4.features;
-
-        if (!features || features.length === 0) {
-            console.log("No features found");
-            return;
-        }
 
         var nearest = features.map(function(f) {
 
             if (!f.geometry || !f.geometry.coordinates) return null;
 
-            var coord = ol.proj.fromLonLat(f.geometry.coordinates);
+            var rawCoord = f.geometry.coordinates;
 
-            var d = wgs84Sphere.haversineDistance(
+            // handle multipoint
+            if (Array.isArray(rawCoord[0])) {
+                rawCoord = rawCoord[0];
+            }
+
+            var coord = ol.proj.fromLonLat(rawCoord);
+
+            var distance = wgs84Sphere.haversineDistance(
                 ol.proj.toLonLat(userLocation),
                 ol.proj.toLonLat(coord)
             );
 
             return {
                 coord: coord,
-                distance: d,
+                distance: distance,
                 name: f.properties["New Facility ID"] || "Facility"
             };
 
@@ -144,10 +142,7 @@ navigator.geolocation.getCurrentPosition(function(position) {
           .sort((a,b) => a.distance - b.distance)
           .slice(0,3);
 
-        if (nearest.length === 0) {
-            console.log("No nearest found");
-            return;
-        }
+        if (nearest.length === 0) return;
 
         // 🔥 AUTO ZOOM
         map.getView().fit(
@@ -207,8 +202,8 @@ navigator.geolocation.getCurrentPosition(function(position) {
         console.log("ERROR:", e);
     }
 
-}, function(error) {
-    alert("Location access needed. Please allow GPS.");
+}, function() {
+    alert("Please allow location access");
 });
 </script>
 
