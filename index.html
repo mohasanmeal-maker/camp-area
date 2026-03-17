@@ -171,9 +171,32 @@ geolocation.on('change:position', function() {
             geometry: new ol.geom.LineString([userCoord, nearest.coord])
         });
         routeSource.addFeature(line);
+// highlight point
+var point = new ol.Feature({
+    geometry: new ol.geom.Point(nearest.coord)
+});
 
+point.setStyle(new ol.style.Style({
+    image: new ol.style.Circle({
+        radius: 8,
+        fill: new ol.style.Fill({
+            color: '#4F81BD'
+        }),
+        stroke: new ol.style.Stroke({
+            color: '#ffffff',
+            width: 2
+        })
+    })
+}));
+
+routeSource.addFeature(point);
         // distance show
-        var dist = Math.round(minDist);
+        var dist;
+if(minDist > 1000){
+    dist = (minDist/1000).toFixed(2) + " km";
+}else{
+    dist = Math.round(minDist) + " m";
+}
         document.getElementById("infoBox").innerHTML =
         "Nearest LC: " + nearest.name + "<br>Distance: " + dist + " m";
     }
