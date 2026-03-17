@@ -84,68 +84,34 @@ Disclaimer: Red dots on the map represent Learning Centers.
         <script src="./resources/Autolinker.min.js"></script>
         <script src="./resources/qgis2web.js"></script> 
 <script>
+// GPS setup (clean version)
 var geolocation = new ol.Geolocation({
     tracking: true,
     projection: map.getView().getProjection()
 });
 
-geolocation.on('change:position', function() {
-    var coordinates = geolocation.getPosition();
-    var userFeature = new ol.Feature(new ol.geom.Point(coordinates));
+// user point
+var userFeature = new ol.Feature();
 
-    var userLayer = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            features: [userFeature]
-        }),
-        style: new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: 6,
-                fill: new ol.style.Fill({color: 'blue'}),
-                stroke: new ol.style.Stroke({color: '#fff', width: 2})
-            })
+// source + layer
+var userSource = new ol.source.Vector({
+    features: [userFeature]
+});
+
+var userLayer = new ol.layer.Vector({
+    source: userSource,
+    style: new ol.style.Style({
+        image: new ol.style.Circle({
+            radius: 6,
+            fill: new ol.style.Fill({color: 'blue'}),
+            stroke: new ol.style.Stroke({color: '#fff', width: 2})
         })
-    });
-
-    map.addLayer(userLayer);
-});
-</script>
-
-<!-- GPS CODE -->
-<script>
-var geolocation = new ol.Geolocation({
-    tracking: true,
-    projection: map.getView().getProjection()
+    })
 });
 
-geolocation.on('change:position', function() {
-    var coordinates = geolocation.getPosition();
-    var userFeature = new ol.Feature(new ol.geom.Point(coordinates));
+map.addLayer(userLayer);
 
-    var userLayer = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            features: [userFeature]
-        }),
-        style: new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: 6,
-                fill: new ol.style.Fill({color: 'blue'}),
-                stroke: new ol.style.Stroke({color: '#fff', width: 2})
-            })
-        })
-    });
-
-    map.addLayer(userLayer);
-});
-</script>
-
-<!-- ROUTE CODE -->
-<script>
-function getDistance(coord1, coord2) {
-    var dx = coord1[0] - coord2[0];
-    var dy = coord1[1] - coord2[1];
-    return Math.sqrt(dx * dx + dy * dy);
-}
-
+// route layer
 var routeSource = new ol.source.Vector();
 var routeLayer = new ol.layer.Vector({
     source: routeSource,
@@ -159,10 +125,22 @@ var routeLayer = new ol.layer.Vector({
 
 map.addLayer(routeLayer);
 
+// distance function
+function getDistance(coord1, coord2) {
+    var dx = coord1[0] - coord2[0];
+    var dy = coord1[1] - coord2[1];
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+// update position
 geolocation.on('change:position', function() {
 
     var userCoord = geolocation.getPosition();
 
+    // update blue dot
+    userFeature.setGeometry(new ol.geom.Point(userCoord));
+
+    // find nearest feature
     var features = json_FacilityInfo_4.features;
 
     var nearestFeature = null;
@@ -178,6 +156,7 @@ geolocation.on('change:position', function() {
         }
     });
 
+    // draw route
     if (nearestFeature) {
         routeSource.clear();
 
