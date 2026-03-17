@@ -88,105 +88,127 @@ Nearest LF info
 <script>
 navigator.geolocation.getCurrentPosition(function(position) {
 
-    var userLocation = ol.proj.fromLonLat([
-        position.coords.longitude,
-        position.coords.latitude
-    ]);
+    try {
 
-    // 🟡 USER LOCATION
-    var userLayer = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            features: [new ol.Feature({
-                geometry: new ol.geom.Point(userLocation)
-            })]
-        }),
-        style: new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: 8,
-                fill: new ol.style.Fill({ color: '#FFFFCC' }),
-                stroke: new ol.style.Stroke({ color: '#333', width: 2 })
-            })
-        })
-    });
+        var userLocation = ol.proj.fromLonLat([
+            position.coords.longitude,
+            position.coords.latitude
+        ]);
 
-    map.addLayer(userLayer);
+        console.log("GPS OK");
 
-    // 🎯 FACILITY DATA
-    var wgs84Sphere = new ol.Sphere(6378137);
-    var features = json_FacilityInfo_4.features;
-
-    var nearest = features.map(function(f) {
-
-        var coord = ol.proj.fromLonLat(f.geometry.coordinates);
-
-        var d = wgs84Sphere.haversineDistance(
-            ol.proj.toLonLat(userLocation),
-            ol.proj.toLonLat(coord)
-        );
-
-        return {
-            coord: coord,
-            distance: d,
-            name: f.properties["New Facility ID"] || "Facility"
-        };
-
-    }).sort((a,b) => a.distance - b.distance).slice(0,3);
-
-    // 🔥 AUTO ZOOM
-    map.getView().fit(
-        ol.extent.boundingExtent([userLocation, nearest[0].coord]),
-        { padding:[100,100,100,100], duration:1000 }
-    );
-
-    // DRAW
-    nearest.forEach(function(item, i) {
-
-        var isNearest = i === 0;
-
-        // 🟠 LINE
-        map.addLayer(new ol.layer.Vector({
+        // 🟡 USER LOCATION
+        var userLayer = new ol.layer.Vector({
             source: new ol.source.Vector({
                 features: [new ol.Feature({
-                    geometry: new ol.geom.LineString([userLocation, item.coord])
-                })]
-            }),
-            style: new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: '#F79646',
-                    width: 3
-                })
-            })
-        }));
-
-        // 🔵 / 🔴 POINT
-        map.addLayer(new ol.layer.Vector({
-            source: new ol.source.Vector({
-                features: [new ol.Feature({
-                    geometry: new ol.geom.Point(item.coord)
+                    geometry: new ol.geom.Point(userLocation)
                 })]
             }),
             style: new ol.style.Style({
                 image: new ol.style.Circle({
-                    radius: isNearest ? 9 : 6,
-                    fill: new ol.style.Fill({
-                        color: isNearest ? '#FF3333' : '#66CCFF'
-                    }),
-                    stroke: new ol.style.Stroke({ color: 'white', width: 2 })
-                }),
-                text: new ol.style.Text({
-                    text: (isNearest ? "Nearest: " : "") +
-                          item.name + " - " + Math.round(item.distance) + " m",
-                    font: '12px Calibri,sans-serif',
-                    offsetY: -18,
-                    overflow: true,
-                    fill: new ol.style.Fill({ color: '#000' }),
-                    stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
+                    radius: 8,
+                    fill: new ol.style.Fill({ color: '#FFFFCC' }),
+                    stroke: new ol.style.Stroke({ color: '#333', width: 2 })
                 })
             })
-        }));
+        });
 
-    });
+        map.addLayer(userLayer);
 
+        var wgs84Sphere = new ol.Sphere(6378137);
+        var features = json_FacilityInfo_4.features;
+
+        if (!features || features.length === 0) {
+            console.log("No features found");
+            return;
+        }
+
+        var nearest = features.map(function(f) {
+
+            if (!f.geometry || !f.geometry.coordinates) return null;
+
+            var coord = ol.proj.fromLonLat(f.geometry.coordinates);
+
+            var d = wgs84Sphere.haversineDistance(
+                ol.proj.toLonLat(userLocation),
+                ol.proj.toLonLat(coord)
+            );
+
+            return {
+                coord: coord,
+                distance: d,
+                name: f.properties["New Facility ID"] || "Facility"
+            };
+
+        }).filter(x => x !== null)
+          .sort((a,b) => a.distance - b.distance)
+          .slice(0,3);
+
+        if (nearest.length === 0) {
+            console.log("No nearest found");
+            return;
+        }
+
+        // 🔥 AUTO ZOOM
+        map.getView().fit(
+            ol.extent.boundingExtent([userLocation, nearest[0].coord]),
+            { padding:[100,100,100,100], duration:1000 }
+        );
+
+        nearest.forEach(function(item, i) {
+
+            var isNearest = i === 0;
+
+            // 🟠 LINE
+            map.addLayer(new ol.layer.Vector({
+                source: new ol.source.Vector({
+                    features: [new ol.Feature({
+                        geometry: new ol.geom.LineString([userLocation, item.coord])
+                    })]
+                }),
+                style: new ol.style.Style({
+                    stroke: new ol.style.Stroke({
+                        color: '#F79646',
+                        width: 3
+                    })
+                })
+            }));
+
+            // 🔵 / 🔴 POINT
+            map.addLayer(new ol.layer.Vector({
+                source: new ol.source.Vector({
+                    features: [new ol.Feature({
+                        geometry: new ol.geom.Point(item.coord)
+                    })]
+                }),
+                style: new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: isNearest ? 9 : 6,
+                        fill: new ol.style.Fill({
+                            color: isNearest ? '#FF3333' : '#66CCFF'
+                        }),
+                        stroke: new ol.style.Stroke({ color: 'white', width: 2 })
+                    }),
+                    text: new ol.style.Text({
+                        text: (isNearest ? "Nearest: " : "") +
+                              item.name + " - " + Math.round(item.distance) + " m",
+                        font: '12px Calibri,sans-serif',
+                        offsetY: -18,
+                        overflow: true,
+                        fill: new ol.style.Fill({ color: '#000' }),
+                        stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
+                    })
+                })
+            }));
+
+        });
+
+    } catch (e) {
+        console.log("ERROR:", e);
+    }
+
+}, function(error) {
+    alert("Location access needed. Please allow GPS.");
 });
 </script>
 
