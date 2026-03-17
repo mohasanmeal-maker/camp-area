@@ -77,7 +77,7 @@ var style_Blockt20240519_a2_camp_block_outlines_2 = function(feature, resolution
     
     var labelText = ""; 
     var value = feature.get("BlockLabel");
-    var labelFont = "18.2px \'Times New Roman\', sans-serif";
+    var labelFont = "26.0px \'Times New Roman\', sans-serif";
     var labelFill = "#ffffff";
     var bufferColor = "";
     var bufferWidth = 0;

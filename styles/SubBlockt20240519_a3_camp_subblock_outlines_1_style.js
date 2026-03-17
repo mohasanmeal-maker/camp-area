@@ -9,7 +9,7 @@ var style_SubBlockt20240519_a3_camp_subblock_outlines_1 = function(feature, reso
     
     var labelText = ""; 
     var value = feature.get("");
-    var labelFont = "13.0px \'Times New Roman\', sans-serif";
+    var labelFont = "18.2px \'Times New Roman\', sans-serif";
     var labelFill = "#ffffff";
     var bufferColor = "";
     var bufferWidth = 0;

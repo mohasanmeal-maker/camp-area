@@ -9,7 +9,7 @@ var style_Campt20230412_a1_camp_outlines_3 = function(feature, resolution){
     
     var labelText = ""; 
     var value = feature.get("");
-    var labelFont = "20.8px \'Times New Roman\', sans-serif";
+    var labelFont = "32.5px \'Times New Roman\', sans-serif";
     var labelFill = "#ffffff";
     var bufferColor = "";
     var bufferWidth = 0;
