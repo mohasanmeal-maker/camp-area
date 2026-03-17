@@ -123,14 +123,22 @@ box-shadow:0 0 4px rgba(0,0,0,0.3);
 
 </div>
 
-<div style="
+<div id="compassBox" class="glass-box" style="
 position:absolute;
 top:10px;
 right:80px;
-font-size:20px;
+padding:8px;
 z-index:9999;
+text-align:center;
 ">
-🧭
+    <div id="compass" style="
+    font-size:22px;
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+    ">
+    🧭
+    </div>
+    <div style="font-size:9px;">N</div>
 </div>
 
 
@@ -287,6 +295,31 @@ navigator.geolocation.getCurrentPosition(function(position) {
     });
 
 });
+
+<script>
+// 📍 Compass rotation
+
+if (window.DeviceOrientationEvent) {
+
+    window.addEventListener("deviceorientation", function(event) {
+
+        var heading = event.alpha;
+
+        // iPhone fix
+        if (typeof event.webkitCompassHeading !== "undefined") {
+            heading = event.webkitCompassHeading;
+        }
+
+        if (heading !== null) {
+            var compass = document.getElementById("compass");
+            compass.style.transform = "rotate(" + (-heading) + "deg)";
+        }
+
+    });
+
+}
+</script>
+    
 </script>
 
     </body>
