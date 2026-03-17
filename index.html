@@ -130,13 +130,27 @@ navigator.geolocation.getCurrentPosition(function(position) {
         });
     });
 
-    // nearest sort
+    // sort nearest
     distances.sort(function(a, b) {
         return a.distance - b.distance;
     });
 
     var nearestThree = distances.slice(0, 3);
 
+    // 🔥 AUTO ZOOM
+    var nearestCoord = nearestThree[0].coord;
+
+    var extent = ol.extent.boundingExtent([
+        userLocation,
+        nearestCoord
+    ]);
+
+    map.getView().fit(extent, {
+        padding: [100, 100, 100, 100],
+        duration: 1000
+    });
+
+    // DRAW
     nearestThree.forEach(function(item, index) {
 
         // 🟠 LINE
@@ -162,22 +176,30 @@ navigator.geolocation.getCurrentPosition(function(position) {
 
         map.addLayer(lineLayer);
 
-        // 🟢 CENTER POINT
+        // 🔵 / 🔴 POINT
         var point = new ol.Feature({
             geometry: new ol.geom.Point(item.coord)
         });
 
+        var isNearest = (index === 0);
+
+        // ⚠️ FIELD NAME CHECK (change if needed)
+        var facilityName = item.feature.properties.Name || "Facility";
+
         point.setStyle(new ol.style.Style({
             image: new ol.style.Circle({
-                radius: 6,
-                fill: new ol.style.Fill({ color: 'green' }),
-                stroke: new ol.style.Stroke({ color: 'white', width: 1 })
+                radius: isNearest ? 9 : 6,
+                fill: new ol.style.Fill({ 
+                    color: isNearest ? '#FF3333' : '#66CCFF' 
+                }),
+                stroke: new ol.style.Stroke({ color: 'white', width: 2 })
             }),
             text: new ol.style.Text({
-                text: Math.round(item.distance) + " m",
-                offsetY: -12,
+                text: (isNearest ? "Nearest: " : "") 
+                      + facilityName + " (" + Math.round(item.distance) + " m)",
+                offsetY: -15,
                 fill: new ol.style.Fill({ color: '#000' }),
-                stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
+                stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
             })
         }));
 
