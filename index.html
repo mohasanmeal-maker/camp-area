@@ -184,7 +184,7 @@ navigator.geolocation.getCurrentPosition(function(position) {
         var isNearest = (index === 0);
 
         // ⚠️ FIELD NAME CHECK (change if needed)
-        var facilityName = item.feature.properties.Name || "Facility";
+        var facilityName = item.feature.properties["New Facility ID"] || "Facility";
 
         point.setStyle(new ol.style.Style({
             image: new ol.style.Circle({
@@ -195,13 +195,14 @@ navigator.geolocation.getCurrentPosition(function(position) {
                 stroke: new ol.style.Stroke({ color: 'white', width: 2 })
             }),
             text: new ol.style.Text({
-                text: (isNearest ? "Nearest: " : "") 
-                      + facilityName + " (" + Math.round(item.distance) + " m)",
-                offsetY: -15,
-                fill: new ol.style.Fill({ color: '#000' }),
-                stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
-            })
-        }));
+    text: (isNearest ? "Nearest: " : "") 
+          + facilityName + " - " + Math.round(item.distance) + " m",
+    font: '12px Calibri,sans-serif',
+    offsetY: -18,
+    overflow: true,
+    fill: new ol.style.Fill({ color: '#000' }),
+    stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
+})
 
         var pointLayer = new ol.layer.Vector({
             source: new ol.source.Vector({
