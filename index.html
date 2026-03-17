@@ -243,6 +243,7 @@ navigator.geolocation.getCurrentPosition(function(position) {
         });
 
         var isNearest = (index === 0);
+        var timeMin = Math.round(item.distance / 80);    
 
         // ⚠️ FIELD NAME CHECK (change if needed)
         var facilityName = item.feature.properties.Name || "Facility";
@@ -256,8 +257,10 @@ navigator.geolocation.getCurrentPosition(function(position) {
                 stroke: new ol.style.Stroke({ color: 'white', width: 2 })
             }),
         text: new ol.style.Text({
-                text: (isNearest ? "Nearest: " : "") 
-                      + facilityName + " (" + Math.round(item.distance) + " m)",
+                text: (isNearest ? "Nearest\n" : "") 
+      + facilityName + "\n"
+      + Math.round(item.distance) + " m (" 
+      + Math.round(item.distance / 80) + " min)",
                 offsetY: -15,
                 fill: new ol.style.Fill({ color: '#cc0000' }),
                 stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
