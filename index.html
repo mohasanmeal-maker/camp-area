@@ -102,13 +102,15 @@ function toggleLC(){
         <script src="./resources/Autolinker.min.js"></script>
         <script src="./resources/qgis2web.js"></script> 
 <script>
-// GPS + nearest + distance
+
+// ===== GPS + Top 3 Nearest =====
 
 var geolocation = new ol.Geolocation({
     tracking: true,
     projection: map.getView().getProjection()
 });
 
+// user location
 var userFeature = new ol.Feature();
 var userSource = new ol.source.Vector({ features: [userFeature] });
 
@@ -124,22 +126,24 @@ var userLayer = new ol.layer.Vector({
 });
 map.addLayer(userLayer);
 
+// route layer
 var routeSource = new ol.source.Vector();
 var routeLayer = new ol.layer.Vector({
     source: routeSource,
     style: new ol.style.Style({
-        stroke: new ol.style.Stroke({color: 'red', width: 2})
+        stroke: new ol.style.Stroke({color: '#4F81BD', width: 2})
     })
 });
 map.addLayer(routeLayer);
 
-// distance function (meter approx)
+// distance function
 function getDistance(a, b) {
     var dx = a[0] - b[0];
     var dy = a[1] - b[1];
     return Math.sqrt(dx*dx + dy*dy);
 }
 
+// GPS update
 geolocation.on('change:position', function() {
 
     var userCoord = geolocation.getPosition();
@@ -147,72 +151,76 @@ geolocation.on('change:position', function() {
 
     var features = json_FacilityInfo_4.features;
 
-    var nearest = null;
-    var minDist = Infinity;var nearestList = [];
+    var nearestList = [];
 
-features.forEach(function(f){
-    var coord = ol.proj.fromLonLat(f.geometry.coordinates);
-    var d = getDistance(userCoord, coord);
+    features.forEach(function(f){
+        var coord = ol.proj.fromLonLat(f.geometry.coordinates);
+        var d = getDistance(userCoord, coord);
 
-    nearestList.push({
-        coord: coord,
-        name: f.properties.Name,
-        dist: d
-    });
-});
-
-// sort by distance
-nearestList.sort(function(a, b){
-    return a.dist - b.dist;
-});
-
-// take top 3
-nearestList = nearestList.slice(0,3);
-
-routeSource.clear();
-
-nearestList.forEach(function(n){
-
-    var line = new ol.Feature({
-        geometry: new ol.geom.LineString([userCoord, n.coord])
-    });
-    routeSource.addFeature(line);
-
-    var point = new ol.Feature({
-        geometry: new ol.geom.Point(n.coord),
-        name: n.name,
-        distance: n.dist
+        nearestList.push({
+            coord: coord,
+            name: f.properties.Name,
+            dist: d
+        });
     });
 
-    point.setStyle(new ol.style.Style({
-        image: new ol.style.Circle({
-            radius: 8,
-            fill: new ol.style.Fill({ color: '#4F81BD' }),
-            stroke: new ol.style.Stroke({ color: '#ffffff', width: 2 })
-        })
-    }));
+    // sort by distance
+    nearestList.sort(function(a,b){ return a.dist - b.dist; });
 
-    routeSource.addFeature(point);
-});
+    // take top 3
+    nearestList = nearestList.slice(0,3);
 
-// first nearest info
-var first = nearestList[0];
+    routeSource.clear();
 
-var dist;
-if(first.dist > 1000){
-    dist = (first.dist/1000).toFixed(2) + " km";
-}else{
-    dist = Math.round(first.dist) + " m";
-}
+    nearestList.forEach(function(n){
 
-document.getElementById("infoBox").innerHTML =
-"Nearest LC: " + first.name + "<br>Distance: " + dist;
- // 📍 auto zoom
-    map.getView().animate({
-        center: nearest.coord,
-        zoom: 18,
-        duration: 1000
+        // line
+        var line = new ol.Feature({
+            geometry: new ol.geom.LineString([userCoord, n.coord])
+        });
+        routeSource.addFeature(line);
+
+        // point
+        var point = new ol.Feature({
+            geometry: new ol.geom.Point(n.coord),
+            name: n.name,
+            distance: n.dist
+        });
+
+        point.setStyle(new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 8,
+                fill: new ol.style.Fill({ color: '#4F81BD' }),
+                stroke: new ol.style.Stroke({ color: '#ffffff', width: 2 })
+            })
+        }));
+
+        routeSource.addFeature(point);
+    });
+
+    // first nearest info
+    var first = nearestList[0];
+
+    if(first){
+
+        var dist;
+        if(first.dist > 1000){
+            dist = (first.dist/1000).toFixed(2) + " km";
+        }else{
+            dist = Math.round(first.dist) + " m";
+        }
+
+        document.getElementById("infoBox").innerHTML =
+        "Nearest LC: " + first.name + "<br>Distance: " + dist;
+
+        // auto zoom FIXED
+        map.getView().animate({
+            center: first.coord,
+            zoom: 17,
+            duration: 1000
+        });
     }
+
 });
 </script>
     </body>
