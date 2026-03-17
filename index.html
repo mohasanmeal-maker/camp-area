@@ -1,151 +1,110 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
-        <meta name="mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <link rel="stylesheet" href="./resources/ol.css">
-        <link rel="stylesheet" href="resources/fontawesome-all.min.css">
-        <link href="resources/photon-geocoder-autocomplete.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
-        <link rel="stylesheet" href="./resources/qgis2web.css">
-        <style>
-        html, body {
-            background-color: #ffffff;
-        }
-        .ol-control > * {
-            background-color: #f8f8f8!important;
-            color: #444444!important;
-            border-radius: 0px;
-        }
-        .ol-attribution a, .gcd-gl-input::placeholder, .search-layer-input-search::placeholder {
-            color: #444444!important;
-        }
-        .search-layer-input-search {
-            background-color: #f8f8f8!important;
-        }
-        .ol-control > *:focus, .ol-control >*:hover {
-            background-color: rgba(248, 248, 248, 0.7)!important;
-        } 
-        .ol-control {
-            background-color: rgba(255,255,255,.4) !important;
-            padding: 2px !important;
-        } 
-        </style>
-
-        <style>
-        html, body, #map {
-            width: 100%;
-            height: 100%;
-            padding: 0;
-            margin: 0;
-        }
-        </style>
-        <title></title>
-    </head>
-    <body>
-        <div id="map">
-<div style="position:absolute; top:01px; left:01px; background:#FFC000; color:#000000; padding:10px 12px; font-size:12px; font-weight:bold; border-radius:6px; z-index:9999; box-shadow:0 0 6px rgba(0,0,0,0.3); max-width:420px;">
-Education for Rohingya Refugee Children and Host Community Children in Bangladesh
-<br>
-<span style="font-style:italic; font-weight:normal; font-size:10px;">
-ECW MYRP II Funding Project
-</span>
-</div>
-
-<div style="position:absolute; bottom:01px; right:01px; background:#ffffff; color:#000000; padding:5px 10px; font-size:10px; font-weight:bold; border-radius:5px; z-index:9999; box-shadow:0 0 4px rgba(0,0,0,0.3);">
-Map prepared by: Mohasan Uddin Tutul | MEAL Team | Friends In Village Development Bangladesh (FIVDB)
-</div>
-
-<div style="position:absolute; top:01px; right:01px; z-index:9999;">
-<img src="FIVDB.jpg" style="height:50px;">
-</div>
-
-<div id="infoBox" style="position:absolute; bottom:80px; right:01px; background:white; padding:6px 10px; font-size:10px; z-index:9999; border-radius:5px;">
-Nearest LF info
-</div>
-
-<button onclick="toggleLC()" style="position:absolute; top:80px; right:01px; z-index:9999;">
-Toggle LC
-</button>
-
-<script>
-function toggleLC(){
-    var visible = layer_FacilityInfo_4.getVisible();
-    layer_FacilityInfo_4.setVisible(!visible);
-}
-</script>
-
-<div style="position:absolute; bottom:120px; left:01px; background:white; padding:6px; font-size:10px; z-index:9999;">
-<b>Legend</b><br>
-🔴 Learning Center<br>
-⬛ Camp Block<br>
-🟩 Camp Boundary
-</div>
-            
-<div id="popup" class="ol-popup">
-<a href="#" id="popup-closer" class="ol-popup-closer"></a>
-<div id="popup-content"></div>
-</div>
-
-        </div>
-        <script src="resources/qgis2web_expressions.js"></script>
-        <script src="./resources/functions.js"></script>
-        <script src="./resources/ol.js"></script>
-        <script src="./resources/ol-layerswitcher.js"></script>
-        <script src="resources/photon-geocoder-autocomplete.min.js"></script>
-        <script src="layers/SubBlockt20240519_a3_camp_subblock_outlines_1.js"></script><script src="layers/Blockt20240519_a2_camp_block_outlines_2.js"></script><script src="layers/Campt20230412_a1_camp_outlines_3.js"></script><script src="layers/FacilityInfo_4.js"></script>
-        <script src="styles/SubBlockt20240519_a3_camp_subblock_outlines_1_style.js"></script><script src="styles/Blockt20240519_a2_camp_block_outlines_2_style.js"></script><script src="styles/Campt20230412_a1_camp_outlines_3_style.js"></script><script src="styles/FacilityInfo_4_style.js"></script>
-        <script src="./layers/layers.js" type="text/javascript"></script> 
-        <script src="./resources/Autolinker.min.js"></script>
-        <script src="./resources/qgis2web.js"></script> 
-<script>
-map.on('singleclick', function(evt) {
-    map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-
-        var name = feature.get('name');
-        var dist = feature.get('distance');
-
-        if(name){
-
-            var d;
-            if(dist > 1000){
-                d = (dist/1000).toFixed(2) + " km";
-            }else{
-                d = Math.round(dist) + " m";
+    <!doctype html>
+    <html lang="en">
+        <head>
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+            <meta name="mobile-web-app-capable" content="yes">
+            <meta name="apple-mobile-web-app-capable" content="yes">
+            <link rel="stylesheet" href="./resources/ol.css">
+            <link rel="stylesheet" href="resources/fontawesome-all.min.css">
+            <link href="resources/photon-geocoder-autocomplete.min.css" rel="stylesheet">
+            <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
+            <link rel="stylesheet" href="./resources/qgis2web.css">
+            <style>
+            html, body {
+                background-color: #ffffff;
             }
+            .ol-control > * {
+                background-color: #f8f8f8!important;
+                color: #444444!important;
+                border-radius: 0px;
+            }
+            .ol-attribution a, .gcd-gl-input::placeholder, .search-layer-input-search::placeholder {
+                color: #444444!important;
+            }
+            .search-layer-input-search {
+                background-color: #f8f8f8!important;
+            }
+            .ol-control > *:focus, .ol-control >*:hover {
+                background-color: rgba(248, 248, 248, 0.7)!important;
+            } 
+            .ol-control {
+                background-color: rgba(255,255,255,.4) !important;
+                padding: 2px !important;
+            } 
+            </style>
+    
+            <style>
+            html, body, #map {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            </style>
+            <title></title>
+        </head>
+        <body>
+            <div id="map">
+    <div style="position:absolute; top:01px; left:01px; background:#FFC000; color:#000000; padding:10px 12px; font-size:12px; font-weight:bold; border-radius:6px; z-index:9999; box-shadow:0 0 6px rgba(0,0,0,0.3); max-width:420px;">
+    Education for Rohingya Refugee Children and Host Community Children in Bangladesh
+    <br>
+    <span style="font-style:italic; font-weight:normal; font-size:10px;">
+    ECW MYRP II Funding Project
+    </span>
+    </div>
+    
+    <div style="position:absolute; bottom:01px; right:01px; background:#ffffff; color:#000000; padding:5px 10px; font-size:10px; font-weight:bold; border-radius:5px; z-index:9999; box-shadow:0 0 4px rgba(0,0,0,0.3);">
+    Map prepared by: Mohasan Uddin Tutul | MEAL Team | Friends In Village Development Bangladesh (FIVDB)
+    </div>
+    
+    <div style="position:absolute; top:01px; right:01px; z-index:9999;">
+    <img src="FIVDB.jpg" style="height:50px;">
+    </div>
+    
+    <div id="infoBox" style="position:absolute; bottom:80px; right:01px; background:white; padding:6px 10px; font-size:10px; z-index:9999; border-radius:5px;">
+    Nearest LF info
+    </div>
+    
+    <button onclick="toggleLC()" style="position:absolute; top:80px; right:01px; z-index:9999;">
+    Toggle LC
+    </button>
+    
+    <script>
+    function toggleLC(){
+        var visible = layer_FacilityInfo_4.getVisible();
+        layer_FacilityInfo_4.setVisible(!visible);
+    }
+    </script>
+    
+    <div style="position:absolute; bottom:120px; left:01px; background:white; padding:6px; font-size:10px; z-index:9999;">
+    <b>Legend</b><br>
+    🔴 Learning Center<br>
+    ⬛ Camp Block<br>
+    🟩 Camp Boundary
+    </div>
+                
+    <div id="popup" class="ol-popup">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="popup-content"></div>
+    </div>
+    
+            </div>
+            <script src="resources/qgis2web_expressions.js"></script>
+            <script src="./resources/functions.js"></script>
+            <script src="./resources/ol.js"></script>
+            <script src="./resources/ol-layerswitcher.js"></script>
+            <script src="resources/photon-geocoder-autocomplete.min.js"></script>
+            <script src="layers/SubBlockt20240519_a3_camp_subblock_outlines_1.js"></script><script src="layers/Blockt20240519_a2_camp_block_outlines_2.js"></script><script src="layers/Campt20230412_a1_camp_outlines_3.js"></script><script src="layers/FacilityInfo_4.js"></script>
+            <script src="styles/SubBlockt20240519_a3_camp_subblock_outlines_1_style.js"></script><script src="styles/Blockt20240519_a2_camp_block_outlines_2_style.js"></script><script src="styles/Campt20230412_a1_camp_outlines_3_style.js"></script><script src="styles/FacilityInfo_4_style.js"></script>
+            <script src="./layers/layers.js" type="text/javascript"></script> 
+            <script src="./resources/Autolinker.min.js"></script>
+            <script src="./resources/qgis2web.js"></script> 
+    <script>
+   <script>
 
-            var content = document.getElementById("popup-content");
-
-            content.innerHTML =
-            "<b>" + name + "</b><br>" +
-            "Distance: " + d + "<br><br>" +
-            "<button style='background:#4F81BD;color:white;border:none;padding:6px 10px;border-radius:4px;' onclick='goToLC()'>Go to this LC</button>";
-
-            var popup = document.getElementById("popup");
-            popup.style.display = "block";
-
-            popup.style.left = evt.pixel[0] + "px";
-            popup.style.top = evt.pixel[1] + "px";
-        }
-    });
-});
-</script>
-
-<script>
-function goToLC(){
-    alert("Navigate to this Learning Center");
-}
-</script>
-
-<script>
-document.getElementById('popup-closer').onclick = function() {
-    document.getElementById("popup").style.display = "none";
-    return false;
-};
-<script>
+// ===== POPUP CLICK =====
 map.on('singleclick', function(evt) {
     map.forEachFeatureAtPixel(evt.pixel, function(feature) {
 
@@ -177,23 +136,23 @@ map.on('singleclick', function(evt) {
     });
 });
 
+// ===== BUTTON =====
 function goToLC(){
     alert("Navigate to this Learning Center");
 }
 
+// ===== CLOSE POPUP =====
 document.getElementById('popup-closer').onclick = function() {
     document.getElementById("popup").style.display = "none";
     return false;
 };
 
-// ===== GPS + Top 3 Nearest =====
-
+// ===== GPS + TOP 3 =====
 var geolocation = new ol.Geolocation({
     tracking: true,
     projection: map.getView().getProjection()
 });
 
-// user location
 var userFeature = new ol.Feature();
 var userSource = new ol.source.Vector({ features: [userFeature] });
 
@@ -209,7 +168,6 @@ var userLayer = new ol.layer.Vector({
 });
 map.addLayer(userLayer);
 
-// route layer
 var routeSource = new ol.source.Vector();
 var routeLayer = new ol.layer.Vector({
     source: routeSource,
@@ -219,14 +177,12 @@ var routeLayer = new ol.layer.Vector({
 });
 map.addLayer(routeLayer);
 
-// distance function
 function getDistance(a, b) {
     var dx = a[0] - b[0];
     var dy = a[1] - b[1];
     return Math.sqrt(dx*dx + dy*dy);
 }
 
-// GPS update
 geolocation.on('change:position', function() {
 
     var userCoord = geolocation.getPosition();
@@ -299,5 +255,5 @@ geolocation.on('change:position', function() {
 
 });
 </script>
-    </body>
-</html>
+        </body>
+    </html>
