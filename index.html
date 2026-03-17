@@ -72,7 +72,6 @@ Disclaimer: Red dots on the map represent Learning Centers.
 <div id="popup-content"></div>
 </div>
 
-</div>
         </div>
         <script src="resources/qgis2web_expressions.js"></script>
         <script src="./resources/functions.js"></script>
@@ -84,6 +83,11 @@ Disclaimer: Red dots on the map represent Learning Centers.
         <script src="./layers/layers.js" type="text/javascript"></script> 
         <script src="./resources/Autolinker.min.js"></script>
         <script src="./resources/qgis2web.js"></script> 
+
+        
+<script src="./resources/qgis2web.js"></script> 
+
+<!-- GPS CODE -->
 <script>
 var geolocation = new ol.Geolocation({
     tracking: true,
@@ -108,6 +112,58 @@ geolocation.on('change:position', function() {
     });
 
     map.addLayer(userLayer);
+});
+</script>
+
+<!-- ROUTE CODE -->
+<script>
+function getDistance(coord1, coord2) {
+    var dx = coord1[0] - coord2[0];
+    var dy = coord1[1] - coord2[1];
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+var routeSource = new ol.source.Vector();
+var routeLayer = new ol.layer.Vector({
+    source: routeSource,
+    style: new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: 'red',
+            width: 2
+        })
+    })
+});
+
+map.addLayer(routeLayer);
+
+geolocation.on('change:position', function() {
+
+    var userCoord = geolocation.getPosition();
+
+    var features = json_FacilityInfo_4.features;
+
+    var nearestFeature = null;
+    var minDistance = Infinity;
+
+    features.forEach(function(f) {
+        var coord = ol.proj.fromLonLat(f.geometry.coordinates);
+        var dist = getDistance(userCoord, coord);
+
+        if (dist < minDistance) {
+            minDistance = dist;
+            nearestFeature = coord;
+        }
+    });
+
+    if (nearestFeature) {
+        routeSource.clear();
+
+        var line = new ol.Feature({
+            geometry: new ol.geom.LineString([userCoord, nearestFeature])
+        });
+
+        routeSource.addFeature(line);
+    }
 });
 </script>
     </body>
