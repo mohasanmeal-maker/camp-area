@@ -277,20 +277,7 @@ function(position) {
 });
 },
 
-function(error) {
 
-    // ❗ শুধু permission deny হলে message দেখাবে
-    if (error.code === 1) {
-
-        var warningBox = document.getElementById("gpsWarning");
-        warningBox.innerHTML = "⚠️ Please allow location access";
-        warningBox.style.display = "block";
-
-    }
-
-}
-
-);
 </script>
 
     </body>
