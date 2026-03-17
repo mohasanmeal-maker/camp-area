@@ -145,7 +145,47 @@ document.getElementById('popup-closer').onclick = function() {
     document.getElementById("popup").style.display = "none";
     return false;
 };
-</script>
+<script>
+map.on('singleclick', function(evt) {
+    map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+
+        var name = feature.get('name');
+        var dist = feature.get('distance');
+
+        if(name){
+
+            var d;
+            if(dist > 1000){
+                d = (dist/1000).toFixed(2) + " km";
+            }else{
+                d = Math.round(dist) + " m";
+            }
+
+            var content = document.getElementById("popup-content");
+
+            content.innerHTML =
+            "<b>" + name + "</b><br>" +
+            "Distance: " + d + "<br><br>" +
+            "<button style='background:#4F81BD;color:white;border:none;padding:6px 10px;border-radius:4px;' onclick='goToLC()'>Go to this LC</button>";
+
+            var popup = document.getElementById("popup");
+            popup.style.display = "block";
+
+            popup.style.left = evt.pixel[0] + "px";
+            popup.style.top = evt.pixel[1] + "px";
+        }
+    });
+});
+
+function goToLC(){
+    alert("Navigate to this Learning Center");
+}
+
+document.getElementById('popup-closer').onclick = function() {
+    document.getElementById("popup").style.display = "none";
+    return false;
+};
+
 // ===== GPS + Top 3 Nearest =====
 
 var geolocation = new ol.Geolocation({
@@ -207,23 +247,18 @@ geolocation.on('change:position', function() {
         });
     });
 
-    // sort by distance
     nearestList.sort(function(a,b){ return a.dist - b.dist; });
-
-    // take top 3
     nearestList = nearestList.slice(0,3);
 
     routeSource.clear();
 
     nearestList.forEach(function(n){
 
-        // line
         var line = new ol.Feature({
             geometry: new ol.geom.LineString([userCoord, n.coord])
         });
         routeSource.addFeature(line);
 
-        // point
         var point = new ol.Feature({
             geometry: new ol.geom.Point(n.coord),
             name: n.name,
@@ -241,7 +276,6 @@ geolocation.on('change:position', function() {
         routeSource.addFeature(point);
     });
 
-    // first nearest info
     var first = nearestList[0];
 
     if(first){
@@ -256,7 +290,6 @@ geolocation.on('change:position', function() {
         document.getElementById("infoBox").innerHTML =
         "Nearest LC: " + first.name + "<br>Distance: " + dist;
 
-        // auto zoom FIXED
         map.getView().animate({
             center: first.coord,
             zoom: 17,
