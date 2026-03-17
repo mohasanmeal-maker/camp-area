@@ -80,12 +80,13 @@ ECW MYRP II Funding Project
         <script src="./resources/qgis2web.js"></script>  
 <script>
 navigator.geolocation.getCurrentPosition(function(position) {
+
     var userLon = position.coords.longitude;
     var userLat = position.coords.latitude;
 
     var userLocation = ol.proj.fromLonLat([userLon, userLat]);
 
-    // User point
+    // 🔴 USER LOCATION POINT
     var userFeature = new ol.Feature({
         geometry: new ol.geom.Point(userLocation)
     });
@@ -93,7 +94,7 @@ navigator.geolocation.getCurrentPosition(function(position) {
     userFeature.setStyle(new ol.style.Style({
         image: new ol.style.Circle({
             radius: 6,
-            fill: new ol.style.Fill({ color: 'blue' }),
+            fill: new ol.style.Fill({ color: '#FFFFCC' }),
             stroke: new ol.style.Stroke({ color: 'white', width: 2 })
         })
     }));
@@ -106,61 +107,82 @@ navigator.geolocation.getCurrentPosition(function(position) {
 
     map.addLayer(userLayer);
 
-});
+    // 🎯 FACILITY FEATURES
+    var features = json_FacilityInfo_4.features;
 
-var features = json_FacilityInfo_4.features;
+    var distances = [];
 
-var distances = [];
+    features.forEach(function(f) {
+        var coord = ol.proj.fromLonLat(f.geometry.coordinates);
 
-features.forEach(function(f) {
-    var coord = ol.proj.fromLonLat(f.geometry.coordinates);
+        var dx = coord[0] - userLocation[0];
+        var dy = coord[1] - userLocation[1];
 
-    var dx = coord[0] - userLocation[0];
-    var dy = coord[1] - userLocation[1];
+        var distance = Math.sqrt(dx * dx + dy * dy);
 
-    var distance = Math.sqrt(dx * dx + dy * dy);
-
-    distances.push({
-        feature: f,
-        distance: distance,
-        coord: coord
+        distances.push({
+            feature: f,
+            distance: distance,
+            coord: coord
+        });
     });
-});
 
-// sort by distance
-distances.sort(function(a, b) {
-    return a.distance - b.distance;
-});
+    // sort nearest
+    distances.sort(function(a, b) {
+        return a.distance - b.distance;
+    });
 
-// nearest 3
-var nearestThree = distances.slice(0, 3);
+    var nearestThree = distances.slice(0, 3);
 
-
+    // 🔵 DRAW LINES + OPTIONAL MARKER
     nearestThree.forEach(function(item) {
 
-    var line = new ol.Feature({
-        geometry: new ol.geom.LineString([
-            userLocation,
-            item.coord
-        ])
+        // Line
+        var line = new ol.Feature({
+            geometry: new ol.geom.LineString([
+                userLocation,
+                item.coord
+            ])
+        });
+
+        line.setStyle(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: '#F79646',
+                width: 2
+            })
+        }));
+
+        var lineLayer = new ol.layer.Vector({
+            source: new ol.source.Vector({
+                features: [line]
+            })
+        });
+
+        map.addLayer(lineLayer);
+
+        // 🟢 Highlight nearest centers
+        var point = new ol.Feature({
+            geometry: new ol.geom.Point(item.coord)
+        });
+
+        point.setStyle(new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 5,
+                fill: new ol.style.Fill({ color: 'green' }),
+                stroke: new ol.style.Stroke({ color: 'white', width: 1 })
+            })
+        }));
+
+        var pointLayer = new ol.layer.Vector({
+            source: new ol.source.Vector({
+                features: [point]
+            })
+        });
+
+        map.addLayer(pointLayer);
     });
 
-    line.setStyle(new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: 'blue',
-            width: 2
-        })
-    }));
-
-    var lineLayer = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            features: [line]
-        })
-    });
-
-    map.addLayer(lineLayer);
 });
-    
 </script>
 
     </body>
