@@ -123,6 +123,23 @@ box-shadow:0 0 4px rgba(0,0,0,0.3);
 
 </div>
 
+<div id="directionArrow" class="glass-box" style="
+position:absolute;
+top:100px;
+right:80px;
+padding:10px;
+z-index:9999;
+text-align:center;
+">
+<div id="arrow" style="
+font-size:28px;
+transform: rotate(0deg);
+transition: transform 0.3s ease;
+">
+➡️
+</div>
+<div style="font-size:9px;">Direction</div>
+</div>
 
             <div id="popup" class="ol-popup">
                 <a href="#" id="popup-closer" class="ol-popup-closer"></a>
@@ -200,6 +217,8 @@ navigator.geolocation.getCurrentPosition(function(position) {
 
     // 🔥 AUTO ZOOM
     var nearestCoord = nearestThree[0].coord;
+    window.nearestLocation = nearestCoord;
+window.userLocationGlobal = userLocation;
 
     var extent = ol.extent.boundingExtent([
         userLocation,
@@ -271,6 +290,18 @@ navigator.geolocation.getCurrentPosition(function(position) {
 
         map.addLayer(pointLayer);
 
+// 👉 Direction Arrow (nearest facility only)
+if (index === 0) {
+
+    var dx = item.coord[0] - userLocation[0];
+    var dy = item.coord[1] - userLocation[1];
+
+    var angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+    document.getElementById("arrow").style.transform =
+        "rotate(" + angle + "deg)";
+}
+        
     });
 
 });
