@@ -103,18 +103,14 @@ function toggleLC(){
         <script src="./resources/Autolinker.min.js"></script>
         <script src="./resources/qgis2web.js"></script> 
 <script>
-// ===== POPUP =====
-function closePopup(){
-    document.getElementById("popup").style.display="none";
-}
-
+<script>
 // ===== GPS =====
 var geolocation = new ol.Geolocation({
     tracking: true,
     projection: map.getView().getProjection()
 });
 
-// USER POINT
+// user point
 var userFeature = new ol.Feature();
 
 var userLayer = new ol.layer.Vector({
@@ -129,10 +125,9 @@ var userLayer = new ol.layer.Vector({
         })
     })
 });
-
 map.addLayer(userLayer);
 
-// ROUTE
+// route layer
 var routeSource = new ol.source.Vector();
 var routeLayer = new ol.layer.Vector({
     source: routeSource,
@@ -140,103 +135,90 @@ var routeLayer = new ol.layer.Vector({
         stroke: new ol.style.Stroke({color: '#4F81BD', width: 2})
     })
 });
-
 map.addLayer(routeLayer);
 
-// DISTANCE
-function getDistance(a,b){
-    var dx=a[0]-b[0];
-    var dy=a[1]-b[1];
-    return Math.sqrt(dx*dx+dy*dy);
+// distance function
+function getDistance(a, b) {
+    var dx = a[0] - b[0];
+    var dy = a[1] - b[1];
+    return Math.sqrt(dx*dx + dy*dy);
 }
 
-// ===== MAIN GPS LOGIC =====
-geolocation.on('change:position', function(){
+// ===== MAIN =====
+geolocation.on('change:position', function() {
 
     var userCoord = geolocation.getPosition();
     userFeature.setGeometry(new ol.geom.Point(userCoord));
 
     var features = json_FacilityInfo_4.features;
-    var list = [];
+    var nearestList = [];
 
     features.forEach(function(f){
         var coord = ol.proj.fromLonLat(f.geometry.coordinates);
         var d = getDistance(userCoord, coord);
 
-        list.push({
+        nearestList.push({
             coord: coord,
             name: f.properties.Name,
             dist: d
         });
     });
 
-    list.sort(function(a,b){return a.dist-b.dist;});
-    list = list.slice(0,3);
+    // sort
+    nearestList.sort(function(a,b){ return a.dist - b.dist; });
+
+    // take top 3
+    nearestList = nearestList.slice(0,3);
 
     routeSource.clear();
 
-    list.forEach(function(n){
+    nearestList.forEach(function(n){
 
+        // line
         var line = new ol.Feature({
             geometry: new ol.geom.LineString([userCoord, n.coord])
         });
         routeSource.addFeature(line);
 
+        // point
         var point = new ol.Feature({
-            geometry: new ol.geom.Point(n.coord),
-            name: n.name,
-            distance: n.dist
+            geometry: new ol.geom.Point(n.coord)
         });
 
         point.setStyle(new ol.style.Style({
             image: new ol.style.Circle({
                 radius: 8,
-                fill: new ol.style.Fill({color:'#4F81BD'}),
-                stroke: new ol.style.Stroke({color:'#fff',width:2})
+                fill: new ol.style.Fill({color: '#4F81BD'}),
+                stroke: new ol.style.Stroke({color: '#ffffff', width: 2})
             })
         }));
 
         routeSource.addFeature(point);
     });
 
-    // SHOW INFO
-    var first=list[0];
+    // nearest info
+    var first = nearestList[0];
+
     if(first){
-        var d = first.dist>1000 ? (first.dist/1000).toFixed(2)+" km" : Math.round(first.dist)+" m";
+        var dist;
+        if(first.dist > 1000){
+            dist = (first.dist/1000).toFixed(2) + " km";
+        }else{
+            dist = Math.round(first.dist) + " m";
+        }
 
-        document.getElementById("infoBox").innerHTML=
-        "Nearest LF: "+first.name+"<br>Distance: "+d;
+        document.getElementById("infoBox").innerHTML =
+        "Nearest LC: " + first.name + "<br>Distance: " + dist;
 
+        // zoom
         map.getView().animate({
-            center:first.coord,
-            zoom:17,
-            duration:1000
+            center: first.coord,
+            zoom: 17,
+            duration: 1000
         });
     }
 
 });
-
-// ===== CLICK POPUP =====
-map.on('singleclick', function(evt){
-    map.forEachFeatureAtPixel(evt.pixel,function(f){
-
-        var name=f.get('name');
-        var dist=f.get('distance');
-
-        if(name){
-            var d=dist>1000?(dist/1000).toFixed(2)+" km":Math.round(dist)+" m;
-
-            document.getElementById("popup-content").innerHTML=
-            "<b>"+name+"</b><br>Distance: "+d;
-
-            var p=document.getElementById("popup");
-            p.style.display="block";
-            p.style.left=evt.pixel[0]+"px";
-            p.style.top=evt.pixel[1]+"px";
-        }
-    });
-});
-
 </script>
     </body>
 </html>	
