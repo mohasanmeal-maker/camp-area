@@ -136,7 +136,7 @@ font-size:28px;
 transform: rotate(0deg);
 transition: transform 0.3s ease;
 ">
-➡️
+⬆️
 </div>
 <div style="font-size:9px;">Direction</div>
 </div>
@@ -299,7 +299,7 @@ if (index === 0) {
     var angle = Math.atan2(dy, dx) * (180 / Math.PI);
 
     document.getElementById("arrow").style.transform =
-        "rotate(" + angle + "deg)";
+        "rotate(" + (angle + 90) + "deg)"
 }
         
     });
