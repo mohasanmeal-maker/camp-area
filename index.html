@@ -237,13 +237,20 @@ navigator.geolocation.getCurrentPosition(function(position) {
                 stroke: new ol.style.Stroke({ color: 'white', width: 2 })
             }),
             text: new ol.style.Text({
-                text: (isNearest ? "Nearest: " : "") 
-                      + facilityName + " (" + Math.round(item.distance) + " m)",
-                offsetY: -15,
-                fill: new ol.style.Fill({ color: '#000' }),
-                stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
-            })
-        }));
+    text: (isNearest ? "Nearest\n" : "") 
+          + facilityName + "\n"
+          + Math.round(item.distance) + " m",
+    offsetY: -18,
+    font: 'bold 11px Arial',
+
+    // 🔴 RED TEXT
+    fill: new ol.style.Fill({ color: '#cc0000' }),
+
+    // ⚪ LIGHTER OUTLINE (less buffer)
+    stroke: new ol.style.Stroke({ color: '#ffffff', width: 1 }),
+
+    // ❌ REMOVE background (if you had any before)
+})
 
         var pointLayer = new ol.layer.Vector({
             source: new ol.source.Vector({
