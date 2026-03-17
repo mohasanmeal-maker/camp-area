@@ -78,6 +78,8 @@ ECW MYRP II Funding Project
         <script src="./layers/layers.js" type="text/javascript"></script> 
         <script src="./resources/Autolinker.min.js"></script>
         <script src="./resources/qgis2web.js"></script>  
+
+// Changes     
 <script>
 navigator.geolocation.getCurrentPosition(function(position) {
 
@@ -86,16 +88,16 @@ navigator.geolocation.getCurrentPosition(function(position) {
 
     var userLocation = ol.proj.fromLonLat([userLon, userLat]);
 
-    // 🔴 USER LOCATION POINT
+    // 🟡 USER LOCATION
     var userFeature = new ol.Feature({
         geometry: new ol.geom.Point(userLocation)
     });
 
     userFeature.setStyle(new ol.style.Style({
         image: new ol.style.Circle({
-            radius: 6,
+            radius: 8,
             fill: new ol.style.Fill({ color: '#FFFFCC' }),
-            stroke: new ol.style.Stroke({ color: 'white', width: 2 })
+            stroke: new ol.style.Stroke({ color: '#333', width: 2 })
         })
     }));
 
@@ -107,12 +109,13 @@ navigator.geolocation.getCurrentPosition(function(position) {
 
     map.addLayer(userLayer);
 
-    // 🎯 FACILITY FEATURES
+    // 🎯 FACILITY DATA
     var features = json_FacilityInfo_4.features;
 
     var distances = [];
 
     features.forEach(function(f) {
+
         var coord = ol.proj.fromLonLat(f.geometry.coordinates);
 
         var dx = coord[0] - userLocation[0];
@@ -127,17 +130,16 @@ navigator.geolocation.getCurrentPosition(function(position) {
         });
     });
 
-    // sort nearest
+    // nearest sort
     distances.sort(function(a, b) {
         return a.distance - b.distance;
     });
 
     var nearestThree = distances.slice(0, 3);
 
-    // 🔵 DRAW LINES + OPTIONAL MARKER
-    nearestThree.forEach(function(item) {
+    nearestThree.forEach(function(item, index) {
 
-        // Line
+        // 🟠 LINE
         var line = new ol.Feature({
             geometry: new ol.geom.LineString([
                 userLocation,
@@ -148,7 +150,7 @@ navigator.geolocation.getCurrentPosition(function(position) {
         line.setStyle(new ol.style.Style({
             stroke: new ol.style.Stroke({
                 color: '#F79646',
-                width: 2
+                width: 3
             })
         }));
 
@@ -160,16 +162,22 @@ navigator.geolocation.getCurrentPosition(function(position) {
 
         map.addLayer(lineLayer);
 
-        // 🟢 Highlight nearest centers
+        // 🟢 CENTER POINT
         var point = new ol.Feature({
             geometry: new ol.geom.Point(item.coord)
         });
 
         point.setStyle(new ol.style.Style({
             image: new ol.style.Circle({
-                radius: 5,
+                radius: 6,
                 fill: new ol.style.Fill({ color: 'green' }),
                 stroke: new ol.style.Stroke({ color: 'white', width: 1 })
+            }),
+            text: new ol.style.Text({
+                text: Math.round(item.distance) + " m",
+                offsetY: -12,
+                fill: new ol.style.Fill({ color: '#000' }),
+                stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
             })
         }));
 
@@ -180,6 +188,7 @@ navigator.geolocation.getCurrentPosition(function(position) {
         });
 
         map.addLayer(pointLayer);
+
     });
 
 });
