@@ -67,6 +67,10 @@ Disclaimer: Red dots on the map represent Learning Centers.
 <img src="FIVDB.jpg" style="height:50px;">
 </div>
 
+<div id="infoBox" style="position:absolute; bottom:80px; right:01px; background:white; padding:6px 10px; font-size:10px; z-index:9999; border-radius:5px;">
+Nearest LF info
+</div>
+
 <div id="popup" class="ol-popup">
 <a href="#" id="popup-closer" class="ol-popup-closer"></a>
 <div id="popup-content"></div>
@@ -84,19 +88,15 @@ Disclaimer: Red dots on the map represent Learning Centers.
         <script src="./resources/Autolinker.min.js"></script>
         <script src="./resources/qgis2web.js"></script> 
 <script>
-// GPS setup (clean version)
+// GPS + nearest + distance
+
 var geolocation = new ol.Geolocation({
     tracking: true,
     projection: map.getView().getProjection()
 });
 
-// user point
 var userFeature = new ol.Feature();
-
-// source + layer
-var userSource = new ol.source.Vector({
-    features: [userFeature]
-});
+var userSource = new ol.source.Vector({ features: [userFeature] });
 
 var userLayer = new ol.layer.Vector({
     source: userSource,
@@ -108,63 +108,56 @@ var userLayer = new ol.layer.Vector({
         })
     })
 });
-
 map.addLayer(userLayer);
 
-// route layer
 var routeSource = new ol.source.Vector();
 var routeLayer = new ol.layer.Vector({
     source: routeSource,
     style: new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: 'red',
-            width: 2
-        })
+        stroke: new ol.style.Stroke({color: 'red', width: 2})
     })
 });
-
 map.addLayer(routeLayer);
 
-// distance function
-function getDistance(coord1, coord2) {
-    var dx = coord1[0] - coord2[0];
-    var dy = coord1[1] - coord2[1];
-    return Math.sqrt(dx * dx + dy * dy);
+// distance function (meter approx)
+function getDistance(a, b) {
+    var dx = a[0] - b[0];
+    var dy = a[1] - b[1];
+    return Math.sqrt(dx*dx + dy*dy);
 }
 
-// update position
 geolocation.on('change:position', function() {
 
     var userCoord = geolocation.getPosition();
-
-    // update blue dot
     userFeature.setGeometry(new ol.geom.Point(userCoord));
 
-    // find nearest feature
     var features = json_FacilityInfo_4.features;
 
-    var nearestFeature = null;
-    var minDistance = Infinity;
+    var nearest = null;
+    var minDist = Infinity;
 
-    features.forEach(function(f) {
+    features.forEach(function(f){
         var coord = ol.proj.fromLonLat(f.geometry.coordinates);
-        var dist = getDistance(userCoord, coord);
+        var d = getDistance(userCoord, coord);
 
-        if (dist < minDistance) {
-            minDistance = dist;
-            nearestFeature = coord;
+        if(d < minDist){
+            minDist = d;
+            nearest = {coord: coord, name: f.properties.Name};
         }
     });
 
-    // draw route
-    if (nearestFeature) {
+    if(nearest){
         routeSource.clear();
 
         var line = new ol.Feature({
-            geometry: new ol.geom.LineString([userCoord, nearestFeature])
+            geometry: new ol.geom.LineString([userCoord, nearest.coord])
         });
-
         routeSource.addFeature(line);
+
+        // distance show
+        var dist = Math.round(minDist);
+        document.getElementById("infoBox").innerHTML =
+        "Nearest LC: " + nearest.name + "<br>Distance: " + dist + " m";
     }
 });
 </script>
