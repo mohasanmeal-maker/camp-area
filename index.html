@@ -123,36 +123,6 @@ box-shadow:0 0 4px rgba(0,0,0,0.3);
 
 </div>
 
-<div id="compassBox" class="glass-box" style="
-position:absolute;
-bottom:20px;
-right:01px;
-padding:40px;
-z-index:9999;
-text-align:center;
-">
-    <div id="compass" style="
-    font-size:22px;
-    transform: rotate(0deg);
-    transition: transform 0.3s ease;
-    ">
-    🧭
-    </div>
-    <div style="font-size:9px;">N</div>
-</div>
-
-<button onclick="requestCompassPermission()" style="
-position:absolute;
-bottom:20px;
-right:80px;
-z-index:9999;
-padding:5px 20px;
-font-size:10px;
-border-radius:5px;
-">
-Enable Compass
-</button>
-
 
             <div id="popup" class="ol-popup">
                 <a href="#" id="popup-closer" class="ol-popup-closer"></a>
@@ -273,7 +243,6 @@ navigator.geolocation.getCurrentPosition(function(position) {
         });
 
         var isNearest = (index === 0);
-        var timeMin = Math.round(item.distance / 80);    
 
         // ⚠️ FIELD NAME CHECK (change if needed)
         var facilityName = item.feature.properties.Name || "Facility";
@@ -287,10 +256,8 @@ navigator.geolocation.getCurrentPosition(function(position) {
                 stroke: new ol.style.Stroke({ color: 'white', width: 2 })
             }),
         text: new ol.style.Text({
-                text: (isNearest ? "Nearest\n" : "") 
-      + facilityName + "\n"
-      + Math.round(item.distance) + " m (" 
-      + Math.round(item.distance / 80) + " min)",
+                text: (isNearest ? "Nearest: " : "") 
+                      + facilityName + " (" + Math.round(item.distance) + " m)",
                 offsetY: -15,
                 fill: new ol.style.Fill({ color: '#cc0000' }),
                 stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
@@ -307,61 +274,6 @@ navigator.geolocation.getCurrentPosition(function(position) {
     });
 
 });
-
-<script>
-
-function requestCompassPermission() {
-
-    // iPhone
-    if (typeof DeviceOrientationEvent !== "undefined" &&
-        typeof DeviceOrientationEvent.requestPermission === "function") {
-
-        DeviceOrientationEvent.requestPermission()
-            .then(function(response) {
-
-                if (response === "granted") {
-                    startCompass();
-                } else {
-                    alert("Compass permission denied");
-                }
-
-            })
-            .catch(function(e) {
-                alert("Error: " + e);
-            });
-
-    } else {
-        // Android direct
-        startCompass();
-    }
-}
-
-function startCompass() {
-
-    window.addEventListener("deviceorientationabsolute", handler, true);
-    window.addEventListener("deviceorientation", handler, true);
-
-    function handler(event) {
-
-        var heading;
-
-        if (event.webkitCompassHeading !== undefined) {
-            heading = event.webkitCompassHeading; // iOS
-        } else if (event.absolute === true || event.absolute === undefined) {
-            heading = event.alpha; // Android
-        }
-
-        if (heading !== null && heading !== undefined) {
-
-            var compass = document.getElementById("compass");
-
-            if (compass) {
-                compass.style.transform = "rotate(" + (-heading) + "deg)";
-            }
-        }
-    }
-}
-
 </script>
 
     </body>
