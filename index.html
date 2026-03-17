@@ -59,10 +59,6 @@ ECW MYRP II Funding Project
 Map prepared by: Mohasan Uddin Tutul | MEAL Team | Friends In Village Development Bangladesh (FIVDB)
 </div>
 
-<div style="position:absolute; bottom:35px; left:01px; background:#ffffff; color:#000000; padding:6px 10px; font-size:10px; border-radius:5px; z-index:9999; box-shadow:0 0 4px rgba(0,0,0,0.3); max-width:260px;">
-Disclaimer: Red dots on the map represent Learning Centers.
-</div>
-
 <div style="position:absolute; top:01px; right:01px; z-index:9999;">
 <img src="FIVDB.jpg" style="height:50px;">
 </div>
@@ -152,53 +148,70 @@ geolocation.on('change:position', function() {
     var features = json_FacilityInfo_4.features;
 
     var nearest = null;
-    var minDist = Infinity;
+    var minDist = Infinity;var nearestList = [];
 
-    features.forEach(function(f){
-        var coord = ol.proj.fromLonLat(f.geometry.coordinates);
-        var d = getDistance(userCoord, coord);
+features.forEach(function(f){
+    var coord = ol.proj.fromLonLat(f.geometry.coordinates);
+    var d = getDistance(userCoord, coord);
 
-        if(d < minDist){
-            minDist = d;
-            nearest = {coord: coord, name: f.properties.Name};
-        }
+    nearestList.push({
+        coord: coord,
+        name: f.properties.Name,
+        dist: d
     });
-
-    if(nearest){
-        routeSource.clear();
-
-        var line = new ol.Feature({
-            geometry: new ol.geom.LineString([userCoord, nearest.coord])
-        });
-        routeSource.addFeature(line);
-// highlight point
-var point = new ol.Feature({
-    geometry: new ol.geom.Point(nearest.coord)
 });
 
-point.setStyle(new ol.style.Style({
-    image: new ol.style.Circle({
-        radius: 8,
-        fill: new ol.style.Fill({
-            color: '#4F81BD'
-        }),
-        stroke: new ol.style.Stroke({
-            color: '#ffffff',
-            width: 2
-        })
-    })
-}));
+// sort by distance
+nearestList.sort(function(a, b){
+    return a.dist - b.dist;
+});
 
-routeSource.addFeature(point);
-        // distance show
-        var dist;
-if(minDist > 1000){
-    dist = (minDist/1000).toFixed(2) + " km";
+// take top 3
+nearestList = nearestList.slice(0,3);
+
+routeSource.clear();
+
+nearestList.forEach(function(n){
+
+    var line = new ol.Feature({
+        geometry: new ol.geom.LineString([userCoord, n.coord])
+    });
+    routeSource.addFeature(line);
+
+    var point = new ol.Feature({
+        geometry: new ol.geom.Point(n.coord),
+        name: n.name,
+        distance: n.dist
+    });
+
+    point.setStyle(new ol.style.Style({
+        image: new ol.style.Circle({
+            radius: 8,
+            fill: new ol.style.Fill({ color: '#4F81BD' }),
+            stroke: new ol.style.Stroke({ color: '#ffffff', width: 2 })
+        })
+    }));
+
+    routeSource.addFeature(point);
+});
+
+// first nearest info
+var first = nearestList[0];
+
+var dist;
+if(first.dist > 1000){
+    dist = (first.dist/1000).toFixed(2) + " km";
 }else{
-    dist = Math.round(minDist) + " m";
+    dist = Math.round(first.dist) + " m";
 }
-        document.getElementById("infoBox").innerHTML =
-        "Nearest LC: " + nearest.name + "<br>Distance: " + dist + " m";
+
+document.getElementById("infoBox").innerHTML =
+"Nearest LC: " + first.name + "<br>Distance: " + dist;
+ // 📍 auto zoom
+    map.getView().animate({
+        center: nearest.coord,
+        zoom: 18,
+        duration: 1000
     }
 });
 </script>
