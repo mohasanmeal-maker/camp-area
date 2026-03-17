@@ -125,9 +125,9 @@ box-shadow:0 0 4px rgba(0,0,0,0.3);
 
 <div id="compassBox" class="glass-box" style="
 position:absolute;
-top:10px;
-right:80px;
-padding:8px;
+bottom:20px;
+right:01px;
+padding:40px;
 z-index:9999;
 text-align:center;
 ">
@@ -310,10 +310,9 @@ navigator.geolocation.getCurrentPosition(function(position) {
 
 <script>
 
-// 👉 Button চাপলে এইটা run হবে
 function requestCompassPermission() {
 
-    // iPhone / iOS এর জন্য
+    // iPhone
     if (typeof DeviceOrientationEvent !== "undefined" &&
         typeof DeviceOrientationEvent.requestPermission === "function") {
 
@@ -323,41 +322,44 @@ function requestCompassPermission() {
                 if (response === "granted") {
                     startCompass();
                 } else {
-                    alert("Permission denied");
+                    alert("Compass permission denied");
                 }
 
             })
-            .catch(function(err) {
-                console.log(err);
+            .catch(function(e) {
+                alert("Error: " + e);
             });
 
     } else {
-        // Android হলে direct start
+        // Android direct
         startCompass();
     }
 }
 
-// 👉 Compass আসল function
 function startCompass() {
 
-    window.addEventListener("deviceorientation", function(event) {
+    window.addEventListener("deviceorientationabsolute", handler, true);
+    window.addEventListener("deviceorientation", handler, true);
 
-        var heading = event.alpha;
+    function handler(event) {
 
-        // iPhone special fix
-        if (typeof event.webkitCompassHeading !== "undefined") {
-            heading = event.webkitCompassHeading;
+        var heading;
+
+        if (event.webkitCompassHeading !== undefined) {
+            heading = event.webkitCompassHeading; // iOS
+        } else if (event.absolute === true || event.absolute === undefined) {
+            heading = event.alpha; // Android
         }
 
-        if (heading !== null) {
+        if (heading !== null && heading !== undefined) {
 
             var compass = document.getElementById("compass");
 
-            // rotate compass
-            compass.style.transform = "rotate(" + (-heading) + "deg)";
+            if (compass) {
+                compass.style.transform = "rotate(" + (-heading) + "deg)";
+            }
         }
-
-    });
+    }
 }
 
 </script>
