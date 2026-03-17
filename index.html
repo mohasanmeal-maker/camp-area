@@ -83,134 +83,102 @@ ECW MYRP II Funding Project
 <script>
 navigator.geolocation.getCurrentPosition(function(position) {
 
-    var userLon = position.coords.longitude;
-    var userLat = position.coords.latitude;
-
-    var userLocation = ol.proj.fromLonLat([userLon, userLat]);
+    var userLocation = ol.proj.fromLonLat([
+        position.coords.longitude,
+        position.coords.latitude
+    ]);
 
     // 🟡 USER LOCATION
-    var userFeature = new ol.Feature({
-        geometry: new ol.geom.Point(userLocation)
-    });
-
-    userFeature.setStyle(new ol.style.Style({
-        image: new ol.style.Circle({
-            radius: 8,
-            fill: new ol.style.Fill({ color: '#FFFFCC' }),
-            stroke: new ol.style.Stroke({ color: '#333', width: 2 })
-        })
-    }));
-
     var userLayer = new ol.layer.Vector({
         source: new ol.source.Vector({
-            features: [userFeature]
+            features: [new ol.Feature({
+                geometry: new ol.geom.Point(userLocation)
+            })]
+        }),
+        style: new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 8,
+                fill: new ol.style.Fill({ color: '#FFFFCC' }),
+                stroke: new ol.style.Stroke({ color: '#333', width: 2 })
+            })
         })
     });
 
     map.addLayer(userLayer);
 
     // 🎯 FACILITY DATA
+    var wgs84Sphere = new ol.Sphere(6378137);
     var features = json_FacilityInfo_4.features;
 
-    var distances = [];
-
-    features.forEach(function(f) {
+    var nearest = features.map(function(f) {
 
         var coord = ol.proj.fromLonLat(f.geometry.coordinates);
 
-        var dx = coord[0] - userLocation[0];
-        var dy = coord[1] - userLocation[1];
+        var d = wgs84Sphere.haversineDistance(
+            ol.proj.toLonLat(userLocation),
+            ol.proj.toLonLat(coord)
+        );
 
-        var distance = Math.sqrt(dx * dx + dy * dy);
+        return {
+            coord: coord,
+            distance: d,
+            name: f.properties["New Facility ID"] || "Facility"
+        };
 
-        distances.push({
-            feature: f,
-            distance: distance,
-            coord: coord
-        });
-    });
-
-    // sort nearest
-    distances.sort(function(a, b) {
-        return a.distance - b.distance;
-    });
-
-    var nearestThree = distances.slice(0, 3);
+    }).sort((a,b) => a.distance - b.distance).slice(0,3);
 
     // 🔥 AUTO ZOOM
-    var nearestCoord = nearestThree[0].coord;
-
-    var extent = ol.extent.boundingExtent([
-        userLocation,
-        nearestCoord
-    ]);
-
-    map.getView().fit(extent, {
-        padding: [100, 100, 100, 100],
-        duration: 1000
-    });
+    map.getView().fit(
+        ol.extent.boundingExtent([userLocation, nearest[0].coord]),
+        { padding:[100,100,100,100], duration:1000 }
+    );
 
     // DRAW
-    nearestThree.forEach(function(item, index) {
+    nearest.forEach(function(item, i) {
+
+        var isNearest = i === 0;
 
         // 🟠 LINE
-        var line = new ol.Feature({
-            geometry: new ol.geom.LineString([
-                userLocation,
-                item.coord
-            ])
-        });
-
-        line.setStyle(new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: '#F79646',
-                width: 3
+        map.addLayer(new ol.layer.Vector({
+            source: new ol.source.Vector({
+                features: [new ol.Feature({
+                    geometry: new ol.geom.LineString([userLocation, item.coord])
+                })]
+            }),
+            style: new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: '#F79646',
+                    width: 3
+                })
             })
         }));
 
-        var lineLayer = new ol.layer.Vector({
-            source: new ol.source.Vector({
-                features: [line]
-            })
-        });
-
-        map.addLayer(lineLayer);
-
         // 🔵 / 🔴 POINT
-        var point = new ol.Feature({
-            geometry: new ol.geom.Point(item.coord)
-        });
-
-        var isNearest = (index === 0);
-
-        // ⚠️ FIELD NAME CHECK (change if needed)
-        var facilityName = item.feature.properties["New Facility ID"] || "Facility";
-
-        point.setStyle(new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: isNearest ? 9 : 6,
-                fill: new ol.style.Fill({ 
-                    color: isNearest ? '#FF3333' : '#66CCFF' 
-                }),
-                stroke: new ol.style.Stroke({ color: 'white', width: 2 })
-            }),
-            text: new ol.style.Text({
-    text: (isNearest ? "Nearest: " : "") 
-          + facilityName + " - " + Math.round(item.distance) + " m",
-    font: '12px Calibri,sans-serif',
-    offsetY: -18,
-    overflow: true,
-    fill: new ol.style.Fill({ color: '#000' }),
-    stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
-})
-
-        var pointLayer = new ol.layer.Vector({
+        map.addLayer(new ol.layer.Vector({
             source: new ol.source.Vector({
-                features: [point]
+                features: [new ol.Feature({
+                    geometry: new ol.geom.Point(item.coord)
+                })]
+            }),
+            style: new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: isNearest ? 9 : 6,
+                    fill: new ol.style.Fill({
+                        color: isNearest ? '#FF3333' : '#66CCFF'
+                    }),
+                    stroke: new ol.style.Stroke({ color: 'white', width: 2 })
+                }),
+                text: new ol.style.Text({
+                    text: (isNearest ? "Nearest: " : "") +
+                          item.name + " - " + Math.round(item.distance) + " m",
+                    font: '12px Calibri,sans-serif',
+                    offsetY: -18,
+                    overflow: true,
+                    fill: new ol.style.Fill({ color: '#000' }),
+                    stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
+                })
             })
-        });
-
-        map.addLayer(pointLayer);
+        }));
 
     });
 
