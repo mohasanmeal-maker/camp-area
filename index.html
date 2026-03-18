@@ -192,19 +192,44 @@ Checking GPS...
 
 // Changes     
 <script>
-navigator.geolocation.getCurrentPosition(
+
+navigator.geolocation.watchPosition(
 
 function(position) {
 
-    document.getElementById("gpsStatus").innerHTML = "GPS is ON ✅";
+    document.getElementById("gpsStatus").innerHTML = "Updating location...";
 
     var userLon = position.coords.longitude;
     var userLat = position.coords.latitude;
 
     var userLocation = ol.proj.fromLonLat([userLon, userLat]);
 
-    // 👉 আপনার আগের পুরো code এখানেই রাখবেন
-    // (userFeature, distance, line, map.addLayer etc সব)
+    // 👉 IMPORTANT:
+    // আগের user point remove করতে হবে (না হলে অনেক dot জমবে)
+
+    if (window.userLayer) {
+        map.removeLayer(window.userLayer);
+    }
+
+    var userFeature = new ol.Feature({
+        geometry: new ol.geom.Point(userLocation)
+    });
+
+    userFeature.setStyle(new ol.style.Style({
+        image: new ol.style.Circle({
+            radius: 8,
+            fill: new ol.style.Fill({ color: '#FFFFCC' }),
+            stroke: new ol.style.Stroke({ color: '#333', width: 2 })
+        })
+    }));
+
+    window.userLayer = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            features: [userFeature]
+        })
+    });
+
+    map.addLayer(window.userLayer);
 
 },
 
@@ -212,9 +237,16 @@ function(error) {
 
     document.getElementById("gpsStatus").innerHTML = "GPS is OFF ❌";
 
+},
+
+{
+    enableHighAccuracy: true,
+    maximumAge: 5000,
+    timeout: 7000
 }
 
 );
+
 </script>
 
     // 🟡 USER LOCATION
