@@ -537,10 +537,13 @@ if ('serviceWorker' in navigator) {
 
 <script>
 function loadMapScript() {
-    var script = document.createElement("script");
-    script.src = "./resources/qgis2web.js";
-    document.body.appendChild(script);
+    if (!window.mapLoaded) {
+        var script = document.createElement("script");
+        script.src = "./resources/qgis2web.js";
+        document.body.appendChild(script);
+        window.mapLoaded = true;
+    }
 }
-</script>
+ </script>
     </body>
 </html>
