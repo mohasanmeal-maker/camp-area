@@ -394,17 +394,13 @@ function(error) {
 
 );
 
-
+</script>
 
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js')
-    .then(function(reg) {
-      console.log("Service Worker Registered ✅", reg);
-    })
-    .catch(function(err) {
-      console.log("Service Worker Failed ❌", err);
-    });
+    .then(() => console.log("Offline ready ✅"))
+    .catch(() => console.log("Offline failed ❌"));
 }
 </script>
     </body>
