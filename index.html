@@ -137,6 +137,10 @@ The project is currently implemented in Camps 01 East, 03, and 09, with a total 
 
 <script>
 
+    var wrongAttempts = 0;
+var maxAttempts = 3;
+var lockTime = 30;
+    
 // 🔐 Password Check
 function checkCode(){
     var input = document.getElementById("codeInput");
@@ -151,33 +155,83 @@ loadMapScript(); // 🔥 map এখন load হবে
 
 startMap(); // GPS run
     } else {
-document.getElementById("errorMsg").innerHTML =
-"<div style='text-align:center; font-family:Arial;'>"
+function checkCode(){
+    var input = document.getElementById("codeInput");
+    var code = input.value;
 
-+ "<div style='color:red; font-size:20px; font-weight:bold;'>"
-+ "⚠️ ❌ ACCESS DENIED! ❌"
-+ "</div>"
+    if(code === "FIVDB2023"){
 
-+ "<div style='font-size:16px; margin-bottom:10px;'>"
-+ "Incorrect Access Code"
-+ "</div>"
+        document.getElementById("lockScreen").style.display = "none";
+        document.getElementById("map").style.display = "block";
 
-+ "<div style='font-size:18px; font-weight:bold; text-transform:uppercase;'>"
-+ "For access, please contact"
-+ "</div>"
+        loadMapScript();
+        startMap();
 
-+ "<div style='font-size:22px; margin:5px 0;'>⬇️</div>"
+    } else {
 
-+ "<i class='fas fa-user'></i> <b style='font-size:16px;'>Mohasan Uddin Tutul</b><br>"
+        wrongAttempts++;
 
-+ "<i class='fas fa-phone'></i> Phone: 01855-677776<br>"
-+ "<i class='fab fa-whatsapp'></i> WhatsApp: 01855-677776<br>"
+        if(wrongAttempts >= maxAttempts){
 
-+ "<i class='fas fa-envelope'></i> Email: mohasan.uddin@fivdb.org"
+            var countdown = lockTime;
 
-+ "</div>";
+            document.getElementById("codeInput").disabled = true;
 
-input.value = "";
+            var interval = setInterval(function(){
+
+                document.getElementById("errorMsg").innerHTML =
+                "<div style='text-align:center; color:red; font-weight:bold;'>"
+                + "⛔ Too many wrong attempts!<br>"
+                + "Try again in " + countdown + " seconds"
+                + "</div>";
+
+                countdown--;
+
+                if(countdown < 0){
+                    clearInterval(interval);
+
+                    wrongAttempts = 0;
+                    document.getElementById("codeInput").disabled = false;
+
+                    document.getElementById("errorMsg").innerHTML =
+                    "<div style='text-align:center; color:green;'>"
+                    + "✅ You can try again now"
+                    + "</div>";
+                }
+
+            }, 1000);
+
+        } else {
+
+            var remaining = maxAttempts - wrongAttempts;
+
+            document.getElementById("errorMsg").innerHTML =
+            "<div style='text-align:center; font-family:Arial; background:#fff; padding:12px; border-radius:10px; box-shadow:0 3px 8px rgba(0,0,0,0.2);'>"
+
+            + "<div style='color:red; font-size:18px; font-weight:bold;'>"
+            + "⚠️ ❌ ACCESS DENIED! ❌"
+            + "</div>"
+
+            + "<div style='font-size:14px;'>"
+            + "Incorrect Code (" + remaining + " attempts left)"
+            + "</div>"
+
+            + "<div style='font-size:15px; font-weight:bold; text-transform:uppercase; margin-top:8px;'>"
+            + "For access, please contact"
+            + "</div>"
+
+            + "<div style='font-size:18px; margin:4px 0;'>⬇️</div>"
+
+            + "<i class='fas fa-user'></i> <b>Mohasan Uddin Tutul</b><br>"
+            + "<i class='fas fa-phone'></i> Phone: 01855-677776<br>"
+            + "<i class='fab fa-whatsapp'></i> WhatsApp: 01855-677776<br>"
+            + "<i class='fas fa-envelope'></i> Email: mohasan.uddin@fivdb.org<br>"
+            + "<i class='fas fa-map-marker-alt'></i> Address: FIVDB Office, Cox’s Bazar"
+
+            + "</div>";
+
+            input.value = "";
+        }
     }
 }
 
