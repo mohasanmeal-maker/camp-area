@@ -190,13 +190,19 @@ Checking GPS...
         <script src="./resources/Autolinker.min.js"></script>
         <script src="./resources/qgis2web.js"></script>  
 
-    <script>
-// Changes 
-// Store dynamic layers
+<script>
+
+// Store layers
 window.allLayers = [];
 
 // Store last good location
 var lastLocation = null;
+
+// Detect device
+var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+
+// Set accuracy limit
+var ACCURACY_LIMIT = isMobile ? 40 : 500;
 
 // Distance function
 function getDistance(a, b) {
@@ -209,12 +215,13 @@ navigator.geolocation.watchPosition(
 
 function(position) {
 
-    document.getElementById("gpsStatus").innerHTML = "Updating location...";
+    document.getElementById("gpsStatus").innerHTML =
+        isMobile ? "📱 Mobile GPS running..." : "💻 Laptop location running...";
 
     var accuracy = position.coords.accuracy;
 
-    // ❌ Ignore bad accuracy
-    if (accuracy > 50) {
+    // ❌ Ignore bad accuracy (smart)
+    if (accuracy > ACCURACY_LIMIT && lastLocation !== null) {
         return;
     }
 
@@ -223,10 +230,13 @@ function(position) {
 
     var newLocation = ol.proj.fromLonLat([userLon, userLat]);
 
-    // ❌ Ignore small jumps (less than 10m)
+    // ❌ Ignore small jumps
     if (lastLocation) {
         var dist = getDistance(lastLocation, newLocation);
-        if (dist < 10) {
+
+        var jumpLimit = isMobile ? 10 : 30;
+
+        if (dist < jumpLimit) {
             return;
         }
     }
@@ -282,7 +292,7 @@ function(position) {
         });
     });
 
-    // 🔽 Sort nearest
+    // Sort nearest
     distances.sort(function(a, b) {
         return a.distance - b.distance;
     });
