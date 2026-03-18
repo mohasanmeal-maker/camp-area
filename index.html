@@ -47,14 +47,13 @@
     </head>
     <body>
 
-<!-- 🔒 LOGIN SCREEN START -->
 <div id="lockScreen" style="
 position:fixed;
 top:0;
 left:0;
 width:100%;
 height:100%;
-background:white;
+background: linear-gradient(to bottom right, #f5f7fa, #e4ecf7);
 display:flex;
 justify-content:center;
 align-items:center;
@@ -62,24 +61,15 @@ z-index:99999;
 flex-direction:column;
 text-align:center;
 padding:20px;
-font-family:Arial;
 ">
+
 <img src="FIVDB.jpg" style="height:60px; margin-bottom:10px;">
-    
 <h2>🔐 Access Required</h2>
 
 <input id="codeInput" type="password" placeholder="Enter access code"
-style="padding:10px; width:220px; border:1px solid #ccc; border-radius:5px;">
+style="padding:10px; width:200px; border:1px solid #ccc; border-radius:5px;">
 
-<button onclick="checkCode()" style="
-margin-top:10px;
-padding:8px 15px;
-background:#007bff;
-color:white;
-border:none;
-border-radius:5px;
-cursor:pointer;
-">
+<button onclick="checkCode()" style="margin-top:10px; padding:8px 15px;">
 Access Map
 </button>
 
@@ -94,14 +84,22 @@ function checkCode(){
     if(code === "FIVDB2025"){
         document.getElementById("lockScreen").style.display = "none";
     } else {
-        document.getElementById("errorMsg").innerHTML =
+              document.getElementById("errorMsg").innerHTML =
 "❌ Incorrect password.<br><br>" +
-"For access, please contact:<br><br>" +
-"<b>Mohasan Uddin Tutul</b><br>" +
-"<b>Phone/Whats app: 01855-677776</b><br>" +
-"<b>Email: mohasan.uddin@fivdb.org</b>";
+
+"<i class='fas fa-user'></i> <b>Mohasan Uddin Tutul</b><br><br>" +
+"<i class='fas fa-phone'></i> Phone: 01855-677776<br>" +
+"<i class='fab fa-whatsapp'></i> WhatsApp: 01855-677776<br><br>" +
+"<i class='fas fa-envelope'></i> Email: mohasan.uddin@fivdb.org";
     }
 }
+// 👉 এইটাই new part (এখানে add করবা)
+document.getElementById("codeInput").addEventListener("keypress", function(e){
+    if(e.key === "Enter"){
+        checkCode();
+    }
+});
+
 </script>
         
         <div id="map">
