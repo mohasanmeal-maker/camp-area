@@ -143,7 +143,8 @@ function checkCode(){
     var code = input.value;
 
     if(code === "FIVDB2025"){
-        document.getElementById("lockScreen").style.display = "none";
+       document.getElementById("lockScreen").style.display = "none";
+startMap(); // 🔥 এইটা add করো
     } else {
         document.getElementById("errorMsg").innerHTML =
         "❌ Incorrect password.<br><br>" +
@@ -329,6 +330,8 @@ Checking GPS...
 
 <script>
 
+function startMap(){
+
 // Store layers
 window.allLayers = [];
 
@@ -357,7 +360,6 @@ function(position) {
 
     var accuracy = position.coords.accuracy;
 
-    // ❌ Ignore bad accuracy (smart)
     if (accuracy > ACCURACY_LIMIT && lastLocation !== null) {
         return;
     }
@@ -367,7 +369,6 @@ function(position) {
 
     var newLocation = ol.proj.fromLonLat([userLon, userLat]);
 
-    // ❌ Ignore small jumps
     if (lastLocation) {
         var dist = getDistance(lastLocation, newLocation);
 
@@ -381,13 +382,11 @@ function(position) {
     lastLocation = newLocation;
     var userLocation = newLocation;
 
-    // 🔴 Remove old layers
     window.allLayers.forEach(function(layer) {
         map.removeLayer(layer);
     });
     window.allLayers = [];
 
-    // 🟡 USER POINT
     var userFeature = new ol.Feature({
         geometry: new ol.geom.Point(userLocation)
     });
@@ -409,7 +408,6 @@ function(position) {
     map.addLayer(userLayer);
     window.allLayers.push(userLayer);
 
-    // 🎯 FACILITY DATA
     var features = json_FacilityInfo_4.features;
     var distances = [];
 
@@ -429,14 +427,12 @@ function(position) {
         });
     });
 
-    // Sort nearest
     distances.sort(function(a, b) {
         return a.distance - b.distance;
     });
 
     var nearestThree = distances.slice(0, 3);
 
-    // 🔥 AUTO ZOOM
     var extent = ol.extent.boundingExtent([
         userLocation,
         nearestThree[0].coord
@@ -447,14 +443,12 @@ function(position) {
         duration: 800
     });
 
-    // 🎯 DRAW
     nearestThree.forEach(function(item, index) {
 
         var isNearest = (index === 0);
         var facilityName = item.feature.properties.Name || "Facility";
         var timeMin = Math.round(item.distance / 80);
 
-        // 🟠 LINE
         var line = new ol.Feature({
             geometry: new ol.geom.LineString([
                 userLocation,
@@ -478,7 +472,6 @@ function(position) {
         map.addLayer(lineLayer);
         window.allLayers.push(lineLayer);
 
-        // 🔵 / 🔴 POINT
         var point = new ol.Feature({
             geometry: new ol.geom.Point(item.coord)
         });
@@ -493,16 +486,6 @@ function(position) {
                     color: 'white',
                     width: 2
                 })
-            }),
-            text: new ol.style.Text({
-                text:
-                    (isNearest ? "Nearest\n" : "") +
-                    facilityName + "\n" +
-                    Math.round(item.distance) + " m (" +
-                    timeMin + " min)",
-                offsetY: -15,
-                fill: new ol.style.Fill({ color: '#cc0000' }),
-                stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
             })
         }));
 
@@ -530,6 +513,8 @@ function(error) {
 }
 
 );
+
+}
 
 </script>
 
