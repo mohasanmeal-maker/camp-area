@@ -60,10 +60,30 @@ justify-content:center;
 align-items:center;
 z-index:99999;
 flex-direction:column;
+text-align:center;
+padding:20px;
+font-family:Arial;
 ">
-<h2>Enter Access Code</h2>
-<input id="codeInput" type="password" placeholder="Enter code" style="padding:8px;">
-<button onclick="checkCode()" style="margin-top:10px;">Enter</button>
+
+<h2>🔐 Access Required</h2>
+
+<input id="codeInput" type="password" placeholder="Enter access code"
+style="padding:10px; width:220px; border:1px solid #ccc; border-radius:5px;">
+
+<button onclick="checkCode()" style="
+margin-top:10px;
+padding:8px 15px;
+background:#007bff;
+color:white;
+border:none;
+border-radius:5px;
+cursor:pointer;
+">
+Access Map
+</button>
+
+<p id="errorMsg" style="color:red; margin-top:15px;"></p>
+
 </div>
 
 <script>
@@ -73,11 +93,15 @@ function checkCode(){
     if(code === "FIVDB2025"){
         document.getElementById("lockScreen").style.display = "none";
     } else {
-        alert("Wrong code ❌");
+        document.getElementById("errorMsg").innerHTML =
+"❌ Incorrect password.<br><br>" +
+"For access, please contact:<br><br>" +
+"<b>Mohasan Uddin Tutul</b><br>" +
+"<b>Phone/Whats app: 01855-677776</b><br>" +
+"<b>Email: mohasan.uddin@fivdb.org</b>";
     }
 }
 </script>
-<!-- 🔒 LOGIN SCREEN END -->
         
         <div id="map">
 <div style="
