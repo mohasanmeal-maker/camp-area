@@ -47,6 +47,7 @@
     </head>
     <body>
 
+<!-- 🔐 LOCK SCREEN -->
 <div id="lockScreen" style="
 position:fixed;
 top:0;
@@ -55,13 +56,16 @@ width:100%;
 height:100%;
 background: linear-gradient(to bottom right, #f5f7fa, #e4ecf7);
 display:flex;
-justify-content:center;
+flex-direction:column;
+justify-content:space-between;
 align-items:center;
 z-index:99999;
-flex-direction:column;
-text-align:center;
 padding:20px;
+box-sizing:border-box;
 ">
+
+<!-- 🔐 TOP SECTION -->
+<div style="text-align:center; margin-top:40px;">
 
 <img src="FIVDB.jpg" style="height:60px; margin-bottom:10px;">
 <h2>🔐 Access Required</h2>
@@ -81,6 +85,8 @@ padding:20px;
     </span>
 </div>
 
+<br>
+
 <button onclick="checkCode()" style="margin-top:12px; padding:8px 18px;">
 Access Map
 </button>
@@ -89,6 +95,26 @@ Access Map
 
 </div>
 
+<!-- 📄 BOTTOM SECTION -->
+<div style="text-align:center; max-width:600px; margin-bottom:20px;">
+
+<p style="font-size:14px; line-height:1.6;">
+<b style="color:#2c3e50;">About FIVDB & Project</b><br>
+
+Friends in Village Development Bangladesh (FIVDB) is a national development organization established in 1979. The organization works to empower disadvantaged women, men, and children through initiatives in education, health, livelihood, financial services, and environmental protection.
+
+As part of its ongoing commitment, FIVDB is implementing the “Education for Rohingya Refugee Children and Host Community Children in Bangladesh” project under the Education Cannot Wait (ECW) Multi-Year Resilience Programme (MYRP II), with technical support from Plan International Bangladesh (PIB) in the Humanitarian Response Program in Cox’s Bazar.
+
+Before December 2025, the project was implemented in Camps 01 East, 01 West, 06, 09, and 26. After December 2025, it is being implemented in Camps 01 East, 03, and 09. Under this project, a total of 60 learning facilities are operational.
+
+This tool helps identify the nearest learning facilities, along with distance and estimated travel time, to support efficient field visits and monitoring.
+</p>
+
+</div>
+
+</div>
+
+<!-- 🔧 SCRIPT -->
 <script>
 
 // 🔐 Check Password
