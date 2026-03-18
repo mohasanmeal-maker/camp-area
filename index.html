@@ -151,12 +151,17 @@ loadMapScript(); // 🔥 map এখন load হবে
 
 startMap(); // GPS run
     } else {
-        document.getElementById("errorMsg").innerHTML =
-        "❌ Incorrect password.<br><br>" +
-        "<i class='fas fa-user'></i> <b>Mohasan Uddin Tutul</b><br><br>" +
-        "<i class='fas fa-phone'></i> Phone: 01855-677776<br>" +
-        "<i class='fab fa-whatsapp'></i> WhatsApp: 01855-677776<br><br>" +
-        "<i class='fas fa-envelope'></i> Email: mohasan.uddin@fivdb.org";
+document.getElementById("errorMsg").innerHTML =
+"❌ ❌ Access Denied! Incorrect Password.<br><br>" +
+
+"For access, please contact:<br><br>" +
+
+"<i class='fas fa-user'></i> <b>Mohasan Uddin Tutul</b><br><br>" +
+
+"<i class='fas fa-phone'></i> Phone: 01855-677776<br>" +
+"<i class='fab fa-whatsapp'></i> WhatsApp: 01855-677776<br><br>" +
+
+"<i class='fas fa-envelope'></i> Email: mohasan.uddin@fivdb.org";
 
         input.value = "";
     }
