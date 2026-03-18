@@ -195,16 +195,44 @@ Checking GPS...
 // Store dynamic layers
 window.allLayers = [];
 
+// Store last good location
+var lastLocation = null;
+
+// Distance function
+function getDistance(a, b) {
+    var dx = a[0] - b[0];
+    var dy = a[1] - b[1];
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
 navigator.geolocation.watchPosition(
 
 function(position) {
 
     document.getElementById("gpsStatus").innerHTML = "Updating location...";
 
+    var accuracy = position.coords.accuracy;
+
+    // ❌ Ignore bad accuracy
+    if (accuracy > 40) {
+        return;
+    }
+
     var userLon = position.coords.longitude;
     var userLat = position.coords.latitude;
 
-    var userLocation = ol.proj.fromLonLat([userLon, userLat]);
+    var newLocation = ol.proj.fromLonLat([userLon, userLat]);
+
+    // ❌ Ignore small jumps (less than 10m)
+    if (lastLocation) {
+        var dist = getDistance(lastLocation, newLocation);
+        if (dist < 10) {
+            return;
+        }
+    }
+
+    lastLocation = newLocation;
+    var userLocation = newLocation;
 
     // 🔴 Remove old layers
     window.allLayers.forEach(function(layer) {
@@ -212,7 +240,7 @@ function(position) {
     });
     window.allLayers = [];
 
-    // 🟡 USER LOCATION POINT
+    // 🟡 USER POINT
     var userFeature = new ol.Feature({
         geometry: new ol.geom.Point(userLocation)
     });
@@ -261,7 +289,7 @@ function(position) {
 
     var nearestThree = distances.slice(0, 3);
 
-    // 🔥 AUTO ZOOM (user + nearest)
+    // 🔥 AUTO ZOOM
     var extent = ol.extent.boundingExtent([
         userLocation,
         nearestThree[0].coord
@@ -272,7 +300,7 @@ function(position) {
         duration: 800
     });
 
-    // 🎯 DRAW RESULT
+    // 🎯 DRAW
     nearestThree.forEach(function(item, index) {
 
         var isNearest = (index === 0);
@@ -303,7 +331,7 @@ function(position) {
         map.addLayer(lineLayer);
         window.allLayers.push(lineLayer);
 
-        // 🔵 / 🔴 FACILITY POINT
+        // 🔵 / 🔴 POINT
         var point = new ol.Feature({
             geometry: new ol.geom.Point(item.coord)
         });
@@ -350,7 +378,7 @@ function(error) {
 
 {
     enableHighAccuracy: true,
-    maximumAge: 5000,
+    maximumAge: 10000,
     timeout: 7000
 }
 
