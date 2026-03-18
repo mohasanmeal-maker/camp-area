@@ -152,18 +152,30 @@ loadMapScript(); // 🔥 map এখন load হবে
 startMap(); // GPS run
     } else {
 document.getElementById("errorMsg").innerHTML =
-"❌ ❌ Access Denied! Incorrect Password.<br><br>" +
+"<div style='text-align:center; font-family:Arial;'>"
 
-"For access, please contact:<br><br>" +
++ "<div style='color:red; font-size:24px; font-weight:bold;'>"
++ "⚠️ ❌ ACCESS DENIED! ❌"
++ "</div>"
 
-"<i class='fas fa-user'></i> <b>Mohasan Uddin Tutul</b><br><br>" +
++ "<div style='font-size:18px; margin-bottom:15px;'>"
++ "Incorrect Access Code"
++ "</div>"
 
-"<i class='fas fa-phone'></i> Phone: 01855-677776<br>" +
-"<i class='fab fa-whatsapp'></i> WhatsApp: 01855-677776<br><br>" +
++ "<div style='font-size:20px; font-weight:bold; text-transform:uppercase;'>"
++ "For access, please contact"
++ "</div>"
 
-"<i class='fas fa-envelope'></i> Email: mohasan.uddin@fivdb.org";
++ "<div style='font-size:26px; margin:10px 0;'>⬇️</div>"
 
-        input.value = "";
++ "<i class='fas fa-user'></i> <b style='font-size:18px;'>Mohasan Uddin Tutul</b><br><br>"
++ "<i class='fas fa-phone'></i> Phone: 01855-677776<br>"
++ "<i class='fab fa-whatsapp'></i> WhatsApp: 01855-677776<br><br>"
++ "<i class='fas fa-envelope'></i> Email: mohasan.uddin@fivdb.org"
+
++ "</div>";
+
+input.value = "";
     }
 }
 
