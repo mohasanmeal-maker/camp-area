@@ -192,6 +192,9 @@ Checking GPS...
 
     <script>
 // Changes 
+// Store dynamic layers
+window.allLayers = [];
+
 navigator.geolocation.watchPosition(
 
 function(position) {
@@ -203,15 +206,13 @@ function(position) {
 
     var userLocation = ol.proj.fromLonLat([userLon, userLat]);
 
-    // 🔴 old user + line + point layers remove (important)
-    if (window.allLayers) {
-        window.allLayers.forEach(function(layer) {
-            map.removeLayer(layer);
-        });
-    }
+    // 🔴 Remove old layers
+    window.allLayers.forEach(function(layer) {
+        map.removeLayer(layer);
+    });
     window.allLayers = [];
 
-    // 🟡 USER LOCATION
+    // 🟡 USER LOCATION POINT
     var userFeature = new ol.Feature({
         geometry: new ol.geom.Point(userLocation)
     });
@@ -253,15 +254,30 @@ function(position) {
         });
     });
 
+    // 🔽 Sort nearest
     distances.sort(function(a, b) {
         return a.distance - b.distance;
     });
 
     var nearestThree = distances.slice(0, 3);
 
+    // 🔥 AUTO ZOOM (user + nearest)
+    var extent = ol.extent.boundingExtent([
+        userLocation,
+        nearestThree[0].coord
+    ]);
+
+    map.getView().fit(extent, {
+        padding: [100, 100, 100, 100],
+        duration: 800
+    });
+
+    // 🎯 DRAW RESULT
     nearestThree.forEach(function(item, index) {
 
         var isNearest = (index === 0);
+        var facilityName = item.feature.properties.Name || "Facility";
+        var timeMin = Math.round(item.distance / 80);
 
         // 🟠 LINE
         var line = new ol.Feature({
@@ -287,25 +303,28 @@ function(position) {
         map.addLayer(lineLayer);
         window.allLayers.push(lineLayer);
 
-        // 🔵 / 🔴 POINT
+        // 🔵 / 🔴 FACILITY POINT
         var point = new ol.Feature({
             geometry: new ol.geom.Point(item.coord)
         });
 
-        var facilityName = item.feature.properties.Name || "Facility";
-
         point.setStyle(new ol.style.Style({
             image: new ol.style.Circle({
                 radius: isNearest ? 9 : 6,
-                fill: new ol.style.Fill({ 
-                    color: isNearest ? '#FF3333' : '#66CCFF' 
+                fill: new ol.style.Fill({
+                    color: isNearest ? '#FF3333' : '#66CCFF'
                 }),
-                stroke: new ol.style.Stroke({ color: 'white', width: 2 })
+                stroke: new ol.style.Stroke({
+                    color: 'white',
+                    width: 2
+                })
             }),
             text: new ol.style.Text({
-                text: facilityName + "\n"
-    + Math.round(item.distance) + " m ("
-    + Math.round(item.distance / 80) + " min)",,
+                text:
+                    (isNearest ? "Nearest\n" : "") +
+                    facilityName + "\n" +
+                    Math.round(item.distance) + " m (" +
+                    timeMin + " min)",
                 offsetY: -15,
                 fill: new ol.style.Fill({ color: '#cc0000' }),
                 stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
@@ -337,135 +356,6 @@ function(error) {
 
 );
 
-<script>
-
-    // 🟡 USER LOCATION
-    var userFeature = new ol.Feature({
-        geometry: new ol.geom.Point(userLocation)
-    });
-
-    userFeature.setStyle(new ol.style.Style({
-        image: new ol.style.Circle({
-            radius: 8,
-            fill: new ol.style.Fill({ color: '#FFFFCC' }),
-            stroke: new ol.style.Stroke({ color: '#333', width: 2 })
-        })
-    }));
-
-    var userLayer = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            features: [userFeature]
-        })
-    });
-
-    map.addLayer(userLayer);
-
-    // 🎯 FACILITY DATA
-    var features = json_FacilityInfo_4.features;
-
-    var distances = [];
-
-    features.forEach(function(f) {
-
-        var coord = ol.proj.fromLonLat(f.geometry.coordinates);
-
-        var dx = coord[0] - userLocation[0];
-        var dy = coord[1] - userLocation[1];
-
-        var distance = Math.sqrt(dx * dx + dy * dy);
-
-        distances.push({
-            feature: f,
-            distance: distance,
-            coord: coord
-        });
-    });
-
-    // sort nearest
-    distances.sort(function(a, b) {
-        return a.distance - b.distance;
-    });
-
-    var nearestThree = distances.slice(0, 3);
-
-    // 🔥 AUTO ZOOM
-    var nearestCoord = nearestThree[0].coord;
-
-    var extent = ol.extent.boundingExtent([
-        userLocation,
-        nearestCoord
-    ]);
-
-    map.getView().fit(extent, {
-        padding: [100, 100, 100, 100],
-        duration: 1000
-    });
-
-    // DRAW
-    nearestThree.forEach(function(item, index) {
-var isNearest = (index === 0);
-var timeMin = Math.round(item.distance / 80);
-
-        // 🟠 LINE
-        var line = new ol.Feature({
-            geometry: new ol.geom.LineString([
-                userLocation,
-                item.coord
-            ])
-        });
-
-        line.setStyle(new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: '#F79646',
-                width: 3
-            })
-        }));
-
-        var lineLayer = new ol.layer.Vector({
-            source: new ol.source.Vector({
-                features: [line]
-            })
-        });
-
-        map.addLayer(lineLayer);
-
-        // 🔵 / 🔴 POINT
-        var point = new ol.Feature({
-            geometry: new ol.geom.Point(item.coord)
-        });
-
-        var isNearest = (index === 0);
-
-        // ⚠️ FIELD NAME CHECK (change if needed)
-        var facilityName = item.feature.properties.Name || "Facility";
-
-        point.setStyle(new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: isNearest ? 9 : 6,
-                fill: new ol.style.Fill({ 
-                    color: isNearest ? '#FF3333' : '#66CCFF' 
-                }),
-                stroke: new ol.style.Stroke({ color: 'white', width: 2 })
-            }),
-        text: new ol.style.Text({
-text: (isNearest ? "Nearest\n" : "") 
-      + facilityName + "\n"
-      + Math.round(item.distance) + " m (" 
-      + Math.round(item.distance / 80) + " min)",
-                offsetY: -15,
-                fill: new ol.style.Fill({ color: '#cc0000' }),
-                stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
-            })
-        }));
-            var pointLayer = new ol.layer.Vector({
-            source: new ol.source.Vector({
-                features: [point]
-            })
-        });
-
-        map.addLayer(pointLayer);
-
-    });
 </script>
 
     </body>
