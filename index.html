@@ -204,13 +204,15 @@ function(position) {
 
     var userLocation = ol.proj.fromLonLat([userLon, userLat]);
 
-    // 👉 IMPORTANT:
-    // আগের user point remove করতে হবে (না হলে অনেক dot জমবে)
-
-    if (window.userLayer) {
-        map.removeLayer(window.userLayer);
+    // 🔴 old user + line + point layers remove (important)
+    if (window.allLayers) {
+        window.allLayers.forEach(function(layer) {
+            map.removeLayer(layer);
+        });
     }
+    window.allLayers = [];
 
+    // 🟡 USER LOCATION
     var userFeature = new ol.Feature({
         geometry: new ol.geom.Point(userLocation)
     });
@@ -223,20 +225,107 @@ function(position) {
         })
     }));
 
-    window.userLayer = new ol.layer.Vector({
+    var userLayer = new ol.layer.Vector({
         source: new ol.source.Vector({
             features: [userFeature]
         })
     });
 
-    map.addLayer(window.userLayer);
+    map.addLayer(userLayer);
+    window.allLayers.push(userLayer);
+
+    // 🎯 FACILITY DATA
+    var features = json_FacilityInfo_4.features;
+    var distances = [];
+
+    features.forEach(function(f) {
+
+        var coord = ol.proj.fromLonLat(f.geometry.coordinates);
+
+        var dx = coord[0] - userLocation[0];
+        var dy = coord[1] - userLocation[1];
+
+        var distance = Math.sqrt(dx * dx + dy * dy);
+
+        distances.push({
+            feature: f,
+            distance: distance,
+            coord: coord
+        });
+    });
+
+    distances.sort(function(a, b) {
+        return a.distance - b.distance;
+    });
+
+    var nearestThree = distances.slice(0, 3);
+
+    nearestThree.forEach(function(item, index) {
+
+        var isNearest = (index === 0);
+
+        // 🟠 LINE
+        var line = new ol.Feature({
+            geometry: new ol.geom.LineString([
+                userLocation,
+                item.coord
+            ])
+        });
+
+        line.setStyle(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: '#F79646',
+                width: 3
+            })
+        }));
+
+        var lineLayer = new ol.layer.Vector({
+            source: new ol.source.Vector({
+                features: [line]
+            })
+        });
+
+        map.addLayer(lineLayer);
+        window.allLayers.push(lineLayer);
+
+        // 🔵 / 🔴 POINT
+        var point = new ol.Feature({
+            geometry: new ol.geom.Point(item.coord)
+        });
+
+        var facilityName = item.feature.properties.Name || "Facility";
+
+        point.setStyle(new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: isNearest ? 9 : 6,
+                fill: new ol.style.Fill({ 
+                    color: isNearest ? '#FF3333' : '#66CCFF' 
+                }),
+                stroke: new ol.style.Stroke({ color: 'white', width: 2 })
+            }),
+            text: new ol.style.Text({
+                text: facilityName + "\n" + Math.round(item.distance) + " m",
+                offsetY: -15,
+                fill: new ol.style.Fill({ color: '#cc0000' }),
+                stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
+            })
+        }));
+
+        var pointLayer = new ol.layer.Vector({
+            source: new ol.source.Vector({
+                features: [point]
+            })
+        });
+
+        map.addLayer(pointLayer);
+        window.allLayers.push(pointLayer);
+
+    });
 
 },
 
 function(error) {
-
     document.getElementById("gpsStatus").innerHTML = "GPS is OFF ❌";
-
 },
 
 {
