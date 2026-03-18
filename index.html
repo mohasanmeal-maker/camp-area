@@ -46,6 +46,39 @@
         <title></title>
     </head>
     <body>
+
+<!-- 🔒 LOGIN SCREEN START -->
+<div id="lockScreen" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:white;
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:99999;
+flex-direction:column;
+">
+<h2>Enter Access Code</h2>
+<input id="codeInput" type="password" placeholder="Enter code" style="padding:8px;">
+<button onclick="checkCode()" style="margin-top:10px;">Enter</button>
+</div>
+
+<script>
+function checkCode(){
+    var code = document.getElementById("codeInput").value;
+
+    if(code === "FIVDB2025"){
+        document.getElementById("lockScreen").style.display = "none";
+    } else {
+        alert("Wrong code ❌");
+    }
+}
+</script>
+<!-- 🔒 LOGIN SCREEN END -->
+        
         <div id="map">
 <div style="
   position:absolute;
