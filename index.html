@@ -173,25 +173,6 @@ box-shadow:0 0 4px rgba(0,0,0,0.3);
 Checking GPS...
 </div>
 
-<!-- 👉 এখানে button বসাবেন -->
-<div style="
-position:absolute;
-top:150px;
-right:01px;
-z-index:9999;
-">
-<button onclick="requestGPS()" style="
-padding:6px 10px;
-font-size:12px;
-border:none;
-border-radius:6px;
-background:#F79646;
-color:white;
-cursor:pointer;
-">
-Enable GPS
-</button>
-</div>"
 
             <div id="popup" class="ol-popup">
                 <a href="#" id="popup-closer" class="ol-popup-closer"></a>
@@ -222,16 +203,14 @@ function(position) {
 
     var userLocation = ol.proj.fromLonLat([userLon, userLat]);
 
-    // 👉 আপনার আগের সব code এখানে রাখবেন
-    // যেমন:
-    // userFeature, distance, line, map.addLayer সব
+    // 👉 আপনার আগের পুরো code এখানেই রাখবেন
+    // (userFeature, distance, line, map.addLayer etc সব)
 
 },
 
 function(error) {
 
-    document.getElementById("gpsStatus").innerHTML = "Still OFF ❌";
-    alert("Please allow location from browser settings");
+    document.getElementById("gpsStatus").innerHTML = "GPS is OFF ❌";
 
 }
 
