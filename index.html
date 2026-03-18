@@ -304,7 +304,9 @@ function(position) {
                 stroke: new ol.style.Stroke({ color: 'white', width: 2 })
             }),
             text: new ol.style.Text({
-                text: facilityName + "\n" + Math.round(item.distance) + " m",
+                text: facilityName + "\n"
+    + Math.round(item.distance) + " m ("
+    + Math.round(item.distance / 80) + " min)",,
                 offsetY: -15,
                 fill: new ol.style.Fill({ color: '#cc0000' }),
                 stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
