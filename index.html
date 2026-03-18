@@ -158,6 +158,20 @@ box-shadow:0 0 4px rgba(0,0,0,0.3);
 </span>
 
 </div>
+<div id="gpsStatus" style="
+position:absolute;
+top:90px;
+left:01px;
+background:rgba(255,255,255,0.7);
+backdrop-filter: blur(6px);
+padding:6px 10px;
+font-size:12px;
+border-radius:6px;
+z-index:9999;
+box-shadow:0 0 4px rgba(0,0,0,0.3);
+">
+Checking GPS...
+</div>
 
 
             <div id="popup" class="ol-popup">
@@ -178,12 +192,30 @@ box-shadow:0 0 4px rgba(0,0,0,0.3);
 
 // Changes     
 <script>
-navigator.geolocation.getCurrentPosition(function(position) {
+navigator.geolocation.getCurrentPosition(
+
+function(position) {
+
+    document.getElementById("gpsStatus").innerHTML = "GPS is ON ✅";
 
     var userLon = position.coords.longitude;
     var userLat = position.coords.latitude;
 
     var userLocation = ol.proj.fromLonLat([userLon, userLat]);
+
+    // 👉 আপনার আগের পুরো code এখানেই রাখবেন
+    // (userFeature, distance, line, map.addLayer etc সব)
+
+},
+
+function(error) {
+
+    document.getElementById("gpsStatus").innerHTML = "GPS is OFF ❌";
+
+}
+
+);
+</script>
 
     // 🟡 USER LOCATION
     var userFeature = new ol.Feature({
