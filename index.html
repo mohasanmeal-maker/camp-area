@@ -199,6 +199,12 @@ function togglePassword(){
 
 // ⌨️ Enter key support
 window.onload = function(){
+
+    // 🔒 Always show lock screen first
+    document.getElementById("lockScreen").style.display = "flex";
+    document.getElementById("map").style.display = "none";
+
+    // ⌨️ Enter key support
     document.getElementById("codeInput").addEventListener("keypress", function(e){
         if(e.key === "Enter"){
             checkCode();
