@@ -66,10 +66,22 @@ padding:20px;
 <img src="FIVDB.jpg" style="height:60px; margin-bottom:10px;">
 <h2>🔐 Access Required</h2>
 
-<input id="codeInput" type="password" placeholder="Enter access code"
-style="padding:10px; width:200px; border:1px solid #ccc; border-radius:5px;">
+<div style="position:relative; display:inline-block;">
+    <input id="codeInput" type="password" placeholder="Enter access code"
+    style="padding:10px; width:220px; border:1px solid #ccc; border-radius:5px;">
 
-<button onclick="checkCode()" style="margin-top:10px; padding:8px 15px;">
+    <span onclick="togglePassword()" style="
+    position:absolute;
+    right:10px;
+    top:50%;
+    transform:translateY(-50%);
+    cursor:pointer;
+    ">
+    <i id="eyeIcon" class="fas fa-eye"></i>
+    </span>
+</div>
+
+<button onclick="checkCode()" style="margin-top:12px; padding:8px 18px;">
 Access Map
 </button>
 
@@ -78,27 +90,50 @@ Access Map
 </div>
 
 <script>
+
+// 🔐 Check Password
 function checkCode(){
-    var code = document.getElementById("codeInput").value;
+    var input = document.getElementById("codeInput");
+    var code = input.value;
 
     if(code === "FIVDB2025"){
         document.getElementById("lockScreen").style.display = "none";
     } else {
-              document.getElementById("errorMsg").innerHTML =
-"❌ Incorrect password.<br><br>" +
+        document.getElementById("errorMsg").innerHTML =
+        "❌ Incorrect password.<br><br>" +
+        "<i class='fas fa-user'></i> <b>Mohasan Uddin Tutul</b><br><br>" +
+        "<i class='fas fa-phone'></i> Phone: 01855-677776<br>" +
+        "<i class='fab fa-whatsapp'></i> WhatsApp: 01855-677776<br><br>" +
+        "<i class='fas fa-envelope'></i> Email: mohasan.uddin@fivdb.org";
 
-"<i class='fas fa-user'></i> <b>Mohasan Uddin Tutul</b><br><br>" +
-"<i class='fas fa-phone'></i> Phone: 01855-677776<br>" +
-"<i class='fab fa-whatsapp'></i> WhatsApp: 01855-677776<br><br>" +
-"<i class='fas fa-envelope'></i> Email: mohasan.uddin@fivdb.org";
+        input.value = "";
     }
 }
-// 👉 এইটাই new part (এখানে add করবা)
-document.getElementById("codeInput").addEventListener("keypress", function(e){
-    if(e.key === "Enter"){
-        checkCode();
+
+// 👁️ Show / Hide Password
+function togglePassword(){
+    var input = document.getElementById("codeInput");
+    var icon = document.getElementById("eyeIcon");
+
+    if(input.type === "password"){
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    } else {
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
     }
-});
+}
+
+// ⌨️ Enter key support
+window.onload = function(){
+    document.getElementById("codeInput").addEventListener("keypress", function(e){
+        if(e.key === "Enter"){
+            checkCode();
+        }
+    });
+};
 
 </script>
         
