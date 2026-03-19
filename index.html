@@ -421,6 +421,7 @@ function startMap(){
 // Store layers
 window.allLayers = [];
 var lastLocation = null;
+window.lastLocation = null;
 var overlay;
 
 var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
@@ -441,29 +442,29 @@ function(position) {
 
     var accuracy = position.coords.accuracy;
 
-    if (accuracy > ACCURACY_LIMIT && lastLocation !== null) return;
+    // 🚫 ignore bad GPS
+    if (accuracy > 25) return;
 
     var userLon = position.coords.longitude;
     var userLat = position.coords.latitude;
 
     var newLocation = ol.proj.fromLonLat([userLon, userLat]);
 
-    // ✅ Smooth + filter
+    // 🚫 filter jump + smooth
     if (lastLocation) {
         var dist = getDistance(lastLocation, newLocation);
 
-        if (dist < 15) return;
-        if (accuracy > 30 && dist < 50) return;
+        if (dist < 25) return;
 
-        // smooth movement
         lastLocation = [
-            (lastLocation[0] + newLocation[0]) / 2,
-            (lastLocation[1] + newLocation[1]) / 2
+            lastLocation[0] * 0.7 + newLocation[0] * 0.3,
+            lastLocation[1] * 0.7 + newLocation[1] * 0.3
         ];
     } else {
         lastLocation = newLocation;
     }
 
+    window.lastLocation = lastLocation;
     var userLocation = lastLocation;
 
     // clear old layers
@@ -589,7 +590,7 @@ function(error) {
 
 {
     enableHighAccuracy: true,
-    maximumAge: 5000,
+    maximumAge: 10000,
     timeout: 7000
 }
 
@@ -599,21 +600,21 @@ function(error) {
 // ===== POPUP =====
 map.on('singleclick', function(evt) {
 
-    if (!window.nearestData) return;
+    if (!window.nearestData || !window.lastLocation) return;
 
-    var userLonLat = ol.proj.toLonLat(window.nearestData[0].coord);
+    var userLonLat = ol.proj.toLonLat(window.lastLocation);
 
     var content = "<div style='padding:8px;'>"
         + "<b>Nearest Facilities</b><br><br>";
 
     window.nearestData.forEach(function(item, index){
 
-        var name = item.feature.properties.Name || "Facility";
+        var name = item.feature.properties.Name || item.feature.properties.name || "Facility";
         var lonLat2 = ol.proj.toLonLat(item.coord);
         var distance = getRealDistance(userLonLat, lonLat2);
 
-        var speed = 80;
-        var timeMin = Math.round(distance / speed);
+        var speed = 83;
+        var timeMin = Math.ceil(distance / speed);
 
         content += (index+1) + ". " + name + "<br>"
             + "Distance: " + Math.round(distance) + " m<br>"
