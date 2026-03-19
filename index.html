@@ -441,7 +441,7 @@ function(position) {
     var accuracy = position.coords.accuracy;
 
     // 🚫 bad GPS ignore
-    if (accuracy > 25) return;
+    if (accuracy > (isMobile ? 40 : 500)) return;
 
     var userLon = position.coords.longitude;
     var userLat = position.coords.latitude;
