@@ -421,11 +421,9 @@ function startMap(){
 // Store layers
 window.allLayers = [];
 var lastLocation = null;
-window.lastLocation = null;
 var overlay;
 
 var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
-var ACCURACY_LIMIT = isMobile ? 40 : 500;
 
 function getDistance(a, b) {
     var dx = a[0] - b[0];
@@ -442,7 +440,7 @@ function(position) {
 
     var accuracy = position.coords.accuracy;
 
-    // 🚫 ignore bad GPS
+    // 🚫 bad GPS ignore
     if (accuracy > 25) return;
 
     var userLon = position.coords.longitude;
@@ -450,7 +448,7 @@ function(position) {
 
     var newLocation = ol.proj.fromLonLat([userLon, userLat]);
 
-    // 🚫 filter jump + smooth
+    // 🚫 filter + smooth
     if (lastLocation) {
         var dist = getDistance(lastLocation, newLocation);
 
@@ -464,7 +462,6 @@ function(position) {
         lastLocation = newLocation;
     }
 
-    window.lastLocation = lastLocation;
     var userLocation = lastLocation;
 
     // clear old layers
@@ -473,7 +470,7 @@ function(position) {
     });
     window.allLayers = [];
 
-    // user point
+    // ===== USER POINT =====
     var userFeature = new ol.Feature({
         geometry: new ol.geom.Point(userLocation)
     });
@@ -493,7 +490,7 @@ function(position) {
     map.addLayer(userLayer);
     window.allLayers.push(userLayer);
 
-    // ===== DISTANCE =====
+    // ===== DISTANCE CALC =====
     var features = json_FacilityInfo_4.features;
     var distances = [];
 
@@ -517,9 +514,8 @@ function(position) {
     });
 
     var nearestThree = distances.slice(0, 3);
-    window.nearestData = nearestThree;
 
-    // zoom
+    // ===== ZOOM =====
     var extent = ol.extent.boundingExtent([
         userLocation,
         nearestThree[0].coord
@@ -535,6 +531,7 @@ function(position) {
 
         var isNearest = (index === 0);
 
+        // line
         var line = new ol.Feature({
             geometry: new ol.geom.LineString([
                 userLocation,
@@ -556,6 +553,7 @@ function(position) {
         map.addLayer(lineLayer);
         window.allLayers.push(lineLayer);
 
+        // point
         var point = new ol.Feature({
             geometry: new ol.geom.Point(item.coord)
         });
@@ -582,36 +580,15 @@ function(position) {
 
     });
 
-},
-
-function(error) {
-    document.getElementById("gpsStatus").innerHTML = "GPS is OFF ❌";
-},
-
-{
-    enableHighAccuracy: true,
-    maximumAge: 10000,
-    timeout: 7000
-}
-
-);
-
-
-// ===== POPUP =====
-map.on('singleclick', function(evt) {
-
-    if (!window.nearestData || !window.lastLocation) return;
-
-    var userLonLat = ol.proj.toLonLat(window.lastLocation);
-
+    // ===== AUTO POPUP =====
     var content = "<div style='padding:8px;'>"
         + "<b>Nearest Facilities</b><br><br>";
 
-    window.nearestData.forEach(function(item, index){
+    nearestThree.forEach(function(item, index){
 
         var name = item.feature.properties.Name || item.feature.properties.name || "Facility";
         var lonLat2 = ol.proj.toLonLat(item.coord);
-        var distance = getRealDistance(userLonLat, lonLat2);
+        var distance = getRealDistance(lonLat1, lonLat2);
 
         var speed = 83;
         var timeMin = Math.ceil(distance / speed);
@@ -634,8 +611,21 @@ map.on('singleclick', function(evt) {
     });
 
     map.addOverlay(overlay);
-    overlay.setPosition(evt.coordinate);
-});
+    overlay.setPosition(userLocation);
+
+},
+
+function(error) {
+    document.getElementById("gpsStatus").innerHTML = "GPS is OFF ❌";
+},
+
+{
+    enableHighAccuracy: true,
+    maximumAge: 10000,
+    timeout: 7000
+}
+
+);
 
 }
 
