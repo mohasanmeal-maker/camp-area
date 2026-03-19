@@ -616,7 +616,9 @@ map.on('singleclick', function(evt) {
     var popupContent = document.getElementById('popup-content');
     popupContent.innerHTML = content;
 
-    var overlay = new ol.Overlay({
+   if (overlay) map.removeOverlay(overlay);
+
+overlay = new ol.Overlay({
         element: document.getElementById('popup'),
         autoPan: true
     });
