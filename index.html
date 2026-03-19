@@ -421,6 +421,7 @@ function startMap(){
 // Store layers
 window.allLayers = [];
 var lastLocation = null;
+var overlay;
 
 var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
 var ACCURACY_LIMIT = isMobile ? 40 : 500;
@@ -447,15 +448,23 @@ function(position) {
 
     var newLocation = ol.proj.fromLonLat([userLon, userLat]);
 
+    // ✅ Smooth + filter
     if (lastLocation) {
         var dist = getDistance(lastLocation, newLocation);
-        var jumpLimit = isMobile ? 10 : 30;
 
-        if (dist < jumpLimit && accuracy > 20) return;
+        if (dist < 15) return;
+        if (accuracy > 30 && dist < 50) return;
+
+        // smooth movement
+        lastLocation = [
+            (lastLocation[0] + newLocation[0]) / 2,
+            (lastLocation[1] + newLocation[1]) / 2
+        ];
+    } else {
+        lastLocation = newLocation;
     }
 
-    lastLocation = newLocation;
-    var userLocation = newLocation;
+    var userLocation = lastLocation;
 
     // clear old layers
     window.allLayers.forEach(function(layer) {
@@ -483,7 +492,7 @@ function(position) {
     map.addLayer(userLayer);
     window.allLayers.push(userLayer);
 
-    // ===== DISTANCE CALC =====
+    // ===== DISTANCE =====
     var features = json_FacilityInfo_4.features;
     var distances = [];
 
@@ -580,7 +589,7 @@ function(error) {
 
 {
     enableHighAccuracy: true,
-    maximumAge: 10000,
+    maximumAge: 5000,
     timeout: 7000
 }
 
@@ -616,9 +625,9 @@ map.on('singleclick', function(evt) {
     var popupContent = document.getElementById('popup-content');
     popupContent.innerHTML = content;
 
-   if (overlay) map.removeOverlay(overlay);
+    if (overlay) map.removeOverlay(overlay);
 
-overlay = new ol.Overlay({
+    overlay = new ol.Overlay({
         element: document.getElementById('popup'),
         autoPan: true
     });
