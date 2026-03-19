@@ -558,18 +558,33 @@ function(position) {
             geometry: new ol.geom.Point(item.coord)
         });
 
-        point.setStyle(new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: isNearest ? 9 : 6,
-                fill: new ol.style.Fill({
-                    color: isNearest ? '#FF3333' : '#66CCFF'
-                }),
-                stroke: new ol.style.Stroke({
-                    color: 'white',
-                    width: 2
-                })
-            })
-        }));
+        var name = item.feature.properties.Name || "Facility";
+
+var speed = 83;
+var timeMin = Math.ceil(item.distance / speed);
+
+point.setStyle(new ol.style.Style({
+    image: new ol.style.Circle({
+        radius: isNearest ? 9 : 6,
+        fill: new ol.style.Fill({
+            color: isNearest ? '#FF3333' : '#66CCFF'
+        }),
+        stroke: new ol.style.Stroke({
+            color: 'white',
+            width: 2
+        })
+    }),
+    text: new ol.style.Text({
+        text:
+            (isNearest ? "Nearest\n" : "") +
+            name + "\n" +
+            Math.round(item.distance) + " m (" +
+            timeMin + " min)",
+        offsetY: -15,
+        fill: new ol.style.Fill({ color: '#cc0000' }),
+        stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
+    })
+}));
 
         var pointLayer = new ol.layer.Vector({
             source: new ol.source.Vector({ features: [point] })
