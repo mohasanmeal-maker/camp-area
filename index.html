@@ -54,37 +54,38 @@ position:fixed;
 top:0;
 left:0;
 width:100%;
-min-height:100vh;
-background: linear-gradient(to bottom right, #f5f7fa, #e4ecf7);
+height:100vh;
+background: rgba(0,0,0,0.4); /* dark overlay */
+backdrop-filter: blur(8px);
+-webkit-backdrop-filter: blur(8px);
 display:flex;
-flex-direction:column;
 justify-content:center;
 align-items:center;
 z-index:999999;
 padding:20px;
 box-sizing:border-box;
-overflow:auto;
 ">
 
+<!-- 🔳 Center Box -->
 <div style="
 width:100%;
-max-width:400px;
+max-width:380px;
 text-align:center;
-background:white;
-padding:25px;
-border-radius:12px;
-box-shadow:0 5px 20px rgba(0,0,0,0.2);
-min-height:100vh;
-overflow:auto;
-    ">
+background: rgba(255,255,255,0.95);
+padding:25px 20px;
+border-radius:14px;
+box-shadow:0 10px 30px rgba(0,0,0,0.3);
+border:1px solid rgba(255,255,255,0.4);
+">
 
 <img src="FIVDB.jpg" style="height:60px; margin-bottom:10px;">
+
 <h2 style="margin-bottom:15px;">🔐 Access Required</h2>
 
 <!-- Password box -->
-<div style="position:relative; margin-bottom:10px;">
+<div style="position:relative; margin-bottom:12px;">
     <input id="codeInput" type="password" placeholder="Enter access code"
-    style="padding:10px; width:100%; border:1px solid #ccc; border-radius:5px;">
+    style="padding:10px; width:100%; border:1px solid #ccc; border-radius:6px;">
 
     <span onclick="togglePassword()" style="
     position:absolute;
@@ -103,13 +104,15 @@ padding:10px;
 background:#2c3e50;
 color:white;
 border:none;
-border-radius:5px;
+border-radius:6px;
 cursor:pointer;
 ">
 Access Map
 </button>
 
-<p id="errorMsg" style="color:red; margin-top:15px;"></p>
+<p id="errorMsg" style="color:red; margin-top:12px;"></p>
+
+</div>
 
 </div>
 
