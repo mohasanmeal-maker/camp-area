@@ -152,8 +152,9 @@ function checkCode(){
         document.getElementById("lockScreen").style.display = "none";
         document.getElementById("map").style.display = "block";
 
-        loadMapScript();
-        startMap();
+        loadMapScript(function(){
+    startMap();
+});
 
     } else {
 
@@ -259,8 +260,8 @@ window.onload = function(){
         <div id="map" style="display:none;">
 <div style="
   position:absolute;
-  top:01px;
-  left:01px;
+  top:1px;
+  left:1px;
   background: rgba(255,255,255,0.4); /* transparency added */
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
@@ -327,7 +328,7 @@ box-shadow:0 0 4px rgba(0,0,0,0.3);
 <div id="legendBox" style="
     position:absolute;
     bottom:40px;
-    left:01px;
+    left:1px;
     background:white;
     padding:10px;
     font-size:11px;
@@ -400,22 +401,30 @@ Checking GPS...
         <script src="./resources/Autolinker.min.js"></script>
 
 <script>
+function getRealDistance(coord1, coord2) {
+    var R = 6371000; // meter
+    var lat1 = coord1[1] * Math.PI / 180;
+    var lat2 = coord2[1] * Math.PI / 180;
+    var dLat = lat2 - lat1;
+    var dLon = (coord2[0] - coord1[0]) * Math.PI / 180;
 
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1) * Math.cos(lat2) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    return R * c;
+}
 function startMap(){
 
 // Store layers
 window.allLayers = [];
-
-// Store last good location
 var lastLocation = null;
 
-// Detect device
 var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
-
-// Set accuracy limit
 var ACCURACY_LIMIT = isMobile ? 40 : 500;
 
-// Distance function
 function getDistance(a, b) {
     var dx = a[0] - b[0];
     var dy = a[1] - b[1];
@@ -431,9 +440,7 @@ function(position) {
 
     var accuracy = position.coords.accuracy;
 
-    if (accuracy > ACCURACY_LIMIT && lastLocation !== null) {
-        return;
-    }
+    if (accuracy > ACCURACY_LIMIT && lastLocation !== null) return;
 
     var userLon = position.coords.longitude;
     var userLat = position.coords.latitude;
@@ -442,22 +449,21 @@ function(position) {
 
     if (lastLocation) {
         var dist = getDistance(lastLocation, newLocation);
-
         var jumpLimit = isMobile ? 10 : 30;
 
-        if (dist < jumpLimit) {
-            return;
-        }
+        if (dist < jumpLimit && accuracy > 20) return;
     }
 
     lastLocation = newLocation;
     var userLocation = newLocation;
 
+    // clear old layers
     window.allLayers.forEach(function(layer) {
         map.removeLayer(layer);
     });
     window.allLayers = [];
 
+    // user point
     var userFeature = new ol.Feature({
         geometry: new ol.geom.Point(userLocation)
     });
@@ -471,25 +477,23 @@ function(position) {
     }));
 
     var userLayer = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            features: [userFeature]
-        })
+        source: new ol.source.Vector({ features: [userFeature] })
     });
 
     map.addLayer(userLayer);
     window.allLayers.push(userLayer);
 
+    // ===== DISTANCE CALC =====
     var features = json_FacilityInfo_4.features;
     var distances = [];
+
+    var lonLat1 = ol.proj.toLonLat(userLocation);
 
     features.forEach(function(f) {
 
         var coord = ol.proj.fromLonLat(f.geometry.coordinates);
-
-        var dx = coord[0] - userLocation[0];
-        var dy = coord[1] - userLocation[1];
-
-        var distance = Math.sqrt(dx * dx + dy * dy);
+        var lonLat2 = ol.proj.toLonLat(coord);
+        var distance = getRealDistance(lonLat1, lonLat2);
 
         distances.push({
             feature: f,
@@ -503,22 +507,23 @@ function(position) {
     });
 
     var nearestThree = distances.slice(0, 3);
+    window.nearestData = nearestThree;
 
+    // zoom
     var extent = ol.extent.boundingExtent([
         userLocation,
         nearestThree[0].coord
     ]);
 
     map.getView().fit(extent, {
-        padding: [100, 100, 100, 100],
+        padding: [100,100,100,100],
         duration: 800
     });
 
+    // ===== DRAW =====
     nearestThree.forEach(function(item, index) {
 
         var isNearest = (index === 0);
-        var facilityName = item.feature.properties.Name || "Facility";
-        var timeMin = Math.round(item.distance / 80);
 
         var line = new ol.Feature({
             geometry: new ol.geom.LineString([
@@ -535,9 +540,7 @@ function(position) {
         }));
 
         var lineLayer = new ol.layer.Vector({
-            source: new ol.source.Vector({
-                features: [line]
-            })
+            source: new ol.source.Vector({ features: [line] })
         });
 
         map.addLayer(lineLayer);
@@ -561,9 +564,7 @@ function(position) {
         }));
 
         var pointLayer = new ol.layer.Vector({
-            source: new ol.source.Vector({
-                features: [point]
-            })
+            source: new ol.source.Vector({ features: [point] })
         });
 
         map.addLayer(pointLayer);
@@ -585,6 +586,45 @@ function(error) {
 
 );
 
+
+// ===== POPUP =====
+map.on('singleclick', function(evt) {
+
+    if (!window.nearestData) return;
+
+    var userLonLat = ol.proj.toLonLat(window.nearestData[0].coord);
+
+    var content = "<div style='padding:8px;'>"
+        + "<b>Nearest Facilities</b><br><br>";
+
+    window.nearestData.forEach(function(item, index){
+
+        var name = item.feature.properties.Name || "Facility";
+        var lonLat2 = ol.proj.toLonLat(item.coord);
+        var distance = getRealDistance(userLonLat, lonLat2);
+
+        var speed = 80;
+        var timeMin = Math.round(distance / speed);
+
+        content += (index+1) + ". " + name + "<br>"
+            + "Distance: " + Math.round(distance) + " m<br>"
+            + "Time: " + timeMin + " min<br><br>";
+    });
+
+    content += "</div>";
+
+    var popupContent = document.getElementById('popup-content');
+    popupContent.innerHTML = content;
+
+    var overlay = new ol.Overlay({
+        element: document.getElementById('popup'),
+        autoPan: true
+    });
+
+    map.addOverlay(overlay);
+    overlay.setPosition(evt.coordinate);
+});
+
 }
 
 </script>
@@ -598,12 +638,19 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <script>
-function loadMapScript() {
+function loadMapScript(callback) {
     if (!window.mapLoaded) {
         var script = document.createElement("script");
         script.src = "./resources/qgis2web.js";
+
+        script.onload = function(){
+            window.mapLoaded = true;
+            if(callback) callback();
+        };
+
         document.body.appendChild(script);
-        window.mapLoaded = true;
+    } else {
+        if(callback) callback();
     }
 }
  </script>
