@@ -435,25 +435,33 @@ navigator.geolocation.watchPosition(
 
 function(position) {
 
-    document.getElementById("gpsStatus").innerHTML =
-        isMobile ? "📱 Mobile GPS running..." : "💻 Laptop location running...";
+    var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+
+    // 🎯 Device based accuracy
+    var ACCURACY_LIMIT = isMobile ? 40 : 1500;
 
     var accuracy = position.coords.accuracy;
 
-    // 🚫 bad GPS ignore
-    if (accuracy > (isMobile ? 40 : 1000)) return;
-}
+    // ❌ Ignore only if we already have a good location
+    if (accuracy > ACCURACY_LIMIT && lastLocation !== null) {
+        return;
+    }
+
+    document.getElementById("gpsStatus").innerHTML =
+        isMobile ? "📱 Mobile GPS running..." : "💻 Laptop location running...";
 
     var userLon = position.coords.longitude;
     var userLat = position.coords.latitude;
 
     var newLocation = ol.proj.fromLonLat([userLon, userLat]);
 
-    // 🚫 filter + smooth
+    // 🧠 smooth movement
     if (lastLocation) {
-        var dist = getDistance(lastLocation, newLocation);
+        var dx = newLocation[0] - lastLocation[0];
+        var dy = newLocation[1] - lastLocation[1];
+        var dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < 25) return;
+        if (dist < 10) return;
 
         lastLocation = [
             lastLocation[0] * 0.7 + newLocation[0] * 0.3,
@@ -465,13 +473,13 @@ function(position) {
 
     var userLocation = lastLocation;
 
-    // clear old layers
+    // 🧹 clear old layers
     window.allLayers.forEach(function(layer) {
         map.removeLayer(layer);
     });
     window.allLayers = [];
 
-    // ===== USER POINT =====
+    // 🟡 USER POINT
     var userFeature = new ol.Feature({
         geometry: new ol.geom.Point(userLocation)
     });
@@ -501,6 +509,7 @@ function(position) {
 
         var coord = ol.proj.fromLonLat(f.geometry.coordinates);
         var lonLat2 = ol.proj.toLonLat(coord);
+
         var distance = getRealDistance(lonLat1, lonLat2);
 
         distances.push({
@@ -516,7 +525,7 @@ function(position) {
 
     var nearestThree = distances.slice(0, 3);
 
-    // ===== ZOOM =====
+    // 🔥 AUTO ZOOM
     var extent = ol.extent.boundingExtent([
         userLocation,
         nearestThree[0].coord
@@ -527,12 +536,16 @@ function(position) {
         duration: 800
     });
 
-    // ===== DRAW =====
+    // 🎯 DRAW
     nearestThree.forEach(function(item, index) {
 
         var isNearest = (index === 0);
+        var name = item.feature.properties.Name || "Facility";
 
-        // line
+        var speed = 83;
+        var timeMin = Math.ceil(item.distance / speed);
+
+        // 🟠 LINE
         var line = new ol.Feature({
             geometry: new ol.geom.LineString([
                 userLocation,
@@ -554,38 +567,33 @@ function(position) {
         map.addLayer(lineLayer);
         window.allLayers.push(lineLayer);
 
-        // point
+        // 🔴 / 🔵 POINT + TEXT
         var point = new ol.Feature({
             geometry: new ol.geom.Point(item.coord)
         });
 
-        var name = item.feature.properties.Name || "Facility";
-
-var speed = 83;
-var timeMin = Math.ceil(item.distance / speed);
-
-point.setStyle(new ol.style.Style({
-    image: new ol.style.Circle({
-        radius: isNearest ? 9 : 6,
-        fill: new ol.style.Fill({
-            color: isNearest ? '#FF3333' : '#66CCFF'
-        }),
-        stroke: new ol.style.Stroke({
-            color: 'white',
-            width: 2
-        })
-    }),
-    text: new ol.style.Text({
-        text:
-            (isNearest ? "Nearest\n" : "") +
-            name + "\n" +
-            Math.round(item.distance) + " m (" +
-            timeMin + " min)",
-        offsetY: -15,
-        fill: new ol.style.Fill({ color: '#cc0000' }),
-        stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
-    })
-}));
+        point.setStyle(new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: isNearest ? 9 : 6,
+                fill: new ol.style.Fill({
+                    color: isNearest ? '#FF3333' : '#66CCFF'
+                }),
+                stroke: new ol.style.Stroke({
+                    color: 'white',
+                    width: 2
+                })
+            }),
+            text: new ol.style.Text({
+                text:
+                    (isNearest ? "Nearest\n" : "") +
+                    name + "\n" +
+                    Math.round(item.distance) + " m (" +
+                    timeMin + " min)",
+                offsetY: -15,
+                fill: new ol.style.Fill({ color: '#cc0000' }),
+                stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
+            })
+        }));
 
         var pointLayer = new ol.layer.Vector({
             source: new ol.source.Vector({ features: [point] })
@@ -595,39 +603,6 @@ point.setStyle(new ol.style.Style({
         window.allLayers.push(pointLayer);
 
     });
-
-    // ===== AUTO POPUP =====
-    var content = "<div style='padding:8px;'>"
-        + "<b>Nearest Facilities</b><br><br>";
-
-    nearestThree.forEach(function(item, index){
-
-        var name = item.feature.properties.Name || item.feature.properties.name || "Facility";
-        var lonLat2 = ol.proj.toLonLat(item.coord);
-        var distance = getRealDistance(lonLat1, lonLat2);
-
-        var speed = 83;
-        var timeMin = Math.ceil(distance / speed);
-
-        content += (index+1) + ". " + name + "<br>"
-            + "Distance: " + Math.round(distance) + " m<br>"
-            + "Time: " + timeMin + " min<br><br>";
-    });
-
-    content += "</div>";
-
-    var popupContent = document.getElementById('popup-content');
-    popupContent.innerHTML = content;
-
-    if (overlay) map.removeOverlay(overlay);
-
-    overlay = new ol.Overlay({
-        element: document.getElementById('popup'),
-        autoPan: true
-    });
-
-    map.addOverlay(overlay);
-    overlay.setPosition(userLocation);
 
 },
 
@@ -642,8 +617,6 @@ function(error) {
 }
 
 );
-
-}
 
 </script>
 
