@@ -56,8 +56,8 @@ left:0;
 width:100%;
 height:100vh;
 background: rgba(0,0,0,0.4); /* dark overlay */
-backdrop-filter: blur(8px);
--webkit-backdrop-filter: blur(8px);
+backdrop-filter: blur(6px);
+-webkit-backdrop-filter: blur(6px);
 display:flex;
 justify-content:center;
 align-items:center;
@@ -71,11 +71,16 @@ box-sizing:border-box;
 width:100%;
 max-width:380px;
 text-align:center;
-background: rgba(255,255,255,0.95);
+
+background: rgba(255,255,255,0.25);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(15px);
+
 padding:25px 20px;
 border-radius:14px;
-box-shadow:0 10px 30px rgba(0,0,0,0.3);
+
 border:1px solid rgba(255,255,255,0.4);
+box-shadow:0 8px 25px rgba(0,0,0,0.2);
 ">
 
 <img src="FIVDB.jpg" style="height:60px; margin-bottom:10px;">
@@ -86,7 +91,7 @@ border:1px solid rgba(255,255,255,0.4);
 <div style="
 position:relative;
 margin-bottom:12px;
-width:70%;
+width:80%;
     max-width:280px;
 margin-left:auto;
 margin-right:auto;
@@ -254,6 +259,24 @@ window.onload = function(){
         <div id="map" style="display:none;">
 <div style="
   position:absolute;
+  top:10px;
+  right:10px;
+  z-index:9999;
+  padding:6px;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius:10px;
+  border:2px solid #FFFFFF; /* এইটা হলো visible border */
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+">
+
+  <img src="FIVDB.jpg" style="height:50px; display:block; border-radius:6px;">
+
+</div>
+            
+<div style="
+  position:absolute;
   top:1px;
   left:1px;
   background: rgba(255,255,255,0.4); /* transparency added */
@@ -301,23 +324,6 @@ box-shadow:0 0 4px rgba(0,0,0,0.3);
 <i>Map prepared by: Mohasan Uddin Tutul | MEAL Team | Friends In Village Development Bangladesh (FIVDB)</i>
 </div>            
 
-<div style="
-  position:absolute;
-  top:10px;
-  right:10px;
-  z-index:9999;
-  padding:6px;
-  background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius:10px;
-  border:2px solid #FFFFFF; /* এইটা হলো visible border */
-  box-shadow:0 4px 10px rgba(0,0,0,0.2);
-">
-
-  <img src="FIVDB.jpg" style="height:50px; display:block; border-radius:6px;">
-
-</div>
 
 <div id="legendBox" style="
     position:absolute;
