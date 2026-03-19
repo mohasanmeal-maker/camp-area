@@ -83,9 +83,21 @@ border:1px solid rgba(255,255,255,0.4);
 <h2 style="margin-bottom:15px;">🔐 Access Required</h2>
 
 <!-- Password box -->
-<div style="position:relative; margin-bottom:12px;">
+<div style="
+position:relative;
+margin-bottom:12px;
+width:85%;
+margin-left:auto;
+margin-right:auto;
+">
+
     <input id="codeInput" type="password" placeholder="Enter access code"
-    style="padding:10px; width:100%; border:1px solid #ccc; border-radius:6px;">
+    style="
+    padding:10px;
+    width:100%;
+    border:1px solid #ccc;
+    border-radius:6px;
+    ">
 
     <span onclick="togglePassword()" style="
     position:absolute;
@@ -94,8 +106,9 @@ border:1px solid rgba(255,255,255,0.4);
     transform:translateY(-50%);
     cursor:pointer;
     ">
-    <i id="eyeIcon" class="fas fa-eye"></i>
+        <i id="eyeIcon" class="fas fa-eye"></i>
     </span>
+
 </div>
 
 <button onclick="checkCode()" style="
