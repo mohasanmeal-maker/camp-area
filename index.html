@@ -143,8 +143,14 @@ var lockTime = 30;
     
 // 🔐 Password Check
 function checkCode(){
+var btn = document.getElementById("accessBtn");
     var input = document.getElementById("codeInput");
     var code = input.value;
+
+    btn.innerHTML = "Checking...";
+    btn.disabled = true;
+
+    setTimeout(function(){
 
     if(code === "FIVDB2023"){
 
