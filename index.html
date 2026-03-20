@@ -257,6 +257,17 @@ window.onload = function(){
 </script>
         
         <div id="map" style="display:none;">
+<div id="map" style="display:none;">
+
+<!-- 💡 Hint Button -->
+<div onclick="openGuide()" style="position:absolute; top:160px; right:10px; z-index:9999; width:40px; height:40px; background:rgba(255,255,255,0.6); backdrop-filter: blur(6px); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.3); font-size:18px;">
+💡
+</div>
+<!-- 📘 Guide Box -->
+<div id="guideBox" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(255,255,255,0.95); padding:20px; border-radius:12px; z-index:99999;">
+...
+</div>
+
 <div style="
   position:absolute;
   top:10px;
@@ -724,7 +735,29 @@ if ('serviceWorker' in navigator) {
     .catch(() => console.log("Offline failed ❌"));
 }
 </script>
+<script>
 
+// 👇 এখানে বসাও
+function openGuide(){
+    document.getElementById("guideBox").style.display = "block";
+}
+
+function closeGuide(){
+    document.getElementById("guideBox").style.display = "none";
+}
+
+function showEN(){
+    document.getElementById("guideEN").style.display = "block";
+    document.getElementById("guideBN").style.display = "none";
+}
+
+function showBN(){
+    document.getElementById("guideEN").style.display = "none";
+    document.getElementById("guideBN").style.display = "block";
+}
+
+</script>
+            
 <script>
 function loadMapScript(callback) {
     if (!window.mapLoaded) {
