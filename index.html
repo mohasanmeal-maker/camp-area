@@ -260,8 +260,8 @@ window.onload = function(){
 <!-- 💡 HINT BUTTON -->
 <div id="hintBtn" style="
 position:absolute;
-top:70px;
-right:10px;
+bottom:40px;
+right:3px;
 z-index:9999;
 background: rgba(255,255,255,0.3);
 backdrop-filter: blur(6px);
@@ -791,22 +791,90 @@ padding:5px 10px;
 border-radius:5px;
 ">Close</button>
 
-<h3>User Guide</h3>
+<p style="color:#555; font-size:13px;">
+📘 ম্যাপ ব্যবহারের আগে নিচের নির্দেশনাগুলো ভালোভাবে পড়ুন / Please read before using the map
+</p>
 
-<p><b>বাংলা:</b></p>
+<p><b>🇧🇩 বাংলা ব্যবহার নির্দেশিকা:</b></p>
+
 <ul>
-<li>আপনার লোকেশন হলুদ</li>
-<li>সবচেয়ে কাছের ফ্যাসিলিটি লাল</li>
-<li>অন্যান্য নীল</li>
-<li>GPS চালু রাখুন</li>
+
+<li>📍 <b>আপনার বর্তমান অবস্থান (Your Location):</b><br>
+ম্যাপে আপনার অবস্থান হলুদ রঙের গোল চিহ্ন দিয়ে দেখানো হবে। আপনি চলাফেরা করলে এই চিহ্নটি স্বয়ংক্রিয়ভাবে আপডেট হবে।<br>
+⚠️ প্রথমবার লোকেশন পেতে কিছু সময় লাগতে পারে।</li>
+
+<li>🎯 <b>GPS Accuracy (সঠিকতা):</b><br>
+আপনার অবস্থানের চারপাশে একটি হালকা বৃত্ত (circle) দেখা যাবে, যা আপনার লোকেশনের accuracy নির্দেশ করে। বৃত্ত যত ছোট হবে, লোকেশন তত বেশি সঠিক।</li>
+
+<li>🔴 <b>সবচেয়ে কাছের ফ্যাসিলিটি (Nearest Facility):</b><br>
+আপনার সবচেয়ে কাছের ফ্যাসিলিটি লাল রঙে দেখানো হবে এবং উপরে "Nearest" লেখা থাকবে। এটি আপনার জন্য সবচেয়ে দ্রুত পৌঁছানোর জায়গা।</li>
+
+<li>🔵 <b>অন্যান্য কাছাকাছি ফ্যাসিলিটি:</b><br>
+আপনার কাছাকাছি আরও ২টি ফ্যাসিলিটি নীল রঙে দেখানো হবে। এগুলো বিকল্প হিসেবে ব্যবহার করা যেতে পারে।</li>
+
+<li>📏 <b>দূরত্ব ও সময় (Distance & Time):</b><br>
+প্রতিটি ফ্যাসিলিটির সাথে আপনার দূরত্ব (মিটারে) এবং আনুমানিক সময় (মিনিটে) দেখানো হবে।<br>
+⏱️ সময়টি গড় হাঁটার গতির উপর ভিত্তি করে হিসাব করা হয়েছে।</li>
+
+<li>📶 <b>GPS চালু রাখা:</b><br>
+ম্যাপ ব্যবহার করার জন্য অবশ্যই আপনার মোবাইলের GPS চালু রাখতে হবে এবং location permission allow করতে হবে।<br>
+❌ GPS বন্ধ থাকলে সঠিক লোকেশন পাওয়া যাবে না।</li>
+
+<li>📱 <b>ডিভাইস সম্পর্কিত তথ্য:</b><br>
+এই ম্যাপ মোবাইল ফোনে সবচেয়ে ভালো কাজ করে।<br>
+💻 ল্যাপটপ বা ডেস্কটপে accuracy কম হতে পারে।</li>
+
+<li>🔄 <b>লাইভ আপডেট (Live Update):</b><br>
+আপনি চলাফেরা করলে ম্যাপ স্বয়ংক্রিয়ভাবে আপডেট হবে এবং নতুন করে nearest facility নির্ধারণ করবে।</li>
+
+<li>🗺️ <b>অটো জুম (Auto Zoom):</b><br>
+ম্যাপ স্বয়ংক্রিয়ভাবে আপনার অবস্থান এবং সবচেয়ে কাছের ফ্যাসিলিটির মধ্যে জুম করবে যাতে আপনি সহজে বুঝতে পারেন।</li>
+
+<li>⚠️ <b>সতর্কতা:</b><br>
+এই ম্যাপ একটি সহায়ক টুল। মাঠ পর্যায়ে যাওয়ার আগে বাস্তব পরিস্থিতি যাচাই করুন।</li>
+
 </ul>
 
-<p><b>English:</b></p>
+<hr>
+
+<p><b>🇬🇧 English User Guide:</b></p>
+
 <ul>
-<li>Your location is yellow</li>
-<li>Nearest is red</li>
-<li>Others are blue</li>
-<li>Keep GPS ON</li>
+
+<li>📍 <b>Your Current Location:</b><br>
+Your position is shown as a yellow circle on the map. It updates automatically when you move.<br>
+⚠️ It may take a few seconds to detect your location initially.</li>
+
+<li>🎯 <b>GPS Accuracy:</b><br>
+A light circle around your location shows accuracy. A smaller circle means higher accuracy.</li>
+
+<li>🔴 <b>Nearest Facility:</b><br>
+The closest facility is shown in red and labeled as "Nearest". This is the fastest option for you.</li>
+
+<li>🔵 <b>Other Nearby Facilities:</b><br>
+Two additional nearby facilities are shown in blue as alternative options.</li>
+
+<li>📏 <b>Distance & Time:</b><br>
+Distance (in meters) and estimated travel time (in minutes) are displayed.<br>
+⏱️ Time is calculated based on average walking speed.</li>
+
+<li>📶 <b>GPS Requirement:</b><br>
+Please keep your GPS turned ON and allow location permission.<br>
+❌ Without GPS, accurate location will not be available.</li>
+
+<li>📱 <b>Device Note:</b><br>
+This map works best on mobile devices.<br>
+💻 Accuracy may be lower on laptops or desktops.</li>
+
+<li>🔄 <b>Live Update:</b><br>
+As you move, the map updates automatically and recalculates the nearest facility.</li>
+
+<li>🗺️ <b>Auto Zoom:</b><br>
+The map automatically zooms between your location and the nearest facility for better understanding.</li>
+
+<li>⚠️ <b>Disclaimer:</b><br>
+This map is a supportive tool. Always verify real-world conditions before taking action.</li>
+
 </ul>
 
 </div>
