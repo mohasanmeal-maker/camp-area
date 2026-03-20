@@ -86,7 +86,19 @@ box-shadow:0 8px 25px rgba(0,0,0,0.2);
 <img src="FIVDB.jpg" style="height:60px; margin-bottom:10px;">
 
 <h2 style="margin-bottom:15px;">🔐 Access Required</h2>
-
+<!-- 💡 HINT BUTTON (LOCK SCREEN) -->
+<div style="margin-bottom:15px;">
+<button onclick="openHint()" style="
+padding:8px 12px;
+background:#3498db;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+">
+💡 View User Guide
+</button>
+</div>
 <!-- Password box -->
 <div style="
 position:relative;
@@ -882,11 +894,17 @@ This map is a supportive tool. Always verify real-world conditions before taking
     <script>
 
 // button চাপলে popup খুলবে
-document.getElementById("hintBtn").onclick = function(){
-    document.getElementById("hintPopup").style.display = "flex";
-};
+<script>
 
-// popup বন্ধ করবে
+// function বানালাম (দুই জায়গা থেকেই call হবে)
+function openHint(){
+    document.getElementById("hintPopup").style.display = "flex";
+}
+
+// map button
+document.getElementById("hintBtn").onclick = openHint;
+
+// close
 function closeHint(){
     document.getElementById("hintPopup").style.display = "none";
 }
