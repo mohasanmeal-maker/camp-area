@@ -461,7 +461,7 @@ function(position) {
     var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
 
     // 🎯 Device based accuracy
-    var ACCURACY_LIMIT = isMobile ? 40 : 500;
+    var ACCURACY_LIMIT = isMobile ? 20 : 100;
 
     var accuracy = position.coords.accuracy;
 
