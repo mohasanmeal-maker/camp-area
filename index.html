@@ -154,13 +154,14 @@ function checkCode(){
         loadMapScript(function(){
     startMap();
 });
+
 setTimeout(function(){
     var guide = document.getElementById("guideBox");
     if(guide){
         guide.style.display = "block";
     }
 }, 1000);    
-    }
+
     } else {
 
         wrongAttempts++;
