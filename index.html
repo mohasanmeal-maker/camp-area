@@ -667,10 +667,10 @@ accuracyFeature.getGeometry().setRadius(accuracy);
             }),
             text: new ol.style.Text({
                 text:
-                    (isNearest ? "Nearest\n" : "") +
-                    name + "\n" +
-                    Math.round(item.distance) + " m (" +
-                    timeMin + " min)",
+    (isNearest ? "Nearest\n" : "") +
+    name + "\n" +
+    Math.round(item.distance) + " m (" +
+    timeMin + " min @ " + speed + " m/min)",
                 offsetY: -15,
                 fill: new ol.style.Fill({ color: '#cc0000' }),
                 stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
