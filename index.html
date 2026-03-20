@@ -154,7 +154,13 @@ function checkCode(){
         loadMapScript(function(){
     startMap();
 });
-
+setTimeout(function(){
+    var guide = document.getElementById("guideBox");
+    if(guide){
+        guide.style.display = "block";
+    }
+}, 1000);    
+    }
     } else {
 
         wrongAttempts++;
@@ -257,6 +263,59 @@ window.onload = function(){
 </script>
         
         <div id="map" style="display:none;">
+<!-- ❓ Hint Button -->
+<div id="hintBtn" onclick="toggleGuide(event)" style="
+position:absolute;
+bottom:40px;
+right:10px;
+z-index:9999;
+background: rgba(255,255,255,0.6);
+backdrop-filter: blur(6px);
+padding:8px 12px;
+border-radius:10px;
+cursor:pointer;
+box-shadow:0 3px 8px rgba(0,0,0,0.3);
+font-size:16px;
+font-weight:bold;
+">
+❓
+</div>
+
+<!-- 📘 GUIDE BOX -->
+<div id="guideBox" onclick="event.stopPropagation()" style="
+display:none;
+position:absolute;
+bottom:90px;
+right:10px;
+z-index:9999;
+width:280px;
+max-height:250px;
+overflow-y:auto;
+background: rgba(255,255,255,0.25);
+backdrop-filter: blur(10px);
+padding:12px;
+border-radius:12px;
+box-shadow:0 6px 18px rgba(0,0,0,0.3);
+font-size:12px;
+line-height:1.5;
+">
+
+<div style="text-align:right;">
+<button onclick="toggleGuide(event)" style="
+background:#e74c3c;
+color:white;
+border:none;
+padding:3px 8px;
+border-radius:5px;
+cursor:pointer;
+font-size:11px;
+">✖</button>
+</div>
+
+<div id="guideContent"></div>
+
+</div>
+            
 <div style="
   position:absolute;
   top:10px;
@@ -742,5 +801,34 @@ function loadMapScript(callback) {
     }
 }
  </script>
+<script>
+
+// ✅ GUIDE TOGGLE
+function toggleGuide(event){
+    var box = document.getElementById("guideBox");
+
+    if(!box) return;
+
+    box.style.display = box.style.display === "block" ? "none" : "block";
+
+    if(event) event.stopPropagation();
+}
+
+// ✅ OUTSIDE CLICK CLOSE
+document.addEventListener("click", function(){
+    var box = document.getElementById("guideBox");
+    if(box) box.style.display = "none";
+});
+
+// ✅ LOAD GUIDE TEXT
+window.addEventListener("load", function(){
+
+    var guide = document.getElementById("guideContent");
+    if(!guide) return;
+
+    guide.innerHTML = `
+   <b>📍 Map User Guidance / ব্যবহার নির্দেশিকা</b><br><br> 🔹 <b>Your Location / আপনার অবস্থান:</b><br> The yellow circle represents your current GPS location on the map.<br> হলুদ বৃত্তটি ম্যাপে আপনার বর্তমান অবস্থান নির্দেশ করে।<br><br> 🔹 <b>GPS Accuracy / অবস্থানের নির্ভুলতা:</b><br> The light blue shaded area shows the accuracy range of your GPS signal.<br> হালকা নীল অংশটি আপনার GPS লোকেশনের নির্ভুলতার পরিসীমা দেখায়।<br><br> 🔹 <b>Nearest Learning Facility / নিকটতম লার্নিং ফ্যাসিলিটি:</b><br> The red point indicates the nearest learning facility from your current location.<br> লাল বিন্দু আপনার বর্তমান অবস্থান থেকে নিকটতম লার্নিং ফ্যাসিলিটি নির্দেশ করে।<br><br> 🔹 <b>Other Nearby Learning Facilities / আশেপাশের অন্যান্য লার্নিং ফ্যাসিলিটি:</b><br> Blue points represent other nearby learning facilities around your location.<br> নীল বিন্দুগুলো আপনার আশেপাশের অন্যান্য লার্নিং ফ্যাসিলিটি নির্দেশ করে।<br><br> 🔹 <b>Distance Line / দূরত্ব নির্দেশক লাইন:</b><br> The orange line connects your location to the facilities and shows the direct distance.<br> কমলা রঙের লাইনটি আপনার অবস্থান থেকে ফ্যাসিলিটিগুলোর সরাসরি দূরত্ব নির্দেশ করে।<br><br> 🔹 <b>Distance & Estimated Time / দূরত্ব ও সম্ভাব্য সময়:</b><br> Distance is displayed in meters along with estimated walking time.<br> দূরত্ব (মিটারে) এবং সম্ভাব্য হাঁটার সময় একসাথে দেখানো হয়।<br><br> 🔹 <b>Automatic Zoom / স্বয়ংক্রিয় জুম:</b><br> The map automatically adjusts to display your location and the nearest learning facility.<br> ম্যাপ স্বয়ংক্রিয়ভাবে আপনার অবস্থান এবং নিকটতম লার্নিং ফ্যাসিলিটি দেখানোর জন্য জুম সমন্বয় করে।<br><br> 🔹 <b>GPS Status / জিপিএস অবস্থা:</b><br> The status box indicates whether your GPS is active and shows the current accuracy level.<br> স্ট্যাটাস বক্সে আপনার GPS সক্রিয় কিনা এবং এর নির্ভুলতা প্রদর্শিত হয়।<br><br> ⚠️ <b>Important Note / গুরুত্বপূর্ণ নির্দেশনা:</b><br> Please ensure that location access is enabled on your device for accurate results.<br> সঠিক ফলাফল পেতে আপনার ডিভাইসে লোকেশন অনুমতি চালু আছে কিনা নিশ্চিত করুন। ;
+</script>
+        
     </body>
 </html>
