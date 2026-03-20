@@ -257,6 +257,56 @@ window.onload = function(){
 </script>
         
         <div id="map" style="display:none;">
+<!-- ❓ Hint Button -->
+<div onclick="toggleGuide()" style="
+position:absolute;
+top:70px;
+right:10px;
+z-index:9999;
+background: rgba(255,255,255,0.6);
+backdrop-filter: blur(6px);
+padding:8px 10px;
+border-radius:8px;
+cursor:pointer;
+box-shadow:0 2px 6px rgba(0,0,0,0.3);
+font-size:16px;
+font-weight:bold;
+">
+❓
+</div>
+
+<!-- 📘 USER GUIDE -->
+<div id="guideBox" style="
+display:none;
+position:absolute;
+top:120px;
+right:10px;
+z-index:9999;
+max-width:320px;
+background: rgba(255,255,255,0.95);
+backdrop-filter: blur(6px);
+padding:15px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.3);
+font-size:13px;
+line-height:1.6;
+">
+
+<div style="text-align:right;">
+<button onclick="toggleGuide()" style="
+background:red;
+color:white;
+border:none;
+padding:3px 8px;
+border-radius:5px;
+cursor:pointer;
+">X</button>
+</div>
+
+<div id="guideContent"></div>
+
+</div>
+            
 <div style="
   position:absolute;
   top:10px;
@@ -724,7 +774,60 @@ if ('serviceWorker' in navigator) {
     .catch(() => console.log("Offline failed ❌"));
 }
 </script>
+<script>
+function toggleGuide(){
+    var box = document.getElementById("guideBox");
 
+    if(box.style.display === "none"){
+        box.style.display = "block";
+    } else {
+        box.style.display = "none";
+    }
+}
+</script>
+<script>
+document.getElementById("guideContent").innerHTML = `
+
+<b>📍 Map User Guidance / ব্যবহার নির্দেশিকা</b><br><br>
+
+🔹 <b>Your Location / আপনার অবস্থান:</b><br>
+Yellow circle indicates your current GPS location on the map.<br>
+হলুদ বৃত্ত আপনার বর্তমান অবস্থান নির্দেশ করে।<br><br>
+
+🔹 <b>GPS Accuracy / লোকেশন নির্ভুলতা:</b><br>
+The blue shaded area shows the accuracy of your GPS.<br>
+নীল অংশটি আপনার লোকেশনের নির্ভুলতা দেখায়।<br><br>
+
+🔹 <b>Nearest Facility / নিকটতম সুবিধা:</b><br>
+Red point shows the closest facility from your current position.<br>
+লাল বিন্দু আপনার নিকটতম সেবা কেন্দ্র নির্দেশ করে।<br><br>
+
+🔹 <b>Other Facilities / অন্যান্য সুবিধা:</b><br>
+Blue points represent nearby facilities around your location.<br>
+নীল বিন্দুগুলো আশেপাশের অন্যান্য সেবা কেন্দ্র।<br><br>
+
+🔹 <b>Distance Line / দূরত্ব লাইন:</b><br>
+Orange line connects your location to facilities.<br>
+কমলা লাইন আপনার অবস্থান থেকে সুবিধার দূরত্ব দেখায়।<br><br>
+
+🔹 <b>Distance & Time / দূরত্ব ও সময়:</b><br>
+Distance is shown in meters along with estimated walking time.<br>
+দূরত্ব (মিটার) এবং আনুমানিক সময় দেখানো হয়।<br><br>
+
+🔹 <b>Auto Zoom / স্বয়ংক্রিয় জুম:</b><br>
+Map automatically adjusts to show your position and nearest facility.<br>
+ম্যাপ নিজে থেকেই আপনার অবস্থান ও নিকটতম স্থান দেখায়।<br><br>
+
+🔹 <b>GPS Status / জিপিএস অবস্থা:</b><br>
+Top corner box shows GPS status and accuracy.<br>
+উপরে GPS এর অবস্থা ও accuracy দেখানো হয়।<br><br>
+
+⚠️ <b>Note / সতর্কতা:</b><br>
+Please allow location access for accurate results.<br>
+সঠিক ফলাফলের জন্য location permission দিন।
+
+`;
+</script> 
 <script>
 function loadMapScript(callback) {
     if (!window.mapLoaded) {
