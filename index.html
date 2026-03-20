@@ -260,7 +260,7 @@ window.onload = function(){
 <!-- ❓ Hint Button -->
 <div onclick="toggleGuide(event)" style="
 position:absolute;
-bottom:30px;
+bottom:40px;
 right:1px;
 z-index:9999;
 
@@ -282,7 +282,7 @@ font-weight:bold;
 <div id="guideBox" onclick="event.stopPropagation()" style="
 display:none;
 position:absolute;
-bottom:50px;
+bottom:70px;
 right:2px;
 z-index:9999;
 
@@ -334,7 +334,7 @@ font-size:11px;
   position:absolute;
   top:10px;
   right:10px;
-  z-index:9999;
+  z-index:500;
   padding:6px;
   background: rgba(255,255,255,0.2);
   backdrop-filter: blur(8px);
@@ -797,13 +797,18 @@ if ('serviceWorker' in navigator) {
     .catch(() => console.log("Offline failed ❌"));
 }
 </script>
-<script>
+
 /* 🔹 Toggle Guide */
+<script>
 function toggleGuide(event){
     var box = document.getElementById("guideBox");
 
     if(box.style.display === "none"){
         box.style.display = "block";
+
+        // 👉 position adjust
+        setTimeout(adjustGuidePosition, 50);
+
     } else {
         box.style.display = "none";
     }
@@ -812,6 +817,7 @@ function toggleGuide(event){
         event.stopPropagation();
     }
 }
+</script>
 
 /* 🔹 Outside click = close */
 document.addEventListener("click", function(){
@@ -881,6 +887,23 @@ function loadMapScript(callback) {
     }
 }
  </script>
-       
+<script>
+function adjustGuidePosition(){
+    var guide = document.getElementById("guideBox");
+    var legend = document.getElementById("legendBox");
+
+    if(!guide || !legend) return;
+
+    var legendRect = legend.getBoundingClientRect();
+    var guideRect = guide.getBoundingClientRect();
+
+    // যদি overlap হয়
+    if(guideRect.bottom > legendRect.top){
+        guide.style.bottom = (window.innerHeight - legendRect.top + 10) + "px";
+    } else {
+        guide.style.bottom = "100px"; // default position
+    }
+}
+</script>
     </body>
 </html>
