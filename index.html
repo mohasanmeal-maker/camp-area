@@ -86,6 +86,7 @@ box-shadow:0 8px 25px rgba(0,0,0,0.2);
 <img src="FIVDB.jpg" style="height:60px; margin-bottom:10px;">
 
 <h2 style="margin-bottom:15px;">🔐 Access Required</h2>
+
 <!-- Password box -->
 <div style="
 position:relative;
@@ -114,26 +115,6 @@ margin-right:auto;
         <i id="eyeIcon" class="fas fa-eye"></i>
     </span>
 
-<!-- 💡 LOCK SCREEN HINT BUTTON -->
-<div onclick="openHint()" style="
-position:absolute;
-bottom:20px;
-right:20px;
-z-index:1000000;
-
-background: rgba(255,255,255,0.3);
-backdrop-filter: blur(6px);
--webkit-backdrop-filter: blur(6px);
-
-padding:12px;
-border-radius:50%;
-cursor:pointer;
-
-box-shadow:0 4px 10px rgba(0,0,0,0.3);
-">
-
-<i class="fas fa-question" style="font-size:18px; color:#000;"></i>
-    
 </div>
 
 <button onclick="checkCode()" style="
@@ -901,17 +882,11 @@ This map is a supportive tool. Always verify real-world conditions before taking
     <script>
 
 // button চাপলে popup খুলবে
-<script>
-
-// function বানালাম (দুই জায়গা থেকেই call হবে)
-function openHint(){
+document.getElementById("hintBtn").onclick = function(){
     document.getElementById("hintPopup").style.display = "flex";
-}
+};
 
-// map button
-document.getElementById("hintBtn").onclick = openHint;
-
-// close
+// popup বন্ধ করবে
 function closeHint(){
     document.getElementById("hintPopup").style.display = "none";
 }
