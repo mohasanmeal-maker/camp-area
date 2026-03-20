@@ -471,7 +471,9 @@ function(position) {
     }
 
     document.getElementById("gpsStatus").innerHTML =
-        isMobile ? "📱 Mobile GPS running..." : "💻 Laptop location running...";
+        document.getElementById("gpsStatus").innerHTML =
+    (isMobile ? "📱 Mobile GPS running" : "💻 Laptop location running") +
+    "<br>Accuracy: " + Math.round(accuracy) + " m";
 
     var userLon = position.coords.longitude;
     var userLat = position.coords.latitude;
