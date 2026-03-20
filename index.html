@@ -800,7 +800,9 @@ if ('serviceWorker' in navigator) {
 
 <script>
 
-/* 🔹 Toggle Guide */
+<script>
+
+/* 🔹 Toggle Guide (Button এর সাথে attach) */
 function toggleGuide(event){
     var box = document.getElementById("guideBox");
     var btn = document.getElementById("hintBtn");
@@ -808,11 +810,13 @@ function toggleGuide(event){
     if(box.style.display === "none"){
         box.style.display = "block";
 
-        var rect = btn.getBoundingClientRect();
+        if(btn){
+            var rect = btn.getBoundingClientRect();
 
-        // 👉 button এর ঠিক উপরে বসবে
-        box.style.bottom = (window.innerHeight - rect.top + 10) + "px";
-        box.style.right = (window.innerWidth - rect.right) + "px";
+            // 👉 button এর ঠিক উপরে বসবে
+            box.style.bottom = (window.innerHeight - rect.top + 10) + "px";
+            box.style.right = (window.innerWidth - rect.right) + "px";
+        }
 
     } else {
         box.style.display = "none";
@@ -826,12 +830,19 @@ function toggleGuide(event){
 /* 🔹 Outside click = close */
 document.addEventListener("click", function(){
     var box = document.getElementById("guideBox");
-    box.style.display = "none";
+    if(box){
+        box.style.display = "none";
+    }
 });
 
-/* 🔹 Load Guidance Content */
+/* 🔹 Guide Content Load */
 window.addEventListener("load", function(){
-document.getElementById("guideContent").innerHTML = `
+
+    var guide = document.getElementById("guideContent");
+
+    if(!guide) return;
+
+    guide.innerHTML = `
 
 <b>📍 Map User Guidance / ব্যবহার নির্দেশিকা</b><br><br>
 
@@ -872,9 +883,10 @@ Please allow location access for accurate results.<br>
 সঠিক ফলাফলের জন্য location permission দিন।
 
 `;
+
 });
 
-<script>
+</script>
 function loadMapScript(callback) {
     if (!window.mapLoaded) {
         var script = document.createElement("script");
