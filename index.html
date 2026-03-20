@@ -14,7 +14,7 @@
         <style>
         html, body {
             background-color: #ffffff;
-        }
+        }    
         .ol-control > * {
             background-color: #f8f8f8!important;
             color: #444444!important;
@@ -798,15 +798,15 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-/* 🔹 Toggle Guide */
 <script>
+
+/* 🔹 Toggle Guide */
 function toggleGuide(event){
     var box = document.getElementById("guideBox");
 
     if(box.style.display === "none"){
         box.style.display = "block";
 
-        // 👉 position adjust
         setTimeout(adjustGuidePosition, 50);
 
     } else {
@@ -817,7 +817,6 @@ function toggleGuide(event){
         event.stopPropagation();
     }
 }
-</script>
 
 /* 🔹 Outside click = close */
 document.addEventListener("click", function(){
@@ -825,8 +824,7 @@ document.addEventListener("click", function(){
     box.style.display = "none";
 });
 
-/* 🔹 Load Guidance Content safely */
-</script>
+/* 🔹 Load Guidance Content */
 window.addEventListener("load", function(){
 document.getElementById("guideContent").innerHTML = `
 
@@ -870,6 +868,24 @@ Please allow location access for accurate results.<br>
 
 `;
 });
+
+/* 🔹 Auto reposition */
+function adjustGuidePosition(){
+    var guide = document.getElementById("guideBox");
+    var legend = document.getElementById("legendBox");
+
+    if(!guide || !legend) return;
+
+    var legendRect = legend.getBoundingClientRect();
+    var guideRect = guide.getBoundingClientRect();
+
+    if(guideRect.bottom > legendRect.top){
+        guide.style.bottom = (window.innerHeight - legendRect.top + 10) + "px";
+    } else {
+        guide.style.bottom = "100px";
+    }
+}
+
 </script>
 <script>
 function loadMapScript(callback) {
@@ -888,23 +904,5 @@ function loadMapScript(callback) {
     }
 }
  </script>
-<script>
-function adjustGuidePosition(){
-    var guide = document.getElementById("guideBox");
-    var legend = document.getElementById("legendBox");
-
-    if(!guide || !legend) return;
-
-    var legendRect = legend.getBoundingClientRect();
-    var guideRect = guide.getBoundingClientRect();
-
-    // যদি overlap হয়
-    if(guideRect.bottom > legendRect.top){
-        guide.style.bottom = (window.innerHeight - legendRect.top + 10) + "px";
-    } else {
-        guide.style.bottom = "100px"; // default position
-    }
-}
-</script>
     </body>
 </html>
