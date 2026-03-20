@@ -803,11 +803,16 @@ if ('serviceWorker' in navigator) {
 /* 🔹 Toggle Guide */
 function toggleGuide(event){
     var box = document.getElementById("guideBox");
+    var btn = document.getElementById("hintBtn");
 
     if(box.style.display === "none"){
         box.style.display = "block";
 
-        setTimeout(adjustGuidePosition, 50);
+        var rect = btn.getBoundingClientRect();
+
+        // 👉 button এর ঠিক উপরে বসবে
+        box.style.bottom = (window.innerHeight - rect.top + 10) + "px";
+        box.style.right = (window.innerWidth - rect.right) + "px";
 
     } else {
         box.style.display = "none";
@@ -869,24 +874,6 @@ Please allow location access for accurate results.<br>
 `;
 });
 
-/* 🔹 Auto reposition */
-function adjustGuidePosition(){
-    var guide = document.getElementById("guideBox");
-    var legend = document.getElementById("legendBox");
-
-    if(!guide || !legend) return;
-
-    var legendRect = legend.getBoundingClientRect();
-    var guideRect = guide.getBoundingClientRect();
-
-    if(guideRect.bottom > legendRect.top){
-        guide.style.bottom = (window.innerHeight - legendRect.top + 10) + "px";
-    } else {
-        guide.style.bottom = "100px";
-    }
-}
-
-</script>
 <script>
 function loadMapScript(callback) {
     if (!window.mapLoaded) {
