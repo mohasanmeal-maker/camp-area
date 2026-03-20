@@ -498,7 +498,10 @@ function(position) {
     var userLon = position.coords.longitude;
     var userLat = position.coords.latitude;
 
-    var newLocation = ol.proj.fromLonLat([userLon, userLat]);
+    var newLocation = ol.proj.fromLonLat([
+    userLon + 0.00005,   // east-west adjust
+    userLat + 0.00005    // north-south adjust
+]);
 
     // 🧠 smooth movement
     if (lastLocation) {
