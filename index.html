@@ -258,7 +258,7 @@ window.onload = function(){
         
         <div id="map" style="display:none;">
 <!-- ❓ Hint Button -->
-<div onclick="toggleGuide()" style="
+<div onclick="toggleGuide(event)" style="
 position:absolute;
 bottom:30px;
 right:1px;
@@ -279,10 +279,10 @@ font-weight:bold;
 </div>
 
 <!-- 📘 USER GUIDE -->
-<div id="guideBox" style="
+<div id="guideBox" onclick="event.stopPropagation()" style="
 display:none;
 position:absolute;
-bottom:32px;
+bottom:50px;
 right:2px;
 z-index:9999;
 
@@ -798,7 +798,8 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-function toggleGuide(){
+/* 🔹 Toggle Guide */
+function toggleGuide(event){
     var box = document.getElementById("guideBox");
 
     if(box.style.display === "none"){
@@ -806,9 +807,20 @@ function toggleGuide(){
     } else {
         box.style.display = "none";
     }
+
+    if(event){
+        event.stopPropagation();
+    }
 }
-</script>
-<script>
+
+/* 🔹 Outside click = close */
+document.addEventListener("click", function(){
+    var box = document.getElementById("guideBox");
+    box.style.display = "none";
+});
+
+/* 🔹 Load Guidance Content safely */
+window.addEventListener("load", function(){
 document.getElementById("guideContent").innerHTML = `
 
 <b>📍 Map User Guidance / ব্যবহার নির্দেশিকা</b><br><br>
@@ -850,7 +862,8 @@ Please allow location access for accurate results.<br>
 সঠিক ফলাফলের জন্য location permission দিন।
 
 `;
-</script> 
+});
+</script>
 <script>
 function loadMapScript(callback) {
     if (!window.mapLoaded) {
@@ -868,5 +881,6 @@ function loadMapScript(callback) {
     }
 }
  </script>
+       
     </body>
 </html>
