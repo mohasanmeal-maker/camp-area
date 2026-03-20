@@ -86,19 +86,6 @@ box-shadow:0 8px 25px rgba(0,0,0,0.2);
 <img src="FIVDB.jpg" style="height:60px; margin-bottom:10px;">
 
 <h2 style="margin-bottom:15px;">🔐 Access Required</h2>
-<!-- 💡 HINT BUTTON (LOCK SCREEN) -->
-<div style="margin-bottom:15px;">
-<button onclick="openHint()" style="
-padding:8px 12px;
-background:#3498db;
-color:white;
-border:none;
-border-radius:6px;
-cursor:pointer;
-">
-💡 View User Guide
-</button>
-</div>
 <!-- Password box -->
 <div style="
 position:relative;
@@ -127,6 +114,26 @@ margin-right:auto;
         <i id="eyeIcon" class="fas fa-eye"></i>
     </span>
 
+<!-- 💡 LOCK SCREEN HINT BUTTON -->
+<div onclick="openHint()" style="
+position:absolute;
+bottom:20px;
+right:20px;
+z-index:1000000;
+
+background: rgba(255,255,255,0.3);
+backdrop-filter: blur(6px);
+-webkit-backdrop-filter: blur(6px);
+
+padding:12px;
+border-radius:50%;
+cursor:pointer;
+
+box-shadow:0 4px 10px rgba(0,0,0,0.3);
+">
+
+<i class="fas fa-question" style="font-size:18px; color:#000;"></i>
+    
 </div>
 
 <button onclick="checkCode()" style="
