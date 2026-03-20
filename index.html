@@ -419,6 +419,26 @@ function getRealDistance(coord1, coord2) {
 
     return R * c;
 }
+
+var userFeature = new ol.Feature({
+    geometry: new ol.geom.Point([0,0])
+});
+
+userFeature.setStyle(new ol.style.Style({
+    image: new ol.style.Circle({
+        radius: 8,
+        fill: new ol.style.Fill({ color: '#FFFFCC' }),
+        stroke: new ol.style.Stroke({ color: '#333', width: 2 })
+    })
+}));
+
+var userLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({ features: [userFeature] })
+});
+
+map.addLayer(userLayer);
+    
+    
 function startMap(){
 
 // Store layers
@@ -460,32 +480,40 @@ function(position) {
 
     // 🧠 smooth movement
     if (lastLocation) {
-        var dx = newLocation[0] - lastLocation[0];
-        var dy = newLocation[1] - lastLocation[1];
-        var dist = Math.sqrt(dx * dx + dy * dy);
+    var dx = newLocation[0] - lastLocation[0];
+    var dy = newLocation[1] - lastLocation[1];
+    var dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < 10) return;
+    // ছোট movement ignore (আগে 10 ছিল, এখন 20)
+    if (dist < 20) return;
 
-        lastLocation = [
-            lastLocation[0] * 0.7 + newLocation[0] * 0.3,
-            lastLocation[1] * 0.7 + newLocation[1] * 0.3
-        ];
-    } else {
-        lastLocation = newLocation;
-    }
+    // smooth movement (আগে 0.7/0.3 ছিল)
+    var SMOOTH_FACTOR = 0.15;
+
+    lastLocation = [
+        lastLocation[0] * (1 - SMOOTH_FACTOR) + newLocation[0] * SMOOTH_FACTOR,
+        lastLocation[1] * (1 - SMOOTH_FACTOR) + newLocation[1] * SMOOTH_FACTOR
+    ];
+} else {
+    lastLocation = newLocation;
+}
 
     var userLocation = lastLocation;
 
     // 🧹 clear old layers
+    // খুব ঘন ঘন remove না করে delay দাও
+if (!window.lastClearTime) window.lastClearTime = Date.now();
+
+if (Date.now() - window.lastClearTime > 2000) {
     window.allLayers.forEach(function(layer) {
         map.removeLayer(layer);
     });
     window.allLayers = [];
+    window.lastClearTime = Date.now();
+}
 
     // 🟡 USER POINT
-    var userFeature = new ol.Feature({
-        geometry: new ol.geom.Point(userLocation)
-    });
+    userFeature.getGeometry().setCoordinates(userLocation);
 
     userFeature.setStyle(new ol.style.Style({
         image: new ol.style.Circle({
@@ -535,9 +563,12 @@ function(position) {
     ]);
 
     map.getView().fit(extent, {
-        padding: [100,100,100,100],
-        duration: 800
-    });
+    padding: [100,100,100,100],
+    duration: 800,
+    easing: function(t) {
+        return t * (2 - t); // smooth animation
+    }
+});
 
     // 🎯 DRAW
     nearestThree.forEach(function(item, index) {
