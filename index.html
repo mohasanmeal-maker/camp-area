@@ -258,22 +258,22 @@ window.onload = function(){
         
         <div id="map" style="display:none;">
 <!-- ❓ Hint Button -->
-<div onclick="toggleGuide(event)" style="
+<div id="hintBtn" onclick="toggleGuide(event)" style="
 position:absolute;
 bottom:40px;
-right:1px;
+right:10px;
 z-index:9999;
 
-background: rgba(255,255,255,0.4);
+background: rgba(255,255,255,0.6);
 backdrop-filter: blur(6px);
--webkit-backdrop-filter: blur(6px);
 
-padding:6px 10px;
-border-radius:8px;
+padding:8px 12px;
+border-radius:10px;
 cursor:pointer;
-box-shadow:0 2px 6px rgba(0,0,0,0.3);
-font-size:14px;
+box-shadow:0 3px 8px rgba(0,0,0,0.3);
+font-size:16px;
 font-weight:bold;
+transition:0.2s;
 ">
 ❓
 </div>
@@ -282,8 +282,8 @@ font-weight:bold;
 <div id="guideBox" onclick="event.stopPropagation()" style="
 display:none;
 position:absolute;
-bottom:50px;
-right:2px;
+bottom:90px; /* button এর ঠিক উপরে */
+right:10px;
 z-index:9999;
 
 width:280px;
@@ -292,26 +292,26 @@ overflow-y:auto;
 
 background: rgba(255,255,255,0.25);
 backdrop-filter: blur(10px);
--webkit-backdrop-filter: blur(10px);
 
 padding:12px;
-border-radius:10px;
-box-shadow:0 4px 12px rgba(0,0,0,0.3);
+border-radius:12px;
+box-shadow:0 6px 18px rgba(0,0,0,0.3);
 
 font-size:12px;
 line-height:1.5;
+transition:0.2s;
 ">
 
-<!-- 🔺 Arrow -->
+<!-- 🔻 Arrow pointing to button -->
 <div style="
 position:absolute;
-bottom:-8px;
+bottom:-10px;
 right:20px;
 width:0;
 height:0;
-border-left:8px solid transparent;
-border-right:8px solid transparent;
-border-top:8px solid rgba(255,255,255,0.25);
+border-left:10px solid transparent;
+border-right:10px solid transparent;
+border-top:10px solid rgba(255,255,255,0.25);
 "></div>
 
 <div style="text-align:right;">
