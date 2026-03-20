@@ -802,22 +802,16 @@ if ('serviceWorker' in navigator) {
 
 <script>
 
-/* 🔹 Toggle Guide (Button এর সাথে attach) */
+<script>
+
+/* ✅ Toggle Guide */
 function toggleGuide(event){
     var box = document.getElementById("guideBox");
-    var btn = document.getElementById("hintBtn");
+
+    if(!box) return;
 
     if(box.style.display === "none"){
         box.style.display = "block";
-
-        if(btn){
-            var rect = btn.getBoundingClientRect();
-
-            // 👉 button এর ঠিক উপরে বসবে
-            box.style.bottom = (window.innerHeight - rect.top + 10) + "px";
-            box.style.right = (window.innerWidth - rect.right) + "px";
-        }
-
     } else {
         box.style.display = "none";
     }
@@ -827,7 +821,7 @@ function toggleGuide(event){
     }
 }
 
-/* 🔹 Outside click = close */
+/* ✅ Outside click close */
 document.addEventListener("click", function(){
     var box = document.getElementById("guideBox");
     if(box){
@@ -835,52 +829,51 @@ document.addEventListener("click", function(){
     }
 });
 
-/* 🔹 Guide Content Load */
+/* ✅ Load Guide Content */
 window.addEventListener("load", function(){
 
     var guide = document.getElementById("guideContent");
-
     if(!guide) return;
 
-    guide.innerHTML = `
+  guide.innerHTML = `
 
 <b>📍 Map User Guidance / ব্যবহার নির্দেশিকা</b><br><br>
 
 🔹 <b>Your Location / আপনার অবস্থান:</b><br>
-Yellow circle indicates your current GPS location on the map.<br>
-হলুদ বৃত্ত আপনার বর্তমান অবস্থান নির্দেশ করে।<br><br>
+The yellow circle represents your current GPS location on the map.<br>
+হলুদ বৃত্তটি ম্যাপে আপনার বর্তমান অবস্থান নির্দেশ করে।<br><br>
 
-🔹 <b>GPS Accuracy / লোকেশন নির্ভুলতা:</b><br>
-The blue shaded area shows the accuracy of your GPS.<br>
-নীল অংশটি আপনার লোকেশনের নির্ভুলতা দেখায়।<br><br>
+🔹 <b>GPS Accuracy / অবস্থানের নির্ভুলতা:</b><br>
+The light blue shaded area shows the accuracy range of your GPS signal.<br>
+হালকা নীল অংশটি আপনার GPS লোকেশনের নির্ভুলতার পরিসীমা দেখায়।<br><br>
 
-🔹 <b>Nearest Facility / নিকটতম সুবিধা:</b><br>
-Red point shows the closest facility from your current position.<br>
-লাল বিন্দু আপনার নিকটতম সেবা কেন্দ্র নির্দেশ করে।<br><br>
+🔹 <b>Nearest Learning Facility / নিকটতম লার্নিং ফ্যাসিলিটি:</b><br>
+The red point indicates the nearest learning facility from your current location.<br>
+লাল বিন্দু আপনার বর্তমান অবস্থান থেকে নিকটতম লার্নিং ফ্যাসিলিটি নির্দেশ করে।<br><br>
 
-🔹 <b>Other Facilities / অন্যান্য সুবিধা:</b><br>
-Blue points represent nearby facilities around your location.<br>
-নীল বিন্দুগুলো আশেপাশের অন্যান্য সেবা কেন্দ্র।<br><br>
+🔹 <b>Other Nearby Learning Facilities / আশেপাশের অন্যান্য লার্নিং ফ্যাসিলিটি:</b><br>
+Blue points represent other nearby learning facilities around your location.<br>
+নীল বিন্দুগুলো আপনার আশেপাশের অন্যান্য লার্নিং ফ্যাসিলিটি নির্দেশ করে।<br><br>
 
-🔹 <b>Distance Line / দূরত্ব লাইন:</b><br>
-Orange line connects your location to facilities.<br>
-কমলা লাইন আপনার অবস্থান থেকে সুবিধার দূরত্ব দেখায়।<br><br>
+🔹 <b>Distance Line / দূরত্ব নির্দেশক লাইন:</b><br>
+The orange line connects your location to the facilities and shows the direct distance.<br>
+কমলা রঙের লাইনটি আপনার অবস্থান থেকে ফ্যাসিলিটিগুলোর সরাসরি দূরত্ব নির্দেশ করে।<br><br>
 
-🔹 <b>Distance & Time / দূরত্ব ও সময়:</b><br>
-Distance is shown in meters along with estimated walking time.<br>
-দূরত্ব (মিটার) এবং আনুমানিক সময় দেখানো হয়।<br><br>
+🔹 <b>Distance & Estimated Time / দূরত্ব ও সম্ভাব্য সময়:</b><br>
+Distance is displayed in meters along with estimated walking time.<br>
+দূরত্ব (মিটারে) এবং সম্ভাব্য হাঁটার সময় একসাথে দেখানো হয়।<br><br>
 
-🔹 <b>Auto Zoom / স্বয়ংক্রিয় জুম:</b><br>
-Map automatically adjusts to show your position and nearest facility.<br>
-ম্যাপ নিজে থেকেই আপনার অবস্থান ও নিকটতম স্থান দেখায়।<br><br>
+🔹 <b>Automatic Zoom / স্বয়ংক্রিয় জুম:</b><br>
+The map automatically adjusts to display your location and the nearest learning facility.<br>
+ম্যাপ স্বয়ংক্রিয়ভাবে আপনার অবস্থান এবং নিকটতম লার্নিং ফ্যাসিলিটি দেখানোর জন্য জুম সমন্বয় করে।<br><br>
 
 🔹 <b>GPS Status / জিপিএস অবস্থা:</b><br>
-Top corner box shows GPS status and accuracy.<br>
-উপরে GPS এর অবস্থা ও accuracy দেখানো হয়।<br><br>
+The status box indicates whether your GPS is active and shows the current accuracy level.<br>
+স্ট্যাটাস বক্সে আপনার GPS সক্রিয় কিনা এবং এর নির্ভুলতা প্রদর্শিত হয়।<br><br>
 
-⚠️ <b>Note / সতর্কতা:</b><br>
-Please allow location access for accurate results.<br>
-সঠিক ফলাফলের জন্য location permission দিন।
+⚠️ <b>Important Note / গুরুত্বপূর্ণ নির্দেশনা:</b><br>
+Please ensure that location access is enabled on your device for accurate results.<br>
+সঠিক ফলাফল পেতে আপনার ডিভাইসে লোকেশন অনুমতি চালু আছে কিনা নিশ্চিত করুন।
 
 `;
 
