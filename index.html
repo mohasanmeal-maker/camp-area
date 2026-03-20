@@ -444,6 +444,26 @@ function startMap(){
 // Store layers
 window.allLayers = [];
 var lastLocation = null;
+// 🟢 ACCURACY CIRCLE (NEW)
+var accuracyFeature = new ol.Feature({
+    geometry: new ol.geom.Circle([0,0], 0)
+});
+
+accuracyFeature.setStyle(new ol.style.Style({
+    stroke: new ol.style.Stroke({
+        color: 'rgba(0, 0, 255, 0.5)',
+        width: 2
+    }),
+    fill: new ol.style.Fill({
+        color: 'rgba(0, 0, 255, 0.1)'
+    })
+}));
+
+var accuracyLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({ features: [accuracyFeature] })
+});
+
+map.addLayer(accuracyLayer);
 var overlay;
 
 var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
@@ -524,7 +544,9 @@ if (Date.now() - window.lastClearTime > 2000) {
             stroke: new ol.style.Stroke({ color: '#333', width: 2 })
         })
     }));
-
+// 🟢 ACCURACY UPDATE (NEW)
+accuracyFeature.getGeometry().setCenter(userLocation);
+accuracyFeature.getGeometry().setRadius(accuracy);
     var userLayer = new ol.layer.Vector({
         source: new ol.source.Vector({ features: [userFeature] })
     });
