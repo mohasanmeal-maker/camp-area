@@ -664,26 +664,12 @@ features.forEach(function(f) {
         var timeMin = Math.ceil(item.distance / speed);
 
         // 🟠 LINE
-        var line = new ol.Feature({
-            geometry: new ol.geom.LineString([
-                userLocation,
-                item.coord
-            ])
-        });
-
-        line.setStyle(new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: '#F79646',
-                width: 3
-            })
-        }));
-
-        var lineLayer = new ol.layer.Vector({
-            source: new ol.source.Vector({ features: [line] })
-        });
-
-        map.addLayer(lineLayer);
-        window.allLayers.push(lineLayer);
+      drawRoadRoute(
+    ol.proj.toLonLat(userLocation)[1],
+    ol.proj.toLonLat(userLocation)[0],
+    ol.proj.toLonLat(item.coord)[1],
+    ol.proj.toLonLat(item.coord)[0]
+);
 
         // 🔴 / 🔵 POINT + TEXT
         var point = new ol.Feature({
@@ -967,6 +953,42 @@ function closeHint(){
     document.getElementById("hintPopup").style.display = "none";
 }
 
+<script>
+
+// 🔥 এইটার নিচে paste করো 👇
+function drawRoadRoute(lat1, lon1, lat2, lon2){
+
+    var url = `https://router.project-osrm.org/route/v1/walking/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
+
+    fetch(url)
+    .then(res => res.json())
+    .then(data => {
+
+        var route = data.routes[0].geometry.coordinates;
+
+        var transformed = route.map(c => ol.proj.fromLonLat(c));
+
+        var line = new ol.Feature({
+            geometry: new ol.geom.LineString(transformed)
+        });
+
+        line.setStyle(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: '#00AAFF',
+                width: 4
+            })
+        }));
+
+        var layer = new ol.layer.Vector({
+            source: new ol.source.Vector({ features: [line] })
+        });
+
+        map.addLayer(layer);
+        window.allLayers.push(layer);
+    });
+}
+
+</script>
 </script>
 
         
