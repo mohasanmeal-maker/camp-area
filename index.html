@@ -1,580 +1,465 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
-        <meta name="mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <link rel="stylesheet" href="./resources/ol.css">
-        <link rel="stylesheet" href="resources/fontawesome-all.min.css">
-        <link href="resources/photon-geocoder-autocomplete.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
-        <link rel="stylesheet" href="./resources/qgis2web.css">
-        <style>
-        html, body {
-            background-color: #ffffff;
-        }
-        .ol-control > * {
-            background-color: #f8f8f8!important;
-            color: #444444!important;
-            border-radius: 0px;
-        }
-        .ol-attribution a, .gcd-gl-input::placeholder, .search-layer-input-search::placeholder {
-            color: #444444!important;
-        }
-        .search-layer-input-search {
-            background-color: #f8f8f8!important;
-        }
-        .ol-control > *:focus, .ol-control >*:hover {
-            background-color: rgba(248, 248, 248, 0.7)!important;
-        } 
-        .ol-control {
-            background-color: rgba(255,255,255,.4) !important;
-            padding: 2px !important;
-        } 
-        </style>
-
-        <style>
-        html, body, #map {
-            width: 100%;
-            height: 100%;
-            padding: 0;
-            margin: 0;
-        }
-        </style>
-        <title></title>
-    </head>
-    <body>
-
-        
-<!-- 🔐 LOCK SCREEN -->
-<div id="lockScreen" style="
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100vh;
-background: rgba(0,0,0,0.4); /* dark overlay */
-backdrop-filter: blur(6px);
--webkit-backdrop-filter: blur(6px);
-display:flex;
-justify-content:center;
-align-items:center;
-z-index:999999;
-padding:20px;
-box-sizing:border-box;
-">
-
-<!-- 🔳 Center Box -->
-<div style="
-width:100%;
-max-width:380px;
-text-align:center;
-
-background: rgba(255,255,255,0.25);
-backdrop-filter: blur(15px);
--webkit-backdrop-filter: blur(15px);
-
-padding:25px 20px;
-border-radius:14px;
-
-border:1px solid rgba(255,255,255,0.4);
-box-shadow:0 8px 25px rgba(0,0,0,0.2);
-">
-
-<img src="FIVDB.jpg" style="height:60px; margin-bottom:10px;">
-
-<h2 style="margin-bottom:15px;">🔐 Access Required</h2>
-
-<!-- Password box -->
-<div style="
-position:relative;
-margin-bottom:12px;
-width:80%;
-    max-width:280px;
-margin-left:auto;
-margin-right:auto;
-">
-
-    <input id="codeInput" type="password" placeholder="Enter access code"
-    style="
-    padding:10px;
+    <!doctype html>
+    <html lang="en">
+        <head>
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+            <meta name="mobile-web-app-capable" content="yes">
+            <meta name="apple-mobile-web-app-capable" content="yes">
+            <link rel="stylesheet" href="./resources/ol.css">
+            <link rel="stylesheet" href="resources/fontawesome-all.min.css">
+            <link href="resources/photon-geocoder-autocomplete.min.css" rel="stylesheet">
+            <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
+            <link rel="stylesheet" href="./resources/qgis2web.css">
+            <style>
+            html, body {
+                background-color: #ffffff;
+            }
+            .ol-control > * {
+                background-color: #f8f8f8!important;
+                color: #444444!important;
+                border-radius: 0px;
+            }
+            .ol-attribution a, .gcd-gl-input::placeholder, .search-layer-input-search::placeholder {
+                color: #444444!important;
+            }
+            .search-layer-input-search {
+                background-color: #f8f8f8!important;
+            }
+            .ol-control > *:focus, .ol-control >*:hover {
+                background-color: rgba(248, 248, 248, 0.7)!important;
+            } 
+            .ol-control {
+                background-color: rgba(255,255,255,.4) !important;
+                padding: 2px !important;
+            } 
+            </style>
+    
+            <style>
+            html, body, #map {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            </style>
+            <title></title>
+        </head>
+        <body>
+    
+            
+    <!-- 🔐 LOCK SCREEN -->
+    <div id="lockScreen" style="
+    position:fixed;
+    top:0;
+    left:0;
     width:100%;
-    border:1px solid #ccc;
-    border-radius:6px;
+    height:100vh;
+    background: rgba(0,0,0,0.4); /* dark overlay */
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:999999;
+    padding:20px;
+    box-sizing:border-box;
     ">
-
-    <span onclick="togglePassword()" style="
-    position:absolute;
-    right:10px;
-    top:50%;
-    transform:translateY(-50%);
+    
+    <!-- 🔳 Center Box -->
+    <div style="
+    width:100%;
+    max-width:380px;
+    text-align:center;
+    
+    background: rgba(255,255,255,0.25);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    
+    padding:25px 20px;
+    border-radius:14px;
+    
+    border:1px solid rgba(255,255,255,0.4);
+    box-shadow:0 8px 25px rgba(0,0,0,0.2);
+    ">
+    
+    <img src="FIVDB.jpg" style="height:60px; margin-bottom:10px;">
+    
+    <h2 style="margin-bottom:15px;">🔐 Access Required</h2>
+    
+    <!-- Password box -->
+    <div style="
+    position:relative;
+    margin-bottom:12px;
+    width:80%;
+        max-width:280px;
+    margin-left:auto;
+    margin-right:auto;
+    ">
+    
+        <input id="codeInput" type="password" placeholder="Enter access code"
+        style="
+        padding:10px;
+        width:100%;
+        border:1px solid #ccc;
+        border-radius:6px;
+        ">
+    
+        <span onclick="togglePassword()" style="
+        position:absolute;
+        right:10px;
+        top:50%;
+        transform:translateY(-50%);
+        cursor:pointer;
+        ">
+            <i id="eyeIcon" class="fas fa-eye"></i>
+        </span>
+    
+    </div>
+    
+    <button onclick="checkCode()" style="
+    width:100%;
+    padding:10px;
+    background:#2c3e50;
+    color:white;
+    border:none;
+    border-radius:6px;
     cursor:pointer;
     ">
-        <i id="eyeIcon" class="fas fa-eye"></i>
-    </span>
-
-</div>
-
-<button onclick="checkCode()" style="
-width:100%;
-padding:10px;
-background:#2c3e50;
-color:white;
-border:none;
-border-radius:6px;
-cursor:pointer;
-">
-Access Map
-</button>
-
-<p id="errorMsg" style="color:red; margin-top:12px;"></p>
-
-</div>
-
-</div>
-
-<script>
-
-    var wrongAttempts = 0;
-var maxAttempts = 3;
-var lockTime = 30;
+    Access Map
+    </button>
     
-// 🔐 Password Check
-function checkCode(){
-    var input = document.getElementById("codeInput");
-    var code = input.value;
-
-    if(code === "FIVDB2023"){
-
-        document.getElementById("lockScreen").style.display = "none";
-        document.getElementById("map").style.display = "block";
-
-        loadMapScript();
-
-    } else {
-
-        wrongAttempts++;
-
-        if(wrongAttempts >= maxAttempts){
-
-            var countdown = lockTime;
-
-            document.getElementById("codeInput").disabled = true;
-
-            var interval = setInterval(function(){
-
-                document.getElementById("errorMsg").innerHTML =
-                "<div style='text-align:center; color:red; font-weight:bold;'>"
-                + "⛔ Too many wrong attempts!<br>"
-                + "Try again in " + countdown + " seconds"
-                + "</div>";
-
-                countdown--;
-
-                if(countdown < 0){
-                    clearInterval(interval);
-
-                    wrongAttempts = 0;
-                    document.getElementById("codeInput").disabled = false;
-
-                    document.getElementById("errorMsg").innerHTML =
-                    "<div style='text-align:center; color:green;'>"
-                    + "✅ You can try again now"
-                    + "</div>";
-                }
-
-            }, 1000);
-
-        } else {
-
-            var remaining = maxAttempts - wrongAttempts;
-
-            document.getElementById("errorMsg").innerHTML =
-            "<div style='text-align:center; font-family:Arial; background:#fff; padding:12px; border-radius:10px; box-shadow:0 3px 8px rgba(0,0,0,0.2);'>"
-
-            + "<div style='color:red; font-size:18px; font-weight:bold;'>"
-            + "⚠️ ❌ ACCESS DENIED! ❌"
-            + "</div>"
-
-            + "<div style='font-size:14px;'>"
-            + "Incorrect Code (" + remaining + " attempts left)"
-            + "</div>"
-
-            + "<div style='font-size:15px; font-weight:bold; text-transform:uppercase; margin-top:8px;'>"
-            + "For access, please contact"
-            + "</div>"
-
-            + "<div style='font-size:18px; margin:4px 0;'>⬇️</div>"
-
-            + "<i class='fas fa-user'></i> <b>Mohasan Uddin Tutul</b><br>"
-            + "<i class='fas fa-phone'></i> Phone: 01855-677776<br>"
-            + "<i class='fab fa-whatsapp'></i> WhatsApp: 01855-677776<br>"
-            + "<i class='fas fa-envelope'></i> Email: mohasan.uddin@fivdb.org<br>"
-            + "<i class='fas fa-map-marker-alt'></i> Address: FIVDB Office, Cox’s Bazar"
-
-            + "</div>";
-
-            input.value = "";
-        }
-    }
-}
-
-// 👁️ Show/Hide Password
-function togglePassword(){
-    var input = document.getElementById("codeInput");
-    var icon = document.getElementById("eyeIcon");
-
-    if(input.type === "password"){
-        input.type = "text";
-        icon.classList.remove("fa-eye");
-        icon.classList.add("fa-eye-slash");
-    } else {
-        input.type = "password";
-        icon.classList.remove("fa-eye-slash");
-        icon.classList.add("fa-eye");
-    }
-}
-
-// ⌨️ Enter key support
-window.onload = function(){
-
-    // 🔒 Always show lock screen first
-    document.getElementById("lockScreen").style.display = "flex";
-    document.getElementById("map").style.display = "none";
-
-    document.getElementById("hintPopup").style.display = "flex";
-
-    // ⌨️ Enter key support
-    document.getElementById("codeInput").addEventListener("keypress", function(e){
-        if(e.key === "Enter"){
-            checkCode();
-        }
-    });
-};
-
-</script>
+    <p id="errorMsg" style="color:red; margin-top:12px;"></p>
+    
+    </div>
+    
+    </div>
+    
+    <script>
+    
+        var wrongAttempts = 0;
+    var maxAttempts = 3;
+    var lockTime = 30;
         
-        <div id="map" style="display:none;">
-<!-- 💡 HINT BUTTON -->
-<div id="hintBtn" style="
-position:absolute;
-bottom:40px;
-right:3px;
-z-index:9999;
-background: rgba(255,255,255,0.3);
-backdrop-filter: blur(6px);
-padding:10px;
-border-radius:50%;
-cursor:pointer;
-box-shadow:0 2px 6px rgba(0,0,0,0.2);
-">
-<i class="fas fa-question"></i>
-</div>
-<div style="
-  position:absolute;
-  top:10px;
-  right:10px;
-  z-index:9999;
-  padding:6px;
-  background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius:10px;
-  border:2px solid #FFFFFF; /* এইটা হলো visible border */
-  box-shadow:0 4px 10px rgba(0,0,0,0.2);
-">
-
-  <img src="FIVDB.jpg" style="height:50px; display:block; border-radius:6px;">
-
-</div>
+    // 🔐 Password Check
+    function checkCode(){
+        var input = document.getElementById("codeInput");
+        var code = input.value;
+    
+        if(code === "FIVDB2023"){
+    
+            document.getElementById("lockScreen").style.display = "none";
+            document.getElementById("map").style.display = "block";
+    
+            loadMapScript();
+    
+        } else {
+    
+            wrongAttempts++;
+    
+            if(wrongAttempts >= maxAttempts){
+    
+                var countdown = lockTime;
+    
+                document.getElementById("codeInput").disabled = true;
+    
+                var interval = setInterval(function(){
+    
+                    document.getElementById("errorMsg").innerHTML =
+                    "<div style='text-align:center; color:red; font-weight:bold;'>"
+                    + "⛔ Too many wrong attempts!<br>"
+                    + "Try again in " + countdown + " seconds"
+                    + "</div>";
+    
+                    countdown--;
+    
+                    if(countdown < 0){
+                        clearInterval(interval);
+    
+                        wrongAttempts = 0;
+                        document.getElementById("codeInput").disabled = false;
+    
+                        document.getElementById("errorMsg").innerHTML =
+                        "<div style='text-align:center; color:green;'>"
+                        + "✅ You can try again now"
+                        + "</div>";
+                    }
+    
+                }, 1000);
+    
+            } else {
+    
+                var remaining = maxAttempts - wrongAttempts;
+    
+                document.getElementById("errorMsg").innerHTML =
+                "<div style='text-align:center; font-family:Arial; background:#fff; padding:12px; border-radius:10px; box-shadow:0 3px 8px rgba(0,0,0,0.2);'>"
+    
+                + "<div style='color:red; font-size:18px; font-weight:bold;'>"
+                + "⚠️ ❌ ACCESS DENIED! ❌"
+                + "</div>"
+    
+                + "<div style='font-size:14px;'>"
+                + "Incorrect Code (" + remaining + " attempts left)"
+                + "</div>"
+    
+                + "<div style='font-size:15px; font-weight:bold; text-transform:uppercase; margin-top:8px;'>"
+                + "For access, please contact"
+                + "</div>"
+    
+                + "<div style='font-size:18px; margin:4px 0;'>⬇️</div>"
+    
+                + "<i class='fas fa-user'></i> <b>Mohasan Uddin Tutul</b><br>"
+                + "<i class='fas fa-phone'></i> Phone: 01855-677776<br>"
+                + "<i class='fab fa-whatsapp'></i> WhatsApp: 01855-677776<br>"
+                + "<i class='fas fa-envelope'></i> Email: mohasan.uddin@fivdb.org<br>"
+                + "<i class='fas fa-map-marker-alt'></i> Address: FIVDB Office, Cox’s Bazar"
+    
+                + "</div>";
+    
+                input.value = "";
+            }
+        }
+    }
+    
+    // 👁️ Show/Hide Password
+    function togglePassword(){
+        var input = document.getElementById("codeInput");
+        var icon = document.getElementById("eyeIcon");
+    
+        if(input.type === "password"){
+            input.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+    
+    // ⌨️ Enter key support
+    window.onload = function(){
+    
+        // 🔒 Always show lock screen first
+        document.getElementById("lockScreen").style.display = "flex";
+        document.getElementById("map").style.display = "none";
+    
+        document.getElementById("hintPopup").style.display = "flex";
+    
+        // ⌨️ Enter key support
+        document.getElementById("codeInput").addEventListener("keypress", function(e){
+            if(e.key === "Enter"){
+                checkCode();
+            }
+        });
+    };
+    
+    </script>
             
-<div style="
-  position:absolute;
-  top:1px;
-  left:1px;
-  background: rgba(255,255,255,0.4); /* transparency added */
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  color:#000000;
-  padding:12px 14px;
-  border-radius:10px;
-  z-index:9999;
-  max-width:420px;
-  width:auto;
-  box-shadow:0 4px 10px rgba(0,0,0,0.3);
-  border:1px solid rgba(255,255,255,0.3); /* glass edge */
-">
-
-  <div style="font-size:18px; font-weight:bold; text-transform:uppercase;">
-    Project Implementation Area
-  </div>
-
-  <div style="font-size:14px; margin-top:4px;">
-    Education For Rohingya Refugee Children And Host Community Children In Bangladesh
-  </div>
-
-  <div style="font-size:12px; margin-top:3px;">
-    ECW MYRP II Funding Project
-  </div>
-
-</div>
-
-<div style="
-position:absolute;
-bottom:1px;
-right:1px;
-background:rgba(255,255,255,0.4);
-backdrop-filter: blur(6px);
--webkit-backdrop-filter: blur(6px);
-color:#000000;
-padding:5px 10px;
-font-size:10px;
-font-weight:bold;
-border-radius:5px;
-z-index:9999;
-box-shadow:0 0 4px rgba(0,0,0,0.3);
-">
-<i>Map prepared by: Mohasan Uddin Tutul | MEAL Team | Friends In Village Development Bangladesh (FIVDB)</i>
-</div>            
-
-
-<div id="legendBox" style="
+            <div id="map" style="display:none;">
+    <!-- 💡 HINT BUTTON -->
+    <div id="hintBtn" style="
     position:absolute;
     bottom:40px;
-    left:1px;
-      background: rgba(255,255,255,0.4); /* transparency added */
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  color:#000000;
+    right:3px;
+    z-index:9999;
+    background: rgba(255,255,255,0.3);
+    backdrop-filter: blur(6px);
     padding:10px;
-    font-size:11px;
+    border-radius:50%;
+    cursor:pointer;
+    box-shadow:0 2px 6px rgba(0,0,0,0.2);
+    ">
+    <i class="fas fa-question"></i>
+    </div>
+    <div style="
+      position:absolute;
+      top:10px;
+      right:10px;
+      z-index:9999;
+      padding:6px;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius:10px;
+      border:2px solid #FFFFFF; /* এইটা হলো visible border */
+      box-shadow:0 4px 10px rgba(0,0,0,0.2);
+    ">
+    
+      <img src="FIVDB.jpg" style="height:50px; display:block; border-radius:6px;">
+    
+    </div>
+                
+    <div style="
+      position:absolute;
+      top:1px;
+      left:1px;
+      background: rgba(255,255,255,0.4); /* transparency added */
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      color:#000000;
+      padding:12px 14px;
+      border-radius:10px;
+      z-index:9999;
+      max-width:420px;
+      width:auto;
+      box-shadow:0 4px 10px rgba(0,0,0,0.3);
+      border:1px solid rgba(255,255,255,0.3); /* glass edge */
+    ">
+    
+      <div style="font-size:18px; font-weight:bold; text-transform:uppercase;">
+        Project Implementation Area
+      </div>
+    
+      <div style="font-size:14px; margin-top:4px;">
+        Education For Rohingya Refugee Children And Host Community Children In Bangladesh
+      </div>
+    
+      <div style="font-size:12px; margin-top:3px;">
+        ECW MYRP II Funding Project
+      </div>
+    
+    </div>
+    
+    <div style="
+    position:absolute;
+    bottom:1px;
+    right:1px;
+    background:rgba(255,255,255,0.4);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color:#000000;
+    padding:5px 10px;
+    font-size:10px;
+    font-weight:bold;
+    border-radius:5px;
+    z-index:9999;
+    box-shadow:0 0 4px rgba(0,0,0,0.3);
+    ">
+    <i>Map prepared by: Mohasan Uddin Tutul | MEAL Team | Friends In Village Development Bangladesh (FIVDB)</i>
+    </div>            
+    
+    
+    <div id="legendBox" style="
+        position:absolute;
+        bottom:40px;
+        left:1px;
+          background: rgba(255,255,255,0.4); /* transparency added */
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      color:#000000;
+        padding:10px;
+        font-size:11px;
+        border-radius:6px;
+        z-index:9999;
+        box-shadow:0 0 6px rgba(0,0,0,0.3);
+        max-width:200px;
+    ">
+    <b>Legend</b><br><br>
+    
+    <span style="display:flex; align-items:center; margin-bottom:4px;">
+        <span style="width:12px; height:12px; background:#FFFFCC; border:2px solid #333; border-radius:50%; display:inline-block; margin-right:6px;"></span>
+        Your Current GPS Location
+    </span>
+    
+    <span style="display:flex; align-items:center; margin-bottom:4px;">
+        <span style="
+        width:16px;
+        height:16px;
+        border:2px solid rgba(100,149,237,0.5);
+        background:rgba(100,149,237,0.05);
+        border-radius:50%;
+        display:inline-block;
+        margin-right:6px;
+        box-shadow: 0 0 6px rgba(100,149,237,0.2);
+        "></span>
+        GPS Accuracy Area
+    </span>
+    
+    <span style="display:flex; align-items:center; margin-bottom:4px;">
+        <span style="width:12px; height:12px; background:#FF3333; border-radius:50%; display:inline-block; margin-right:6px;"></span>
+        Nearest Facility
+    </span>
+    
+    <span style="display:flex; align-items:center; margin-bottom:4px;">
+        <span style="width:12px; height:12px; background:#66CCFF; border-radius:50%; display:inline-block; margin-right:6px;"></span>
+        Other Nearby Facilities
+    </span>
+    
+    <span style="display:flex; align-items:center; margin-bottom:4px;">
+        <span style="width:20px; height:3px; background:#F79646; display:inline-block; margin-right:6px;"></span>
+        Distance Line
+    </span>
+    
+    <span style="display:flex; align-items:center; margin-bottom:4px;">
+        <span style="
+    display:inline-block;
+    width:20px;
+    height:8px;
+    border-top:2px solid #4F81BD;
+    border-bottom:2px dashed #4F81BD;
+    margin-right:6px;
+    "></span>
+    Camp / Block Boundary
+    </span>
+    <span style="display:flex; align-items:center; margin-bottom:4px;">
+        <span style="width:12px; height:12px; background:#F79646; border:2px solid #333; border-radius:50%; display:inline-block; margin-right:6px;"></span>
+        Learning Facilites
+    </span>
+    
+    </div>
+    <div id="gpsStatus" style="
+    position:absolute;
+    top:120px;
+    right:01px;
+    background:rgba(255,255,255,0.7);
+    backdrop-filter: blur(6px);
+    padding:6px 10px;
+    font-size:12px;
     border-radius:6px;
     z-index:9999;
-    box-shadow:0 0 6px rgba(0,0,0,0.3);
-    max-width:200px;
-">
-<b>Legend</b><br><br>
-
-<span style="display:flex; align-items:center; margin-bottom:4px;">
-    <span style="width:12px; height:12px; background:#FFFFCC; border:2px solid #333; border-radius:50%; display:inline-block; margin-right:6px;"></span>
-    Your Current GPS Location
-</span>
-
-<span style="display:flex; align-items:center; margin-bottom:4px;">
-    <span style="
-    width:16px;
-    height:16px;
-    border:2px solid rgba(100,149,237,0.5);
-    background:rgba(100,149,237,0.05);
-    border-radius:50%;
-    display:inline-block;
-    margin-right:6px;
-    box-shadow: 0 0 6px rgba(100,149,237,0.2);
-    "></span>
-    GPS Accuracy Area
-</span>
-
-<span style="display:flex; align-items:center; margin-bottom:4px;">
-    <span style="width:12px; height:12px; background:#FF3333; border-radius:50%; display:inline-block; margin-right:6px;"></span>
-    Nearest Facility
-</span>
-
-<span style="display:flex; align-items:center; margin-bottom:4px;">
-    <span style="width:12px; height:12px; background:#66CCFF; border-radius:50%; display:inline-block; margin-right:6px;"></span>
-    Other Nearby Facilities
-</span>
-
-<span style="display:flex; align-items:center; margin-bottom:4px;">
-    <span style="width:20px; height:3px; background:#F79646; display:inline-block; margin-right:6px;"></span>
-    Distance Line
-</span>
-
-<span style="display:flex; align-items:center; margin-bottom:4px;">
-    <span style="
-display:inline-block;
-width:20px;
-height:8px;
-border-top:2px solid #4F81BD;
-border-bottom:2px dashed #4F81BD;
-margin-right:6px;
-"></span>
-Camp / Block Boundary
-</span>
-<span style="display:flex; align-items:center; margin-bottom:4px;">
-    <span style="width:12px; height:12px; background:#F79646; border:2px solid #333; border-radius:50%; display:inline-block; margin-right:6px;"></span>
-    Learning Facilites
-</span>
-
-</div>
-<div id="gpsStatus" style="
-position:absolute;
-top:120px;
-right:01px;
-background:rgba(255,255,255,0.7);
-backdrop-filter: blur(6px);
-padding:6px 10px;
-font-size:12px;
-border-radius:6px;
-z-index:9999;
-box-shadow:0 0 4px rgba(0,0,0,0.3);
-">
-Checking GPS...
-</div>
-
-
-            <div id="popup" class="ol-popup">
-                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-                <div id="popup-content"></div>
+    box-shadow:0 0 4px rgba(0,0,0,0.3);
+    ">
+    Checking GPS...
+    </div>
+    
+    
+                <div id="popup" class="ol-popup">
+                    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+                    <div id="popup-content"></div>
+                </div>
             </div>
-        </div>
-        <script src="resources/qgis2web_expressions.js"></script>
-        <script src="./resources/functions.js"></script>
-        <script src="./resources/ol.js"></script>
-        <script src="./resources/ol-layerswitcher.js"></script>
-        <script src="resources/photon-geocoder-autocomplete.min.js"></script>
-        <script src="layers/SubBlockt20240519_a3_camp_subblock_outlines_1.js"></script><script src="layers/Blockt20240519_a2_camp_block_outlines_2.js"></script><script src="layers/Campt20230412_a1_camp_outlines_3.js"></script><script src="layers/FacilityInfo_4.js"></script>
-        <script src="styles/SubBlockt20240519_a3_camp_subblock_outlines_1_style.js"></script><script src="styles/Blockt20240519_a2_camp_block_outlines_2_style.js"></script><script src="styles/Campt20230412_a1_camp_outlines_3_style.js"></script><script src="styles/FacilityInfo_4_style.js"></script>
-        <script src="./layers/layers.js" type="text/javascript"></script> 
-        <script src="./resources/Autolinker.min.js"></script>
-
-<script>
-function getRealDistance(coord1, coord2) {
-    var R = 6371000; // meter
-    var lat1 = coord1[1] * Math.PI / 180;
-    var lat2 = coord2[1] * Math.PI / 180;
-    var dLat = lat2 - lat1;
-    var dLon = (coord2[0] - coord1[0]) * Math.PI / 180;
-
-    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat1) * Math.cos(lat2) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-    return R * c;
-}
-
-var userFeature = new ol.Feature({
-    geometry: new ol.geom.Point([0,0])
-});
-
-userFeature.setStyle(new ol.style.Style({
-    image: new ol.style.Circle({
-        radius: 8,
-        fill: new ol.style.Fill({ color: '#FFFFCC' }),
-        stroke: new ol.style.Stroke({ color: '#333', width: 2 })
-    })
-}));
-
-var userLayer = new ol.layer.Vector({
-    source: new ol.source.Vector({ features: [userFeature] })
-});
-
-map.addLayer(userLayer);
+            <script src="resources/qgis2web_expressions.js"></script>
+            <script src="./resources/functions.js"></script>
+            <script src="./resources/ol.js"></script>
+            <script src="./resources/ol-layerswitcher.js"></script>
+            <script src="resources/photon-geocoder-autocomplete.min.js"></script>
+            <script src="layers/SubBlockt20240519_a3_camp_subblock_outlines_1.js"></script><script src="layers/Blockt20240519_a2_camp_block_outlines_2.js"></script><script src="layers/Campt20230412_a1_camp_outlines_3.js"></script><script src="layers/FacilityInfo_4.js"></script>
+            <script src="styles/SubBlockt20240519_a3_camp_subblock_outlines_1_style.js"></script><script src="styles/Blockt20240519_a2_camp_block_outlines_2_style.js"></script><script src="styles/Campt20230412_a1_camp_outlines_3_style.js"></script><script src="styles/FacilityInfo_4_style.js"></script>
+            <script src="./layers/layers.js" type="text/javascript"></script> 
+            <script src="./resources/Autolinker.min.js"></script>
     
+    <script>
+    function getRealDistance(coord1, coord2) {
+        var R = 6371000; // meter
+        var lat1 = coord1[1] * Math.PI / 180;
+        var lat2 = coord2[1] * Math.PI / 180;
+        var dLat = lat2 - lat1;
+        var dLon = (coord2[0] - coord1[0]) * Math.PI / 180;
     
-function startMap(){
-
-// Store layers
-window.allLayers = [];
-var lastLocation = null;
-// 🟢 ACCURACY CIRCLE (NEW)
-var accuracyFeature = new ol.Feature({
-    geometry: new ol.geom.Circle([0,0], 0)
-});
-
-accuracyFeature.setStyle(new ol.style.Style({
-stroke: new ol.style.Stroke({
-    color: 'rgba(100, 149, 237, 0.4)',
-    width: 2
-}),
-fill: new ol.style.Fill({
-    color: 'rgba(100, 149, 237, 0.08)'
-})
-}));
-
-var accuracyLayer = new ol.layer.Vector({
-    source: new ol.source.Vector({ features: [accuracyFeature] })
-});
-
-map.addLayer(accuracyLayer);
-var overlay;
-
-var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
-
-function getDistance(a, b) {
-    var dx = a[0] - b[0];
-    var dy = a[1] - b[1];
-    return Math.sqrt(dx * dx + dy * dy);
-}
-
-navigator.geolocation.watchPosition(
-
-function(position) {
-
-    var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
-
-    // 🎯 Device based accuracy
-    var ACCURACY_LIMIT = isMobile ? 20 : 100;
-
-    var accuracy = position.coords.accuracy;
-
-    // ❌ Ignore only if we already have a good location
-    if (accuracy > ACCURACY_LIMIT && lastLocation !== null) {
-        return;
+        var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1) * Math.cos(lat2) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+    
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    
+        return R * c;
     }
-
-   document.getElementById("gpsStatus").innerHTML =
-    (isMobile ? "📱 Mobile GPS running" : "💻 Laptop location running") +
-    "<br>Accuracy: " + Math.round(accuracy) + " m";
-
-    var userLon = position.coords.longitude;
-    var userLat = position.coords.latitude;
-
-    var newLocation = ol.proj.fromLonLat([
-    userLon + 0.00005,   // east-west adjust
-    userLat + 0.00005    // north-south adjust
-]);
-
-    // 🧠 smooth movement
-    if (lastLocation) {
-    var dx = newLocation[0] - lastLocation[0];
-    var dy = newLocation[1] - lastLocation[1];
-    var dist = Math.sqrt(dx * dx + dy * dy);
-
-    // ছোট movement ignore (আগে 10 ছিল, এখন 20)
-    if (dist < 20) return;
-
-    // smooth movement (আগে 0.7/0.3 ছিল)
-    var SMOOTH_FACTOR = 0.15;
-
-    lastLocation = [
-        lastLocation[0] * (1 - SMOOTH_FACTOR) + newLocation[0] * SMOOTH_FACTOR,
-        lastLocation[1] * (1 - SMOOTH_FACTOR) + newLocation[1] * SMOOTH_FACTOR
-    ];
-} else {
-    lastLocation = newLocation;
-}
-
-    var userLocation = lastLocation;
-
-    // 🧹 clear old layers
-    // খুব ঘন ঘন remove না করে delay দাও
-if (!window.lastClearTime) window.lastClearTime = Date.now();
-
-if (Date.now() - window.lastClearTime > 4000) {
-    window.allLayers.forEach(function(layer) {
-        map.removeLayer(layer);
+    
+    var userFeature = new ol.Feature({
+        geometry: new ol.geom.Point([0,0])
     });
-    window.allLayers = [];
-    window.lastClearTime = Date.now();
-}
-
-    // 🟡 USER POINT
-    userFeature.getGeometry().setCoordinates(userLocation);
-
+    
     userFeature.setStyle(new ol.style.Style({
         image: new ol.style.Circle({
             radius: 8,
@@ -582,24 +467,138 @@ if (Date.now() - window.lastClearTime > 4000) {
             stroke: new ol.style.Stroke({ color: '#333', width: 2 })
         })
     }));
-// 🟢 ACCURACY UPDATE (NEW)
-accuracyFeature.getGeometry().setCenter(userLocation);
-accuracyFeature.getGeometry().setRadius(accuracy);
+    
     var userLayer = new ol.layer.Vector({
         source: new ol.source.Vector({ features: [userFeature] })
+    }); 
+        
+    function startMap(){
+    
+    // Store layers
+    window.allLayers = [];
+    var lastLocation = null;
+    // 🟢 ACCURACY CIRCLE (NEW)
+    var accuracyFeature = new ol.Feature({
+        geometry: new ol.geom.Circle([0,0], 0)
     });
-
+    
+    accuracyFeature.setStyle(new ol.style.Style({
+    stroke: new ol.style.Stroke({
+        color: 'rgba(100, 149, 237, 0.4)',
+        width: 2
+    }),
+    fill: new ol.style.Fill({
+        color: 'rgba(100, 149, 237, 0.08)'
+    })
+    }));
+    
+    var accuracyLayer = new ol.layer.Vector({
+        source: new ol.source.Vector({ features: [accuracyFeature] })
+    });
+    
+    map.addLayer(accuracyLayer);
+    var overlay;
+    
+    var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+    
+    function getDistance(a, b) {
+        var dx = a[0] - b[0];
+        var dy = a[1] - b[1];
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+    
+    navigator.geolocation.watchPosition(
+    
+    function(position) {
+    
+        var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+    
+        // 🎯 Device based accuracy
+        var ACCURACY_LIMIT = isMobile ? 20 : 100;
+    
+        var accuracy = position.coords.accuracy;
+    
+        // ❌ Ignore only if we already have a good location
+        if (accuracy > ACCURACY_LIMIT && lastLocation !== null) {
+            return;
+        }
+    
+       document.getElementById("gpsStatus").innerHTML =
+        (isMobile ? "📱 Mobile GPS running" : "💻 Laptop location running") +
+        "<br>Accuracy: " + Math.round(accuracy) + " m";
+    
+        var userLon = position.coords.longitude;
+        var userLat = position.coords.latitude;
+    
+        var newLocation = ol.proj.fromLonLat([
+        userLon + 0.00005,   // east-west adjust
+        userLat + 0.00005    // north-south adjust
+    ]);
+    
+        // 🧠 smooth movement
+        if (lastLocation) {
+        var dx = newLocation[0] - lastLocation[0];
+        var dy = newLocation[1] - lastLocation[1];
+        var dist = Math.sqrt(dx * dx + dy * dy);
+    
+        // ছোট movement ignore (আগে 10 ছিল, এখন 20)
+        if (dist < 20) return;
+    
+        // smooth movement (আগে 0.7/0.3 ছিল)
+        var SMOOTH_FACTOR = 0.15;
+    
+        lastLocation = [
+            lastLocation[0] * (1 - SMOOTH_FACTOR) + newLocation[0] * SMOOTH_FACTOR,
+            lastLocation[1] * (1 - SMOOTH_FACTOR) + newLocation[1] * SMOOTH_FACTOR
+        ];
+    } else {
+        lastLocation = newLocation;
+    }
+    
+        var userLocation = lastLocation;
+    
+        // 🧹 clear old layers
+        // খুব ঘন ঘন remove না করে delay দাও
+    if (!window.lastClearTime) window.lastClearTime = Date.now();
+    
+    if (Date.now() - window.lastClearTime > 4000) {
+        window.allLayers.forEach(function(layer) {
+            map.removeLayer(layer);
+        });
+        window.allLayers = [];
+        window.lastClearTime = Date.now();
+    }
+    
+        // 🟡 USER POINT
+        userFeature.getGeometry().setCoordinates(userLocation);
+    
+        userFeature.setStyle(new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 8,
+                fill: new ol.style.Fill({ color: '#FFFFCC' }),
+                stroke: new ol.style.Stroke({ color: '#333', width: 2 })
+            })
+        }));
+    // 🟢 ACCURACY UPDATE (NEW)
+    accuracyFeature.getGeometry().setCenter(userLocation);
+    accuracyFeature.getGeometry().setRadius(accuracy);
+        userLayer.getSource().clear();
+    userLayer.getSource().addFeature(userFeature);
+ 
+        
+        if(!window.userLayerAdded){
     map.addLayer(userLayer);
-    window.allLayers.push(userLayer);
+    window.userLayerAdded = true;
+}
+    
+   // ===== DISTANCE CALC =====
 
-    // ===== DISTANCE CALC =====
-    // ===== DISTANCE CALC =====
 var features = json_FacilityInfo_4.features;
 var distances = [];
 
 var lonLat1 = ol.proj.toLonLat(userLocation);
 
-// 🌍 Area type (একবারই set করো)
+// 🌍 Area type
 var AREA_TYPE = "camp";
 
 // 📏 Road factor
@@ -612,470 +611,468 @@ else if(AREA_TYPE === "hill"){
     ROAD_FACTOR = 1.5;
 }
 
+// 1️⃣ সব distance collect
 features.forEach(function(f) {
 
     var coord = ol.proj.fromLonLat(f.geometry.coordinates);
     var lonLat2 = ol.proj.toLonLat(coord);
 
-    // 📍 Original straight distance
-  var straightDistance = getRealDistance(lonLat1, lonLat2);
+    var straightDistance = getRealDistance(lonLat1, lonLat2);
+    var approxDistance = straightDistance * ROAD_FACTOR;
 
-// একটু realistic করতে factor
-var approxDistance = straightDistance * ROAD_FACTOR;
-
-distances.push({
-    feature: f,
-    distance: approxDistance,
-    coord: coord,
-    straight: straightDistance
-});
-
-    distances.sort(function(a, b) {
-        return a.distance - b.distance;
+    distances.push({
+        feature: f,
+        distance: approxDistance,
+        coord: coord,
+        straight: straightDistance
     });
 
-    var nearestThree = distances.slice(0, 3);
+});
 
-    // 🔥 AUTO ZOOM
-    var extent = ol.extent.boundingExtent([
-        userLocation,
-        nearestThree[0].coord
-    ]);
+// 2️⃣ একবার sort
+distances.sort(function(a, b) {
+    return a.distance - b.distance;
+});
 
-    map.getView().fit(extent, {
+// 3️⃣ nearest 3টা
+var nearestThree = distances.slice(0, 3);
+
+// 4️⃣ AUTO ZOOM (একবার)
+var extent = ol.extent.boundingExtent([
+    userLocation,
+    nearestThree[0].coord
+]);
+
+map.getView().fit(extent, {
     padding: [100,100,100,100],
-    duration: 800,
-    easing: function(t) {
-        return t * (2 - t); // smooth animation
-    }
+    duration: 800
 });
 
-    // 🎯 DRAW
-    nearestThree.forEach(function(item, index) {
+// 5️⃣ DRAW
+nearestThree.forEach(function(item, index) {
 
-        var isNearest = (index === 0);
-        var name = item.feature.properties.Name || "Facility";
-        var isWalking = item.distance < 300; // short distance হলে walking ধরছি
+    var isNearest = (index === 0);
+    var name = item.feature.properties.Name || "Facility";
 
-        var speed = 83;
-        var timeMin = Math.ceil(item.distance / speed);
+    var speed = 83;
+    var timeMin = Math.ceil(item.distance / speed);
 
-        // 🟠 LINE
+    // 🟠 LINE
     drawRoadRoute(
-    ol.proj.toLonLat(userLocation)[1],
-    ol.proj.toLonLat(userLocation)[0],
-    ol.proj.toLonLat(item.coord)[1],
-    ol.proj.toLonLat(item.coord)[0],
-    item.distance
-);
+        ol.proj.toLonLat(userLocation)[1],
+        ol.proj.toLonLat(userLocation)[0],
+        ol.proj.toLonLat(item.coord)[1],
+        ol.proj.toLonLat(item.coord)[0],
+        item.distance
+    );
 
-        // 🔴 / 🔵 POINT + TEXT
-        var point = new ol.Feature({
-            geometry: new ol.geom.Point(item.coord)
-        });
-
-        point.setStyle(new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: isNearest ? 9 : 6,
-                fill: new ol.style.Fill({
-                    color: isNearest ? '#FF3333' : '#66CCFF'
-                }),
-                stroke: new ol.style.Stroke({
-                    color: 'white',
-                    width: 2
-                })
-            }),
-            text: new ol.style.Text({
-                text:
-    (isNearest ? "Nearest\n" : "") +
-    name + "\n" +
-    Math.round(item.distance) + " m (" +
-    timeMin + " min @ " + speed + " m/min)",
-                offsetY: -15,
-                fill: new ol.style.Fill({ color: '#cc0000' }),
-                stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
-            })
-        }));
-
-        var pointLayer = new ol.layer.Vector({
-            source: new ol.source.Vector({ features: [point] })
-        });
-
-        map.addLayer(pointLayer);
-        window.allLayers.push(pointLayer);
-
+    // 🔴 / 🔵 POINT
+    var point = new ol.Feature({
+        geometry: new ol.geom.Point(item.coord)
     });
 
-},
+    point.setStyle(new ol.style.Style({
+        image: new ol.style.Circle({
+            radius: isNearest ? 9 : 6,
+            fill: new ol.style.Fill({
+                color: isNearest ? '#FF3333' : '#66CCFF'
+            }),
+            stroke: new ol.style.Stroke({
+                color: 'white',
+                width: 2
+            })
+        }),
+        text: new ol.style.Text({
+            text:
+                (isNearest ? "Nearest\n" : "") +
+                name + "\n" +
+                Math.round(item.distance) + " m (" +
+                timeMin + " min)",
+            offsetY: -15,
+            fill: new ol.style.Fill({ color: '#cc0000' }),
+            stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
+        })
+    }));
 
-function(error) {
-    console.log(error);
+    var pointLayer = new ol.layer.Vector({
+        source: new ol.source.Vector({ features: [point] })
+    });
 
-    let msg = "";
-
-    if(error.code === 1){
-        msg = "Permission denied ❌";
-    } else if(error.code === 2){
-        msg = "Location unavailable 📡";
-    } else if(error.code === 3){
-        msg = "Timeout ⏳ (try again)";
-    } else {
-        msg = "Unknown error ❌";
-    }
-
-    document.getElementById("gpsStatus").innerHTML = msg;
-},
-
-{
-    enableHighAccuracy: true,
-    maximumAge: 10000,
-    timeout: 20000
-}
-
-);
-}
-
-</script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js')
-    .then(() => console.log("Offline ready ✅"))
-    .catch(() => console.log("Offline failed ❌"));
-}
-</script>
-
-<script>
-function loadMapScript(callback) {
-    if (!window.mapLoaded) {
-        var script = document.createElement("script");
-        script.src = "./resources/qgis2web.js";
-
-        script.onload = function(){
-            window.mapLoaded = true;
-            if(callback) callback();
-        setTimeout(function(){
-    startMap();
-}, 1000);
-  };
-        document.body.appendChild(script);
-    } else {
-        if(callback) callback();
-    }
-}
- </script>
-   -->
-<div id="hintPopup" style="
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100vh;
-display:none;
-justify-content:center;
-align-items:center;
-background: rgba(0,0,0,0.3);
-backdrop-filter: blur(6px);
-z-index:999999;
-">
-
-<div style="
-width:90%;
-max-width:500px;
-max-height:85vh;
-overflow-y:auto;
-background:white;
-border-radius:12px;
-padding:20px;
-">
-
-<button onclick="closeHint()" style="
-float:right;
-background:red;
-color:white;
-border:none;
-padding:5px 10px;
-border-radius:5px;
-">Close</button>
-
-<!-- 🌐 Language Button -->
-<div style="text-align:center; margin-bottom:10px;">
-    <button onclick="showBangla()">🇧🇩 বাংলা</button>
-    <button onclick="showEnglish()">🇬🇧 English</button>
-</div>
-
-<p style="color:#555; font-size:13px;">
-📘 ম্যাপ ব্যবহারের আগে নিচের নির্দেশনাগুলো ভালোভাবে পড়ুন / Please read before using the map
-</p>
-
-<div id="banglaContent">
-
-<p><b>🇧🇩 বাংলা ব্যবহার নির্দেশিকা:</b></p>
-
-<ul>
-<li>
-<b>অফলাইন ব্যবহার:</b><br>
-এই ম্যাপটি অফলাইনেও কাজ করতে পারে। এজন্য প্রথমে ইন্টারনেট সংযোগ দিয়ে একবার ম্যাপটি খুলতে হবে, যাতে প্রয়োজনীয় তথ্য সংরক্ষণ হয়।<br>
-এরপর ইন্টারনেট না থাকলেও আপনি ম্যাপ ব্যবহার করতে পারবেন (GPS অবশ্যই চালু রাখতে হবে)।
-</li>
-    
-<li>
-<span style="display:inline-block;width:12px;height:12px;background:#FFFFCC;border:2px solid #333;border-radius:50%;margin-right:6px;"></span>
-<b>আপনার বর্তমান অবস্থান (Your Location):</b><br>
-ম্যাপে আপনার অবস্থান হলুদ রঙের গোল চিহ্ন দিয়ে দেখানো হবে। আপনি চলাফেরা করলে এই চিহ্নটি স্বয়ংক্রিয়ভাবে আপডেট হবে।<br>
-⚠️ প্রথমবার লোকেশন পেতে কিছু সময় লাগতে পারে।
-</li>
-
-<li>
-<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(100,149,237,0.5);background:rgba(100,149,237,0.05);border-radius:50%;margin-right:6px;"></span>
-<b>GPS Accuracy (সঠিকতা):</b><br>
-আপনার অবস্থানের চারপাশে একটি হালকা বৃত্ত (circle) দেখা যাবে, যা আপনার লোকেশনের accuracy নির্দেশ করে।
-</li>
-
-<li>
-<span style="display:inline-block;width:12px;height:12px;background:#FF3333;border-radius:50%;margin-right:6px;"></span>
-<b>সবচেয়ে কাছের ফ্যাসিলিটি (Nearest Facility):</b><br>
-আপনার সবচেয়ে কাছের ফ্যাসিলিটি লাল রঙে দেখানো হবে।
-</li>
-
-<li>
-<span style="display:inline-block;width:12px;height:12px;background:#66CCFF;border-radius:50%;margin-right:6px;"></span>
-<b>অন্যান্য কাছাকাছি ফ্যাসিলিটি:</b><br>
-আপনার কাছাকাছি আরও ২টি ফ্যাসিলিটি দেখানো হবে।
-</li>
-
-<li>
-<span style="display:inline-block;width:20px;height:3px;background:#F79646;margin-right:6px;"></span>
-<b>দূরত্ব ও সময় (Distance & Time):</b><br>
-প্রতিটি ফ্যাসিলিটির সাথে দূরত্ব এবং হেটে যেতে কত সময় দেখানো হবে।
-</li>
-
-<li>📶 <b>GPS চালু রাখা:</b><br>
-ম্যাপ ব্যবহার করার জন্য অবশ্যই আপনার মোবাইলের GPS চালু রাখতে হবে এবং location permission allow করতে হবে।<br>
-❌ GPS বন্ধ থাকলে সঠিক লোকেশন পাওয়া যাবে না।</li>
-
-<li>📱 <b>ডিভাইস সম্পর্কিত তথ্য:</b><br>
-এই ম্যাপ মোবাইল ফোনে সবচেয়ে ভালো কাজ করে।<br>
-💻 ল্যাপটপ বা ডেস্কটপে accuracy কম হতে পারে।</li>
-
-<li>🔄 <b>লাইভ আপডেট (Live Update):</b><br>
-আপনি চলাফেরা করলে ম্যাপ স্বয়ংক্রিয়ভাবে আপডেট হবে এবং নতুন করে nearest facility নির্ধারণ করবে।</li>
-
-<li>🗺️ <b>অটো জুম (Auto Zoom):</b><br>
-ম্যাপ স্বয়ংক্রিয়ভাবে আপনার অবস্থান এবং সবচেয়ে কাছের ফ্যাসিলিটির মধ্যে জুম করবে যাতে আপনি সহজে বুঝতে পারেন।</li>
-
-<li>⚠️ <b>সতর্কতা:</b><br>
-এই ম্যাপ একটি সহায়ক টুল। মাঠ পর্যায়ে যাওয়ার আগে বাস্তব পরিস্থিতি যাচাই করুন।</li>
-
-</ul>
-
-</div>
-<!-- 🟢 English -->
-<div id="englishContent" style="display:none;">
-
-<p><b>🇬🇧 English User Guide:</b></p>
-<ul>
-
-<li>
-<b>Offline Use:</b><br>
-This map supports offline use. To enable this, open the map once while connected to the internet so it can load and save data.<br>
-After that, you can continue using the map without internet connection (GPS must be turned ON).
-</li>
-    
-<li>
-<span style="display:inline-block;width:12px;height:12px;background:#FFFFCC;border:2px solid #333;border-radius:50%;margin-right:6px;"></span>
-<b>Your Current Location:</b><br>
-Your position is shown as a yellow circle on the map. It updates automatically when you move.<br>
-⚠️ It may take a few seconds to detect your location initially.
-</li>
-
-<li>
-<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(100,149,237,0.5);background:rgba(100,149,237,0.05);border-radius:50%;margin-right:6px;"></span>
-<b>GPS Accuracy:</b><br>
-A light circle around your location shows accuracy. A smaller circle means higher accuracy.
-</li>
-
-<li>
-<span style="display:inline-block;width:12px;height:12px;background:#FF3333;border-radius:50%;margin-right:6px;"></span>
-<b>Nearest Facility:</b><br>
-The closest facility is shown in red and labeled as "Nearest".
-</li>
-
-<li>
-<span style="display:inline-block;width:12px;height:12px;background:#66CCFF;border-radius:50%;margin-right:6px;"></span>
-<b>Other Nearby Facilities:</b><br>
-Two additional nearby facilities are shown in blue as alternatives.
-</li>
-
-<li>
-<span style="display:inline-block;width:20px;height:3px;background:#F79646;margin-right:6px;"></span>
-<b>📏Distance & Time:</b><br>
-⏱️ Distance (in meters) and estimated walking time (in minutes) to each facility are displayed.
-</li>
-
-<li>📱 <b>Device Note:</b><br>
-This map works best on mobile devices.<br>
-💻 Accuracy may be lower on laptops or desktops.</li>
-
-<li>🔄 <b>Live Update:</b><br>
-As you move, the map updates automatically and recalculates the nearest facility.</li>
-
-<li>🗺️ <b>Auto Zoom:</b><br>
-The map automatically zooms between your location and the nearest facility for better understanding.</li>
-
-<li>⚠️ <b>Disclaimer:</b><br>
-This map is a supportive tool. Always verify real-world conditions before taking action.</li>
-
-</ul>
-
-</div>
-
-</div>
-</div>
-    <script>
-
-// সব কিছু page load হওয়ার পরে run হবে
-window.addEventListener("load", function(){
-
-    var hintBtn = document.getElementById("hintBtn");
-
-    if(hintBtn){
-        hintBtn.onclick = function(){
-            document.getElementById("hintPopup").style.display = "flex";
-        };
-    }
+    map.addLayer(pointLayer);
+    window.allLayers.push(pointLayer);
 
 });
-
-// Close
-function closeHint(){
-    document.getElementById("hintPopup").style.display = "none";
-}
-
-// বাংলা
-function showBangla(){
-    document.getElementById("banglaContent").style.display = "block";
-    document.getElementById("englishContent").style.display = "none";
-}
-
-// English
-function showEnglish(){
-    document.getElementById("banglaContent").style.display = "none";
-    document.getElementById("englishContent").style.display = "block";
-}
-
-// road line
-function drawRoadRoute(lat1, lon1, lat2, lon2, distance){
-
-    var isWalking = distance < 300;
-
-    // 📡 Check internet
-    if(!navigator.onLine){
-
-        // 🔵 OFFLINE fallback (straight line)
+    
+    },
+    
+    function(error) {
+        console.log(error);
+    
+        let msg = "";
+    
+        if(error.code === 1){
+            msg = "Permission denied ❌";
+        } else if(error.code === 2){
+            msg = "Location unavailable 📡";
+        } else if(error.code === 3){
+            msg = "Timeout ⏳ (try again)";
+        } else {
+            msg = "Unknown error ❌";
+        }
+    
+        document.getElementById("gpsStatus").innerHTML = msg;
+    },
+    
+    {
+        enableHighAccuracy: true,
+        maximumAge: 10000,
+        timeout: 20000
+    }
+    
+    );
+    }
+    
+    </script>
+    
+    <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log("Offline ready ✅"))
+        .catch(() => console.log("Offline failed ❌"));
+    }
+    </script>
+    
+    <script>
+    function loadMapScript(callback) {
+        if (!window.mapLoaded) {
+            var script = document.createElement("script");
+            script.src = "./resources/qgis2web.js";
+    
+            script.onload = function(){
+                window.mapLoaded = true;
+                if(callback) callback();
+            setTimeout(function(){
+        startMap();
+    }, 1000);
+      };
+            document.body.appendChild(script);
+        } else {
+            if(callback) callback();
+        }
+    }
+     </script>
+       -->
+    <div id="hintPopup" style="
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100vh;
+    display:none;
+    justify-content:center;
+    align-items:center;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(6px);
+    z-index:999999;
+    ">
+    
+    <div style="
+    width:90%;
+    max-width:500px;
+    max-height:85vh;
+    overflow-y:auto;
+    background:white;
+    border-radius:12px;
+    padding:20px;
+    ">
+    
+    <button onclick="closeHint()" style="
+    float:right;
+    background:red;
+    color:white;
+    border:none;
+    padding:5px 10px;
+    border-radius:5px;
+    ">Close</button>
+    
+    <!-- 🌐 Language Button -->
+    <div style="text-align:center; margin-bottom:10px;">
+        <button onclick="showBangla()">🇧🇩 বাংলা</button>
+        <button onclick="showEnglish()">🇬🇧 English</button>
+    </div>
+    
+    <p style="color:#555; font-size:13px;">
+    📘 ম্যাপ ব্যবহারের আগে নিচের নির্দেশনাগুলো ভালোভাবে পড়ুন / Please read before using the map
+    </p>
+    
+    <div id="banglaContent">
+    
+    <p><b>🇧🇩 বাংলা ব্যবহার নির্দেশিকা:</b></p>
+    
+    <ul>
+    <li>
+    <b>অফলাইন ব্যবহার:</b><br>
+    এই ম্যাপটি অফলাইনেও কাজ করতে পারে। এজন্য প্রথমে ইন্টারনেট সংযোগ দিয়ে একবার ম্যাপটি খুলতে হবে, যাতে প্রয়োজনীয় তথ্য সংরক্ষণ হয়।<br>
+    এরপর ইন্টারনেট না থাকলেও আপনি ম্যাপ ব্যবহার করতে পারবেন (GPS অবশ্যই চালু রাখতে হবে)।
+    </li>
+        
+    <li>
+    <span style="display:inline-block;width:12px;height:12px;background:#FFFFCC;border:2px solid #333;border-radius:50%;margin-right:6px;"></span>
+    <b>আপনার বর্তমান অবস্থান (Your Location):</b><br>
+    ম্যাপে আপনার অবস্থান হলুদ রঙের গোল চিহ্ন দিয়ে দেখানো হবে। আপনি চলাফেরা করলে এই চিহ্নটি স্বয়ংক্রিয়ভাবে আপডেট হবে।<br>
+    ⚠️ প্রথমবার লোকেশন পেতে কিছু সময় লাগতে পারে।
+    </li>
+    
+    <li>
+    <span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(100,149,237,0.5);background:rgba(100,149,237,0.05);border-radius:50%;margin-right:6px;"></span>
+    <b>GPS Accuracy (সঠিকতা):</b><br>
+    আপনার অবস্থানের চারপাশে একটি হালকা বৃত্ত (circle) দেখা যাবে, যা আপনার লোকেশনের accuracy নির্দেশ করে।
+    </li>
+    
+    <li>
+    <span style="display:inline-block;width:12px;height:12px;background:#FF3333;border-radius:50%;margin-right:6px;"></span>
+    <b>সবচেয়ে কাছের ফ্যাসিলিটি (Nearest Facility):</b><br>
+    আপনার সবচেয়ে কাছের ফ্যাসিলিটি লাল রঙে দেখানো হবে।
+    </li>
+    
+    <li>
+    <span style="display:inline-block;width:12px;height:12px;background:#66CCFF;border-radius:50%;margin-right:6px;"></span>
+    <b>অন্যান্য কাছাকাছি ফ্যাসিলিটি:</b><br>
+    আপনার কাছাকাছি আরও ২টি ফ্যাসিলিটি দেখানো হবে।
+    </li>
+    
+    <li>
+    <span style="display:inline-block;width:20px;height:3px;background:#F79646;margin-right:6px;"></span>
+    <b>দূরত্ব ও সময় (Distance & Time):</b><br>
+    প্রতিটি ফ্যাসিলিটির সাথে দূরত্ব এবং হেটে যেতে কত সময় দেখানো হবে।
+    </li>
+    
+    <li>📶 <b>GPS চালু রাখা:</b><br>
+    ম্যাপ ব্যবহার করার জন্য অবশ্যই আপনার মোবাইলের GPS চালু রাখতে হবে এবং location permission allow করতে হবে।<br>
+    ❌ GPS বন্ধ থাকলে সঠিক লোকেশন পাওয়া যাবে না।</li>
+    
+    <li>📱 <b>ডিভাইস সম্পর্কিত তথ্য:</b><br>
+    এই ম্যাপ মোবাইল ফোনে সবচেয়ে ভালো কাজ করে।<br>
+    💻 ল্যাপটপ বা ডেস্কটপে accuracy কম হতে পারে।</li>
+    
+    <li>🔄 <b>লাইভ আপডেট (Live Update):</b><br>
+    আপনি চলাফেরা করলে ম্যাপ স্বয়ংক্রিয়ভাবে আপডেট হবে এবং নতুন করে nearest facility নির্ধারণ করবে।</li>
+    
+    <li>🗺️ <b>অটো জুম (Auto Zoom):</b><br>
+    ম্যাপ স্বয়ংক্রিয়ভাবে আপনার অবস্থান এবং সবচেয়ে কাছের ফ্যাসিলিটির মধ্যে জুম করবে যাতে আপনি সহজে বুঝতে পারেন।</li>
+    
+    <li>⚠️ <b>সতর্কতা:</b><br>
+    এই ম্যাপ একটি সহায়ক টুল। মাঠ পর্যায়ে যাওয়ার আগে বাস্তব পরিস্থিতি যাচাই করুন।</li>
+    
+    </ul>
+    
+    </div>
+    <!-- 🟢 English -->
+    <div id="englishContent" style="display:none;">
+    
+    <p><b>🇬🇧 English User Guide:</b></p>
+    <ul>
+    
+    <li>
+    <b>Offline Use:</b><br>
+    This map supports offline use. To enable this, open the map once while connected to the internet so it can load and save data.<br>
+    After that, you can continue using the map without internet connection (GPS must be turned ON).
+    </li>
+        
+    <li>
+    <span style="display:inline-block;width:12px;height:12px;background:#FFFFCC;border:2px solid #333;border-radius:50%;margin-right:6px;"></span>
+    <b>Your Current Location:</b><br>
+    Your position is shown as a yellow circle on the map. It updates automatically when you move.<br>
+    ⚠️ It may take a few seconds to detect your location initially.
+    </li>
+    
+    <li>
+    <span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(100,149,237,0.5);background:rgba(100,149,237,0.05);border-radius:50%;margin-right:6px;"></span>
+    <b>GPS Accuracy:</b><br>
+    A light circle around your location shows accuracy. A smaller circle means higher accuracy.
+    </li>
+    
+    <li>
+    <span style="display:inline-block;width:12px;height:12px;background:#FF3333;border-radius:50%;margin-right:6px;"></span>
+    <b>Nearest Facility:</b><br>
+    The closest facility is shown in red and labeled as "Nearest".
+    </li>
+    
+    <li>
+    <span style="display:inline-block;width:12px;height:12px;background:#66CCFF;border-radius:50%;margin-right:6px;"></span>
+    <b>Other Nearby Facilities:</b><br>
+    Two additional nearby facilities are shown in blue as alternatives.
+    </li>
+    
+    <li>
+    <span style="display:inline-block;width:20px;height:3px;background:#F79646;margin-right:6px;"></span>
+    <b>📏Distance & Time:</b><br>
+    ⏱️ Distance (in meters) and estimated walking time (in minutes) to each facility are displayed.
+    </li>
+    
+    <li>📱 <b>Device Note:</b><br>
+    This map works best on mobile devices.<br>
+    💻 Accuracy may be lower on laptops or desktops.</li>
+    
+    <li>🔄 <b>Live Update:</b><br>
+    As you move, the map updates automatically and recalculates the nearest facility.</li>
+    
+    <li>🗺️ <b>Auto Zoom:</b><br>
+    The map automatically zooms between your location and the nearest facility for better understanding.</li>
+    
+    <li>⚠️ <b>Disclaimer:</b><br>
+    This map is a supportive tool. Always verify real-world conditions before taking action.</li>
+    
+    </ul>
+    
+    </div>
+    
+    </div>
+    </div>
+        <script>
+    
+    // সব কিছু page load হওয়ার পরে run হবে
+    window.addEventListener("load", function(){
+    
+        var hintBtn = document.getElementById("hintBtn");
+    
+        if(hintBtn){
+            hintBtn.onclick = function(){
+                document.getElementById("hintPopup").style.display = "flex";
+            };
+        }
+    
+    });
+    
+    // Close
+    function closeHint(){
+        document.getElementById("hintPopup").style.display = "none";
+    }
+    
+    // বাংলা
+    function showBangla(){
+        document.getElementById("banglaContent").style.display = "block";
+        document.getElementById("englishContent").style.display = "none";
+    }
+    
+    // English
+    function showEnglish(){
+        document.getElementById("banglaContent").style.display = "none";
+        document.getElementById("englishContent").style.display = "block";
+    }
+    
+    // road line
+    function drawRoadRoute(lat1, lon1, lat2, lon2, distance){
+    
+        var isWalking = distance < 300;
+    
+        // 📡 Check internet
+        if(!navigator.onLine){
+    
+            // 🔵 OFFLINE fallback (straight line)
+            var start = ol.proj.fromLonLat([lon1, lat1]);
+            var end = ol.proj.fromLonLat([lon2, lat2]);
+    
+            var line = new ol.Feature({
+                geometry: new ol.geom.LineString([start, end])
+            });
+    
+            line.setStyle(new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: '#999',
+                    width: 2,
+                    lineDash: [5,5]
+                }),
+                text: new ol.style.Text({
+                    text: "Approx " + Math.round(distance) + " m",
+                    placement: 'line',
+                    fill: new ol.style.Fill({ color: '#000' }),
+                    stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
+                })
+            }));
+    
+            var layer = new ol.layer.Vector({
+                source: new ol.source.Vector({ features: [line] })
+            });
+    
+            map.addLayer(layer);
+            window.allLayers.push(layer);
+    
+            return;
+        }
+    
+        // 🌐 ONLINE → real route
+        var url = `https://router.project-osrm.org/route/v1/walking/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
+    
+        fetch(url)
+        .then(res => res.json())
+        .then(data => {
+    if(!data.routes || data.routes.length === 0){
+    
+        // 🔵 fallback straight line
         var start = ol.proj.fromLonLat([lon1, lat1]);
         var end = ol.proj.fromLonLat([lon2, lat2]);
-
-        var line = new ol.Feature({
+    
+        var fallbackLine = new ol.Feature({
             geometry: new ol.geom.LineString([start, end])
         });
-
-        line.setStyle(new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: '#999',
-                width: 2,
-                lineDash: [5,5]
-            }),
-            text: new ol.style.Text({
-                text: "Approx " + Math.round(distance) + " m",
-                placement: 'line',
-                fill: new ol.style.Fill({ color: '#000' }),
-                stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
-            })
-        }));
-
+    
+        fallbackLine.setStyle(new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: '#999',
+            width: 2,
+            lineDash: [5,5]
+        }),
+        text: new ol.style.Text({
+            text: "Approx " + Math.round(distance) + " m",
+            placement: 'line',
+            fill: new ol.style.Fill({ color: '#000' }),
+            stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
+        })
+    }));
+        
+    
         var layer = new ol.layer.Vector({
-            source: new ol.source.Vector({ features: [line] })
+            source: new ol.source.Vector({ features: [fallbackLine] })
         });
-
+    
         map.addLayer(layer);
         window.allLayers.push(layer);
-
+    
         return;
     }
-
-    // 🌐 ONLINE → real route
-    var url = `https://router.project-osrm.org/route/v1/walking/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
-
-    fetch(url)
-    .then(res => res.json())
-    .then(data => {
-if(!data.routes || data.routes.length === 0){
-
-    // 🔵 fallback straight line
-    var start = ol.proj.fromLonLat([lon1, lat1]);
-    var end = ol.proj.fromLonLat([lon2, lat2]);
-
-    var fallbackLine = new ol.Feature({
-        geometry: new ol.geom.LineString([start, end])
-    });
-
-    fallbackLine.setStyle(new ol.style.Style({
-    stroke: new ol.style.Stroke({
-        color: '#999',
-        width: 2,
-        lineDash: [5,5]
-    }),
-    text: new ol.style.Text({
-        text: "Approx " + Math.round(distance) + " m",
-        placement: 'line',
-        fill: new ol.style.Fill({ color: '#000' }),
-        stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
-    })
-}));
+            var route = data.routes[0].geometry.coordinates;
+            var transformed = route.map(c => ol.proj.fromLonLat(c));
     
-
-    var layer = new ol.layer.Vector({
-        source: new ol.source.Vector({ features: [fallbackLine] })
-    });
-
-    map.addLayer(layer);
-    window.allLayers.push(layer);
-
-    return;
-}
-        var route = data.routes[0].geometry.coordinates;
-        var transformed = route.map(c => ol.proj.fromLonLat(c));
-
-        var line = new ol.Feature({
-            geometry: new ol.geom.LineString(transformed)
-        });
-
-        line.setStyle(new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: isWalking ? '#4F81BD' : '#F79646',
-                width: 3,
-                lineDash: isWalking ? [2,6] : null
-            }),
-            text: new ol.style.Text({
-                text: (isWalking ? "Walk " : "Road ") + Math.round(distance) + " m",
-                placement: 'line',
-                fill: new ol.style.Fill({ color: '#000' }),
-                stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
-            })
-        }));
-
-        var layer = new ol.layer.Vector({
-            source: new ol.source.Vector({ features: [line] })
-        });
-
-        map.addLayer(layer);
-        window.allLayers.push(layer);
-
-    })
-    .catch(err => console.log("Route error:", err));
-}
-</script>
-       
-    </body>
-</html>
+            var line = new ol.Feature({
+                geometry: new ol.geom.LineString(transformed)
+            });
+    
+            line.setStyle(new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: isWalking ? '#4F81BD' : '#F79646',
+                    width: 3,
+                    lineDash: isWalking ? [2,6] : null
+                }),
+                text: new ol.style.Text({
+                    text: (isWalking ? "Walk " : "Road ") + Math.round(distance) + " m",
+                    placement: 'line',
+                    fill: new ol.style.Fill({ color: '#000' }),
+                    stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
+                })
+            }));
+    
+            var layer = new ol.layer.Vector({
+                source: new ol.source.Vector({ features: [line] })
+            });
+    
+            map.addLayer(layer);
+            window.allLayers.push(layer);
+    
+        })
+        .catch(err => console.log("Route error:", err));
+    }
+    </script>
+           
+        </body>
+    </html>
