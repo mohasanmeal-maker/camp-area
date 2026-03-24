@@ -456,548 +456,239 @@
         return R * c;
     }
     
-    var userFeature = new ol.Feature({
-        geometry: new ol.geom.Point([0,0])
-    });
-    
-    userFeature.setStyle(new ol.style.Style({
-        image: new ol.style.Circle({
-            radius: 8,
-            fill: new ol.style.Fill({ color: '#FFFFCC' }),
-            stroke: new ol.style.Stroke({ color: '#333', width: 2 })
-        })
-    }));
+   // ================= USER FEATURE =================
+var userFeature = new ol.Feature({
+    geometry: new ol.geom.Point([0,0])
+});
+
+userFeature.setStyle(new ol.style.Style({
+    image: new ol.style.Circle({
+        radius: 8,
+        fill: new ol.style.Fill({ color: '#FFFFCC' }),
+        stroke: new ol.style.Stroke({ color: '#333', width: 2 })
+    })
+}));
+
+var userLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({ features: [userFeature] })
+});
     
     var userLayer = new ol.layer.Vector({
         source: new ol.source.Vector({ features: [userFeature] })
     }); 
         
-    function startMap(){
-    
-    // Store layers
-    window.allLayers = [];
-    var lastLocation = null;
-    // 🟢 ACCURACY CIRCLE (NEW)
-    var accuracyFeature = new ol.Feature({
-        geometry: new ol.geom.Circle([0,0], 0)
-    });
-    
-    accuracyFeature.setStyle(new ol.style.Style({
-    stroke: new ol.style.Stroke({
-        color: 'rgba(100, 149, 237, 0.4)',
-        width: 2
-    }),
-    fill: new ol.style.Fill({
-        color: 'rgba(100, 149, 237, 0.08)'
-    })
-    }));
-    
-    var accuracyLayer = new ol.layer.Vector({
-        source: new ol.source.Vector({ features: [accuracyFeature] })
-    });
-    
-    map.addLayer(accuracyLayer);
-    var overlay;
-    
-    var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
-    
-    function getDistance(a, b) {
-        var dx = a[0] - b[0];
-        var dy = a[1] - b[1];
-        return Math.sqrt(dx * dx + dy * dy);
-    }
-    
-    navigator.geolocation.watchPosition(
-    
-    function(position) {
-    
-        var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
-    
-        // 🎯 Device based accuracy
-        var ACCURACY_LIMIT = isMobile ? 20 : 100;
-    
-        var accuracy = position.coords.accuracy;
-    
-        // ❌ Ignore only if we already have a good location
-        if (accuracy > ACCURACY_LIMIT && lastLocation !== null) {
-            return;
-        }
-    
-       document.getElementById("gpsStatus").innerHTML =
-        (isMobile ? "📱 Mobile GPS running" : "💻 Laptop location running") +
-        "<br>Accuracy: " + Math.round(accuracy) + " m";
-    
-        var userLon = position.coords.longitude;
-        var userLat = position.coords.latitude;
-    
-        var newLocation = ol.proj.fromLonLat([
-        userLon + 0.00005,   // east-west adjust
-        userLat + 0.00005    // north-south adjust
-    ]);
-    
-        // 🧠 smooth movement
-        if (lastLocation) {
-        var dx = newLocation[0] - lastLocation[0];
-        var dy = newLocation[1] - lastLocation[1];
-        var dist = Math.sqrt(dx * dx + dy * dy);
-    
-        // ছোট movement ignore (আগে 10 ছিল, এখন 20)
-        if (dist < 20) return;
-    
-        // smooth movement (আগে 0.7/0.3 ছিল)
-        var SMOOTH_FACTOR = 0.15;
-    
-        lastLocation = [
-            lastLocation[0] * (1 - SMOOTH_FACTOR) + newLocation[0] * SMOOTH_FACTOR,
-            lastLocation[1] * (1 - SMOOTH_FACTOR) + newLocation[1] * SMOOTH_FACTOR
-        ];
-    } else {
-        lastLocation = newLocation;
-    }
-    
-        var userLocation = lastLocation;
-    
-        // 🧹 clear old layers
-        // খুব ঘন ঘন remove না করে delay দাও
-    if (!window.lastClearTime) window.lastClearTime = Date.now();
-    
-    if (Date.now() - window.lastClearTime > 4000) {
-        window.allLayers.forEach(function(layer) {
-            map.removeLayer(layer);
-        });
-        window.allLayers = [];
-        window.lastClearTime = Date.now();
-    }
-    
-        // 🟡 USER POINT
-        userFeature.getGeometry().setCoordinates(userLocation);
-    
-        userFeature.setStyle(new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: 8,
-                fill: new ol.style.Fill({ color: '#FFFFCC' }),
-                stroke: new ol.style.Stroke({ color: '#333', width: 2 })
-            })
-        }));
-    // 🟢 ACCURACY UPDATE (NEW)
-    accuracyFeature.getGeometry().setCenter(userLocation);
-    accuracyFeature.getGeometry().setRadius(accuracy);
-        userLayer.getSource().clear();
-    userLayer.getSource().addFeature(userFeature);
- 
-        
-        if(!window.userLayerAdded){
-    map.addLayer(userLayer);
-    window.userLayerAdded = true;
+   <!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Smart Facility Map</title>
+
+<link rel="stylesheet" href="./resources/ol.css">
+<script src="./resources/ol.js"></script>
+
+<style>
+html, body, #map {
+    width:100%;
+    height:100%;
+    margin:0;
 }
-    
-   // ===== DISTANCE CALC =====
+</style>
+</head>
 
-var features = json_FacilityInfo_4.features;
+<body>
 
-var results = [];
-var userLonLat = ol.proj.toLonLat(userLocation);
+<div id="map"></div>
 
-// 🔥 limit (performance)
-var MAX_CHECK = 5;
-var count = 0;
+<script>
 
-features.forEach(function(f){
+// ================= CONFIG =================
+const WALKING_SPEED = 83; // m/min
+const ROAD_FACTOR = 1.3;
 
-    if(count >= MAX_CHECK) return;
-    count++;
-
-    var coord = ol.proj.fromLonLat(f.geometry.coordinates);
-    var lonLat2 = ol.proj.toLonLat(coord);
-
-    var url = `https://router.project-osrm.org/route/v1/walking/${userLonLat[0]},${userLonLat[1]};${lonLat2[0]},${lonLat2[1]}?overview=false`;
-
-    fetch(url)
-    .then(res => res.json())
-    .then(data => {
-
-        if(data.routes && data.routes.length > 0){
-
-            results.push({
-                feature: f,
-                coord: coord,
-                distance: data.routes[0].distance,
-                duration: data.routes[0].duration
-            });
-
-            if(results.length === MAX_CHECK){
-
-                results.sort((a,b)=> a.distance - b.distance);
-
-                var nearestThree = results.slice(0,3);
-
-                drawReal(nearestThree);
-            }
-        }
-    });
-
+// ================= MAP =================
+var map = new ol.Map({
+    target: 'map',
+    layers: [
+        new ol.layer.Tile({
+            source: new ol.source.OSM()
+        })
+    ],
+    view: new ol.View({
+        center: ol.proj.fromLonLat([92.0,21.5]),
+        zoom: 13
+    })
 });
 
-    function drawReal(list){
+// ================= USER =================
+var userFeature = new ol.Feature({
+    geometry: new ol.geom.Point([0,0])
+});
 
-    list.forEach(function(item, index){
+var userLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({ features:[userFeature] })
+});
 
-        var isNearest = (index === 0);
-        var name = item.feature.properties.Name || "Facility";
+map.addLayer(userLayer);
 
-        var timeMin = Math.ceil(item.duration / 60);
+// ================= DISTANCE =================
+function haversine(c1, c2){
+    const R = 6371000;
+    const lat1 = c1[1]*Math.PI/180;
+    const lat2 = c2[1]*Math.PI/180;
+    const dLat = lat2-lat1;
+    const dLon = (c2[0]-c1[0])*Math.PI/180;
 
-        // 🛣️ route
-        drawRoadRoute(
-            ol.proj.toLonLat(userLocation)[1],
-            ol.proj.toLonLat(userLocation)[0],
-            ol.proj.toLonLat(item.coord)[1],
-            ol.proj.toLonLat(item.coord)[0]
-        );
+    const a = Math.sin(dLat/2)**2 +
+              Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
 
-        // 🔴 / 🔵 point
-        var point = new ol.Feature({
-            geometry: new ol.geom.Point(item.coord)
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ================= REAL ROAD =================
+async function getRoadDistance(lat1, lon1, lat2, lon2){
+
+    try{
+        const url = `https://router.project-osrm.org/route/v1/walking/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if(data.routes && data.routes.length > 0){
+            return {
+                distance: data.routes[0].distance,
+                geometry: data.routes[0].geometry.coordinates
+            };
+        }
+
+    }catch(e){}
+
+    return null; // offline fallback
+}
+
+// ================= DRAW LINE =================
+function drawLine(coords, distance){
+
+    const transformed = coords.map(c => ol.proj.fromLonLat(c));
+
+    const line = new ol.Feature({
+        geometry: new ol.geom.LineString(transformed)
+    });
+
+    line.setStyle(new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: '#F79646',
+            width: 3
+        })
+    }));
+
+    const layer = new ol.layer.Vector({
+        source: new ol.source.Vector({ features:[line] })
+    });
+
+    map.addLayer(layer);
+}
+
+// ================= FACILITY DATA =================
+const facilities = [
+    {name:"Facility A", coord:[92.01,21.51]},
+    {name:"Facility B", coord:[92.02,21.52]},
+    {name:"Facility C", coord:[92.03,21.50]},
+    {name:"Facility D", coord:[92.04,21.49]},
+    {name:"Facility E", coord:[92.05,21.48]}
+];
+
+// ================= MAIN =================
+navigator.geolocation.getCurrentPosition(async function(pos){
+
+    const userLon = pos.coords.longitude;
+    const userLat = pos.coords.latitude;
+
+    const userCoord = [userLon, userLat];
+    const userMap = ol.proj.fromLonLat(userCoord);
+
+    userFeature.getGeometry().setCoordinates(userMap);
+
+    let results = [];
+
+    for(let f of facilities){
+
+        const road = await getRoadDistance(userLat, userLon, f.coord[1], f.coord[0]);
+
+        let distance, geometry;
+
+        if(road){
+            distance = road.distance;
+            geometry = road.geometry;
+        } else {
+            distance = haversine(userCoord, f.coord) * ROAD_FACTOR;
+            geometry = [userCoord, f.coord];
+        }
+
+        results.push({
+            name: f.name,
+            coord: f.coord,
+            distance,
+            geometry
+        });
+    }
+
+    // SORT
+    results.sort((a,b)=>a.distance-b.distance);
+
+    const nearest = results.slice(0,3);
+
+    nearest.forEach((item, index)=>{
+
+        const isNearest = index === 0;
+
+        const time = Math.ceil(item.distance / WALKING_SPEED);
+
+        // DRAW LINE
+        drawLine(item.geometry, item.distance);
+
+        // POINT
+        const point = new ol.Feature({
+            geometry: new ol.geom.Point(
+                ol.proj.fromLonLat(item.coord)
+            )
         });
 
         point.setStyle(new ol.style.Style({
             image: new ol.style.Circle({
-                radius: isNearest ? 9 : 6,
+                radius: isNearest ? 10 : 6,
                 fill: new ol.style.Fill({
-                    color: isNearest ? '#FF3333' : '#66CCFF'
+                    color: isNearest ? '#FF0000' : '#3399FF'
                 }),
                 stroke: new ol.style.Stroke({
-                    color: 'white',
-                    width: 2
+                    color:'#fff', width:2
                 })
             }),
             text: new ol.style.Text({
                 text:
                     (isNearest ? "Nearest\n" : "") +
-                    name + "\n" +
-                    Math.round(item.distance) + " m (" +
-                    timeMin + " min)",
+                    item.name + "\n" +
+                    Math.round(item.distance) + " m\n" +
+                    time + " min",
                 offsetY: -15,
-                fill: new ol.style.Fill({ color: '#cc0000' }),
-                stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
+                fill: new ol.style.Fill({ color:'#000' }),
+                stroke: new ol.style.Stroke({ color:'#fff', width:3 })
             })
         }));
 
-        var layer = new ol.layer.Vector({
-            source: new ol.source.Vector({ features: [point] })
+        const layer = new ol.layer.Vector({
+            source: new ol.source.Vector({ features:[point] })
         });
 
         map.addLayer(layer);
-        window.allLayers.push(layer);
-
     });
-}
-    
-    function(error) {
-        console.log(error);
-    
-        let msg = "";
-    
-        if(error.code === 1){
-            msg = "Permission denied ❌";
-        } else if(error.code === 2){
-            msg = "Location unavailable 📡";
-        } else if(error.code === 3){
-            msg = "Timeout ⏳ (try again)";
-        } else {
-            msg = "Unknown error ❌";
-        }
-    
-        document.getElementById("gpsStatus").innerHTML = msg;
-    },
-    
-    {
-        enableHighAccuracy: true,
-        maximumAge: 10000,
-        timeout: 20000
-    }
-    
-    );
-    }
-    
-    </script>
-    
-    <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(() => console.log("Offline ready ✅"))
-        .catch(() => console.log("Offline failed ❌"));
-    }
-    </script>
-    
-    <script>
-    function loadMapScript(callback) {
-        if (!window.mapLoaded) {
-            var script = document.createElement("script");
-            script.src = "./resources/qgis2web.js";
-    
-            script.onload = function(){
-                window.mapLoaded = true;
-                if(callback) callback();
-            setTimeout(function(){
-        startMap();
-    }, 1000);
-      };
-            document.body.appendChild(script);
-        } else {
-            if(callback) callback();
-        }
-    }
-     </script>
-       -->
-    <div id="hintPopup" style="
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100vh;
-    display:none;
-    justify-content:center;
-    align-items:center;
-    background: rgba(0,0,0,0.3);
-    backdrop-filter: blur(6px);
-    z-index:999999;
-    ">
-    
-    <div style="
-    width:90%;
-    max-width:500px;
-    max-height:85vh;
-    overflow-y:auto;
-    background:white;
-    border-radius:12px;
-    padding:20px;
-    ">
-    
-    <button onclick="closeHint()" style="
-    float:right;
-    background:red;
-    color:white;
-    border:none;
-    padding:5px 10px;
-    border-radius:5px;
-    ">Close</button>
-    
-    <!-- 🌐 Language Button -->
-    <div style="text-align:center; margin-bottom:10px;">
-        <button onclick="showBangla()">🇧🇩 বাংলা</button>
-        <button onclick="showEnglish()">🇬🇧 English</button>
-    </div>
-    
-    <p style="color:#555; font-size:13px;">
-    📘 ম্যাপ ব্যবহারের আগে নিচের নির্দেশনাগুলো ভালোভাবে পড়ুন / Please read before using the map
-    </p>
-    
-    <div id="banglaContent">
-    
-    <p><b>🇧🇩 বাংলা ব্যবহার নির্দেশিকা:</b></p>
-    
-    <ul>
-    <li>
-    <b>অফলাইন ব্যবহার:</b><br>
-    এই ম্যাপটি অফলাইনেও কাজ করতে পারে। এজন্য প্রথমে ইন্টারনেট সংযোগ দিয়ে একবার ম্যাপটি খুলতে হবে, যাতে প্রয়োজনীয় তথ্য সংরক্ষণ হয়।<br>
-    এরপর ইন্টারনেট না থাকলেও আপনি ম্যাপ ব্যবহার করতে পারবেন (GPS অবশ্যই চালু রাখতে হবে)।
-    </li>
-        
-    <li>
-    <span style="display:inline-block;width:12px;height:12px;background:#FFFFCC;border:2px solid #333;border-radius:50%;margin-right:6px;"></span>
-    <b>আপনার বর্তমান অবস্থান (Your Location):</b><br>
-    ম্যাপে আপনার অবস্থান হলুদ রঙের গোল চিহ্ন দিয়ে দেখানো হবে। আপনি চলাফেরা করলে এই চিহ্নটি স্বয়ংক্রিয়ভাবে আপডেট হবে।<br>
-    ⚠️ প্রথমবার লোকেশন পেতে কিছু সময় লাগতে পারে।
-    </li>
-    
-    <li>
-    <span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(100,149,237,0.5);background:rgba(100,149,237,0.05);border-radius:50%;margin-right:6px;"></span>
-    <b>GPS Accuracy (সঠিকতা):</b><br>
-    আপনার অবস্থানের চারপাশে একটি হালকা বৃত্ত (circle) দেখা যাবে, যা আপনার লোকেশনের accuracy নির্দেশ করে।
-    </li>
-    
-    <li>
-    <span style="display:inline-block;width:12px;height:12px;background:#FF3333;border-radius:50%;margin-right:6px;"></span>
-    <b>সবচেয়ে কাছের ফ্যাসিলিটি (Nearest Facility):</b><br>
-    আপনার সবচেয়ে কাছের ফ্যাসিলিটি লাল রঙে দেখানো হবে।
-    </li>
-    
-    <li>
-    <span style="display:inline-block;width:12px;height:12px;background:#66CCFF;border-radius:50%;margin-right:6px;"></span>
-    <b>অন্যান্য কাছাকাছি ফ্যাসিলিটি:</b><br>
-    আপনার কাছাকাছি আরও ২টি ফ্যাসিলিটি দেখানো হবে।
-    </li>
-    
-    <li>
-    <span style="display:inline-block;width:20px;height:3px;background:#F79646;margin-right:6px;"></span>
-    <b>দূরত্ব ও সময় (Distance & Time):</b><br>
-    প্রতিটি ফ্যাসিলিটির সাথে দূরত্ব এবং হেটে যেতে কত সময় দেখানো হবে।
-    </li>
-    
-    <li>📶 <b>GPS চালু রাখা:</b><br>
-    ম্যাপ ব্যবহার করার জন্য অবশ্যই আপনার মোবাইলের GPS চালু রাখতে হবে এবং location permission allow করতে হবে।<br>
-    ❌ GPS বন্ধ থাকলে সঠিক লোকেশন পাওয়া যাবে না।</li>
-    
-    <li>📱 <b>ডিভাইস সম্পর্কিত তথ্য:</b><br>
-    এই ম্যাপ মোবাইল ফোনে সবচেয়ে ভালো কাজ করে।<br>
-    💻 ল্যাপটপ বা ডেস্কটপে accuracy কম হতে পারে।</li>
-    
-    <li>🔄 <b>লাইভ আপডেট (Live Update):</b><br>
-    আপনি চলাফেরা করলে ম্যাপ স্বয়ংক্রিয়ভাবে আপডেট হবে এবং নতুন করে nearest facility নির্ধারণ করবে।</li>
-    
-    <li>🗺️ <b>অটো জুম (Auto Zoom):</b><br>
-    ম্যাপ স্বয়ংক্রিয়ভাবে আপনার অবস্থান এবং সবচেয়ে কাছের ফ্যাসিলিটির মধ্যে জুম করবে যাতে আপনি সহজে বুঝতে পারেন।</li>
-    
-    <li>⚠️ <b>সতর্কতা:</b><br>
-    এই ম্যাপ একটি সহায়ক টুল। মাঠ পর্যায়ে যাওয়ার আগে বাস্তব পরিস্থিতি যাচাই করুন।</li>
-    
-    </ul>
-    
-    </div>
-    <!-- 🟢 English -->
-    <div id="englishContent" style="display:none;">
-    
-    <p><b>🇬🇧 English User Guide:</b></p>
-    <ul>
-    
-    <li>
-    <b>Offline Use:</b><br>
-    This map supports offline use. To enable this, open the map once while connected to the internet so it can load and save data.<br>
-    After that, you can continue using the map without internet connection (GPS must be turned ON).
-    </li>
-        
-    <li>
-    <span style="display:inline-block;width:12px;height:12px;background:#FFFFCC;border:2px solid #333;border-radius:50%;margin-right:6px;"></span>
-    <b>Your Current Location:</b><br>
-    Your position is shown as a yellow circle on the map. It updates automatically when you move.<br>
-    ⚠️ It may take a few seconds to detect your location initially.
-    </li>
-    
-    <li>
-    <span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(100,149,237,0.5);background:rgba(100,149,237,0.05);border-radius:50%;margin-right:6px;"></span>
-    <b>GPS Accuracy:</b><br>
-    A light circle around your location shows accuracy. A smaller circle means higher accuracy.
-    </li>
-    
-    <li>
-    <span style="display:inline-block;width:12px;height:12px;background:#FF3333;border-radius:50%;margin-right:6px;"></span>
-    <b>Nearest Facility:</b><br>
-    The closest facility is shown in red and labeled as "Nearest".
-    </li>
-    
-    <li>
-    <span style="display:inline-block;width:12px;height:12px;background:#66CCFF;border-radius:50%;margin-right:6px;"></span>
-    <b>Other Nearby Facilities:</b><br>
-    Two additional nearby facilities are shown in blue as alternatives.
-    </li>
-    
-    <li>
-    <span style="display:inline-block;width:20px;height:3px;background:#F79646;margin-right:6px;"></span>
-    <b>📏Distance & Time:</b><br>
-    ⏱️ Distance (in meters) and estimated walking time (in minutes) to each facility are displayed.
-    </li>
-    
-    <li>📱 <b>Device Note:</b><br>
-    This map works best on mobile devices.<br>
-    💻 Accuracy may be lower on laptops or desktops.</li>
-    
-    <li>🔄 <b>Live Update:</b><br>
-    As you move, the map updates automatically and recalculates the nearest facility.</li>
-    
-    <li>🗺️ <b>Auto Zoom:</b><br>
-    The map automatically zooms between your location and the nearest facility for better understanding.</li>
-    
-    <li>⚠️ <b>Disclaimer:</b><br>
-    This map is a supportive tool. Always verify real-world conditions before taking action.</li>
-    
-    </ul>
-    
-    </div>
-    
-    </div>
-    </div>
-        <script>
-    
-    // সব কিছু page load হওয়ার পরে run হবে
-    window.addEventListener("load", function(){
-    
-        var hintBtn = document.getElementById("hintBtn");
-    
-        if(hintBtn){
-            hintBtn.onclick = function(){
-                document.getElementById("hintPopup").style.display = "flex";
-            };
-        }
-    
-    });
-    
-    // Close
-    function closeHint(){
-        document.getElementById("hintPopup").style.display = "none";
-    }
-    
-    // বাংলা
-    function showBangla(){
-        document.getElementById("banglaContent").style.display = "block";
-        document.getElementById("englishContent").style.display = "none";
-    }
-    
-    // English
-    function showEnglish(){
-        document.getElementById("banglaContent").style.display = "none";
-        document.getElementById("englishContent").style.display = "block";
-    }
-    
-    // road line
-   function drawRoadRoute(lat1, lon1, lat2, lon2){
 
-    var url = `https://router.project-osrm.org/route/v1/walking/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
+}, function(){
+    alert("GPS failed ❌");
+});
 
-    fetch(url)
-    .then(res => res.json())
-    .then(data => {
+</script>
 
-        // ❌ route না থাকলে fallback
-        if(!data.routes || data.routes.length === 0){
-            return;
-        }
-
-        // 🔥 REAL ROAD DISTANCE
-        var realDistance = data.routes[0].distance;
-
-        var route = data.routes[0].geometry.coordinates;
-        var transformed = route.map(c => ol.proj.fromLonLat(c));
-
-        var line = new ol.Feature({
-            geometry: new ol.geom.LineString(transformed)
-        });
-
-        line.setStyle(new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: realDistance < 300 ? '#4F81BD' : '#F79646',
-                width: 3,
-                lineDash: realDistance < 300 ? [2,6] : null
-            }),
-            text: new ol.style.Text({
-                text: "Road " + Math.round(realDistance) + " m",
-                placement: 'line',
-                fill: new ol.style.Fill({ color: '#000' }),
-                stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
-            })
-        }));
-
-        var layer = new ol.layer.Vector({
-            source: new ol.source.Vector({ features: [line] })
-        });
-
-        map.addLayer(layer);
-        window.allLayers.push(layer);
-
-    })
-    .catch(err => console.log("Route error:", err));
-}
-    </script>
-           
-        </body>
-    </html>
+</body>
+</html>
