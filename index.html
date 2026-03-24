@@ -441,6 +441,20 @@
     
     <script>
     function getRealDistance(coord1, coord2) {
+        async function getRoadDistance(lat1, lon1, lat2, lon2){
+    try {
+        const url = `https://router.project-osrm.org/route/v1/walking/${lon1},${lat1};${lon2},${lat2}?overview=false`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data.routes || data.routes.length === 0) return 999999;
+
+        return data.routes[0].distance;
+
+    } catch (e) {
+        return 999999;
+    }
+}
         var R = 6371000; // meter
         var lat1 = coord1[1] * Math.PI / 180;
         var lat2 = coord2[1] * Math.PI / 180;
@@ -468,28 +482,37 @@
         })
     }));
     
-    var userLayer = new ol.layer.Vector({
-        source: new ol.source.Vector({ features: [userFeature] })
-    }); 
-        
-    function startMap(){
+   var userLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({ features: [userFeature] })
+});
+</script>
+
+<script>
+
+let lastUpdateTime = 0;
+const UPDATE_INTERVAL = 4000; // 4 sec delay
+
+let lastNearestId = null;
+
+function startMap(){
     
     // Store layers
     window.allLayers = [];
     var lastLocation = null;
-    // 🟢 ACCURACY CIRCLE (NEW)
+
+    // 🟢 ACCURACY CIRCLE
     var accuracyFeature = new ol.Feature({
         geometry: new ol.geom.Circle([0,0], 0)
     });
     
     accuracyFeature.setStyle(new ol.style.Style({
-    stroke: new ol.style.Stroke({
-        color: 'rgba(100, 149, 237, 0.4)',
-        width: 2
-    }),
-    fill: new ol.style.Fill({
-        color: 'rgba(100, 149, 237, 0.08)'
-    })
+        stroke: new ol.style.Stroke({
+            color: 'rgba(100, 149, 237, 0.4)',
+            width: 2
+        }),
+        fill: new ol.style.Fill({
+            color: 'rgba(100, 149, 237, 0.08)'
+        })
     }));
     
     var accuracyLayer = new ol.layer.Vector({
@@ -497,241 +520,264 @@
     });
     
     map.addLayer(accuracyLayer);
-    var overlay;
-    
-    var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
-    
-    function getDistance(a, b) {
-        var dx = a[0] - b[0];
-        var dy = a[1] - b[1];
-        return Math.sqrt(dx * dx + dy * dy);
-    }
-    
-    navigator.geolocation.watchPosition(
-    
-    function(position) {
-    
-        var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
-    
-        // 🎯 Device based accuracy
-        var ACCURACY_LIMIT = isMobile ? 20 : 100;
-    
-        var accuracy = position.coords.accuracy;
-    
-        // ❌ Ignore only if we already have a good location
-        if (accuracy > ACCURACY_LIMIT && lastLocation !== null) {
-            return;
+
+    if (!window.isProcessing) window.isProcessing = false;
+
+    async function getRouteDistance(lat1, lon1, lat2, lon2) {
+        try {
+            const url = `https://router.project-osrm.org/route/v1/walking/${lon1},${lat1};${lon2},${lat2}?overview=false`;
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (!data.routes || data.routes.length === 0) return null;
+
+            return {
+                distance: data.routes[0].distance,
+                duration: data.routes[0].duration
+            };
+        } catch (e) {
+            console.log("OSRM error:", e);
+            return null;
         }
-    
-       document.getElementById("gpsStatus").innerHTML =
+    }
+
+    navigator.geolocation.watchPosition(
+        function(position) {
+    var now = Date.now();
+    if (now - lastUpdateTime < UPDATE_INTERVAL) {
+        return;
+}
+lastUpdateTime = now;
+
+        var isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+        var ACCURACY_LIMIT = isMobile ? 30 : 100;
+        var accuracy = position.coords.accuracy;
+
+        if (accuracy > ACCURACY_LIMIT && lastLocation !== null) return;
+
+        document.getElementById("gpsStatus").innerHTML =
         (isMobile ? "📱 Mobile GPS running" : "💻 Laptop location running") +
         "<br>Accuracy: " + Math.round(accuracy) + " m";
-    
+
         var userLon = position.coords.longitude;
         var userLat = position.coords.latitude;
-    
+
         var newLocation = ol.proj.fromLonLat([
-        userLon + 0.00005,   // east-west adjust
-        userLat + 0.00005    // north-south adjust
-    ]);
-    
-        // 🧠 smooth movement
-        if (lastLocation) {
-        var dx = newLocation[0] - lastLocation[0];
-        var dy = newLocation[1] - lastLocation[1];
-        var dist = Math.sqrt(dx * dx + dy * dy);
-    
-        // ছোট movement ignore (আগে 10 ছিল, এখন 20)
-        if (dist < 20) return;
-    
-        // smooth movement (আগে 0.7/0.3 ছিল)
-        var SMOOTH_FACTOR = 0.15;
-    
-        lastLocation = [
-            lastLocation[0] * (1 - SMOOTH_FACTOR) + newLocation[0] * SMOOTH_FACTOR,
-            lastLocation[1] * (1 - SMOOTH_FACTOR) + newLocation[1] * SMOOTH_FACTOR
-        ];
-    } else {
-        lastLocation = newLocation;
-    }
-    
-        var userLocation = lastLocation;
-    
-        // 🧹 clear old layers
-        // খুব ঘন ঘন remove না করে delay দাও
-    if (!window.lastClearTime) window.lastClearTime = Date.now();
-    
-    if (Date.now() - window.lastClearTime > 4000) {
-        window.allLayers.forEach(function(layer) {
-            map.removeLayer(layer);
-        });
-        window.allLayers = [];
-        window.lastClearTime = Date.now();
-    }
-    
-        // 🟡 USER POINT
-        userFeature.getGeometry().setCoordinates(userLocation);
-    
-        userFeature.setStyle(new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: 8,
-                fill: new ol.style.Fill({ color: '#FFFFCC' }),
-                stroke: new ol.style.Stroke({ color: '#333', width: 2 })
-            })
-        }));
-    // 🟢 ACCURACY UPDATE (NEW)
-    accuracyFeature.getGeometry().setCenter(userLocation);
-    accuracyFeature.getGeometry().setRadius(accuracy);
-        userLayer.getSource().clear();
-    userLayer.getSource().addFeature(userFeature);
- 
-        
-        if(!window.userLayerAdded){
-    map.addLayer(userLayer);
-    window.userLayerAdded = true;
-}
-    
-   // ===== DISTANCE CALC =====
-
-var features = json_FacilityInfo_4.features;
-var distances = [];
-
-var lonLat1 = ol.proj.toLonLat(userLocation);
-
-// 🌍 Area type
-var AREA_TYPE = "camp";
-
-// 📏 Road factor
-var ROAD_FACTOR = 1.3;
-
-if(AREA_TYPE === "city"){
-    ROAD_FACTOR = 1.4;
-}
-else if(AREA_TYPE === "hill"){
-    ROAD_FACTOR = 1.5;
-}
-
-// 1️⃣ সব distance collect
-features.forEach(function(f) {
-
-    var coord = ol.proj.fromLonLat(f.geometry.coordinates);
-    var lonLat2 = ol.proj.toLonLat(coord);
-
-    var straightDistance = getRealDistance(lonLat1, lonLat2);
-    var approxDistance = straightDistance * ROAD_FACTOR;
-
-    distances.push({
-        feature: f,
-        distance: approxDistance,
-        coord: coord,
-        straight: straightDistance
-    });
-
-});
-
-// 2️⃣ একবার sort
-distances.sort(function(a, b) {
-    return a.distance - b.distance;
-});
-
-// 3️⃣ nearest 3টা
-var nearestThree = distances.slice(0, 3);
-
-// 4️⃣ AUTO ZOOM (একবার)
-var extent = ol.extent.boundingExtent([
-    userLocation,
-    nearestThree[0].coord
+    userLon,
+    userLat
 ]);
 
-map.getView().fit(extent, {
-    padding: [100,100,100,100],
-    duration: 800
-});
+        if (lastLocation) {
+            var dx = newLocation[0] - lastLocation[0];
+            var dy = newLocation[1] - lastLocation[1];
+            var dist = Math.sqrt(dx * dx + dy * dy);
 
-// 5️⃣ DRAW
-nearestThree.forEach(function(item, index) {
+            if (dist < 40) return;
 
-    var isNearest = (index === 0);
-    var name = item.feature.properties.Name || "Facility";
+            var SMOOTH_FACTOR = 0.08;
 
-    var speed = 83;
-    var timeMin = Math.ceil(item.distance / speed);
-
-    // 🟠 LINE
-    drawRoadRoute(
-        ol.proj.toLonLat(userLocation)[1],
-        ol.proj.toLonLat(userLocation)[0],
-        ol.proj.toLonLat(item.coord)[1],
-        ol.proj.toLonLat(item.coord)[0],
-    );
-
-    // 🔴 / 🔵 POINT
-    var point = new ol.Feature({
-        geometry: new ol.geom.Point(item.coord)
-    });
-
-    point.setStyle(new ol.style.Style({
-        image: new ol.style.Circle({
-            radius: isNearest ? 9 : 6,
-            fill: new ol.style.Fill({
-                color: isNearest ? '#FF3333' : '#66CCFF'
-            }),
-            stroke: new ol.style.Stroke({
-                color: 'white',
-                width: 2
-            })
-        }),
-        text: new ol.style.Text({
-            text:
-                (isNearest ? "Nearest\n" : "") +
-                name + "\n" +
-                Math.round(item.distance) + " m (" +
-                timeMin + " min)",
-            offsetY: -15,
-            fill: new ol.style.Fill({ color: '#cc0000' }),
-            stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
-        })
-    }));
-
-    var pointLayer = new ol.layer.Vector({
-        source: new ol.source.Vector({ features: [point] })
-    });
-
-    map.addLayer(pointLayer);
-    window.allLayers.push(pointLayer);
-
-});
-    
-    },
-    
-    function(error) {
-        console.log(error);
-    
-        let msg = "";
-    
-        if(error.code === 1){
-            msg = "Permission denied ❌";
-        } else if(error.code === 2){
-            msg = "Location unavailable 📡";
-        } else if(error.code === 3){
-            msg = "Timeout ⏳ (try again)";
+            lastLocation = [
+                lastLocation[0] * (1 - SMOOTH_FACTOR) + newLocation[0] * SMOOTH_FACTOR,
+                lastLocation[1] * (1 - SMOOTH_FACTOR) + newLocation[1] * SMOOTH_FACTOR
+            ];
         } else {
-            msg = "Unknown error ❌";
+            lastLocation = newLocation;
         }
-    
-        document.getElementById("gpsStatus").innerHTML = msg;
+
+        var userLocation = lastLocation;
+
+        if (!window.lastClearTime) window.lastClearTime = Date.now();
+
+        if (Date.now() - window.lastClearTime > 4000) {
+            window.allLayers.forEach(function(layer) {
+                map.removeLayer(layer);
+            });
+            window.allLayers = [];
+            window.lastClearTime = Date.now();
+        }
+
+        userFeature.getGeometry().setCoordinates(userLocation);
+
+        accuracyFeature.getGeometry().setCenter(userLocation);
+        accuracyFeature.getGeometry().setRadius(accuracy);
+
+        userLayer.getSource().clear();
+        userLayer.getSource().addFeature(userFeature);
+
+        if(!window.userLayerAdded){
+            map.addLayer(userLayer);
+            window.userLayerAdded = true;
+        }
+
+// ===== NEW SMART SYSTEM =====
+
+async function findNearestFacilities(userLocation){
+
+    const features = json_FacilityInfo_4.features;
+    const userLonLat = ol.proj.toLonLat(userLocation);
+
+    let quickDistances = features.map(f => {
+
+        const coord = f.geometry.coordinates;
+
+        const dx = coord[0] - userLonLat[0];
+        const dy = coord[1] - userLonLat[1];
+
+        const approxDist = Math.sqrt(dx*dx + dy*dy);
+
+        return {
+            feature: f,
+            approx: approxDist,
+            coord: coord
+        };
+    });
+
+    quickDistances.sort((a,b)=>a.approx - b.approx);
+
+    const candidates = quickDistances.slice(0,5);
+
+    let finalResults = [];
+
+    for(let item of candidates){
+
+        try{
+            const route = await getRouteDistance(
+                userLonLat[1], userLonLat[0],
+                item.coord[1], item.coord[0]
+            );
+
+            if(route){
+                finalResults.push({
+                    feature: item.feature,
+                    distance: route.distance,
+                    duration: route.duration,
+                    coord: ol.proj.fromLonLat(item.coord)
+                });
+            }
+
+        } catch(e){
+            console.log("Route error:", e);
+        }
+    }
+
+    finalResults.sort((a,b)=>a.distance - b.distance);
+
+    return finalResults.slice(0,3);
+}
+
+
+// ===== RUN SYSTEM =====
+if (window.routeTimeout) {
+    clearTimeout(window.routeTimeout);
+}
+
+window.routeTimeout = setTimeout(() => {
+
+if(window.isProcessing) return;
+window.isProcessing = true;
+
+findNearestFacilities(userLocation).then(nearestThree => {
+
+if (nearestThree.length > 0) {
+
+    var currentNearestId = nearestThree[0].feature.properties.id;
+
+    if (currentNearestId === lastNearestId) {
+        window.isProcessing = false;
+        return;
+    }
+
+    lastNearestId = currentNearestId;
+}
+    window.allLayers.forEach(layer => map.removeLayer(layer));
+    window.allLayers = [];
+
+    if(nearestThree.length > 0){
+
+        var extent = ol.extent.boundingExtent([
+            userLocation,
+            nearestThree[0].coord
+        ]);
+
+        map.getView().fit(extent, {
+            padding: [100,100,100,100],
+            duration: 800
+        });
+    }
+
+    nearestThree.forEach(function(item, index){
+
+        var isNearest = index === 0;
+        var name = item.feature.properties.Name || "Facility";
+
+        var distanceM = Math.round(item.distance);
+        var WALKING_SPEED = 1.2; // meter per second
+
+var timeMin = Math.ceil(item.distance / WALKING_SPEED / 60);
+
+drawFastLine(userLocation, item.coord);
+        drawRoadRoute(
+            ol.proj.toLonLat(userLocation)[1],
+            ol.proj.toLonLat(userLocation)[0],
+            ol.proj.toLonLat(item.coord)[1],
+            ol.proj.toLonLat(item.coord)[0]
+        );
+
+        var point = new ol.Feature({
+            geometry: new ol.geom.Point(item.coord)
+        });
+
+        point.setStyle(new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: isNearest ? 9 : 6,
+                fill: new ol.style.Fill({
+                    color: isNearest ? '#FF3333' : '#66CCFF'
+                }),
+                stroke: new ol.style.Stroke({
+                    color: 'white',
+                    width: 2
+                })
+            }),
+            text: new ol.style.Text({
+                text:
+                    (isNearest ? "Nearest\n" : "") +
+                    name + "\n" +
+                    distanceM + " m (" +
+                    timeMin + " min)",
+                offsetY: -15,
+                fill: new ol.style.Fill({ color: '#cc0000' }),
+                stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
+            })
+        }));
+
+        var layer = new ol.layer.Vector({
+            source: new ol.source.Vector({ features: [point] })
+        });
+
+        map.addLayer(layer);
+        window.allLayers.push(layer);
+
+    });
+
+    window.isProcessing = false;
+
+});
+}, 1500); // ⏳ delay applied
     },
-    
+
+    function(error) {
+        document.getElementById("gpsStatus").innerHTML = "GPS Error ❌";
+    },
+
     {
         enableHighAccuracy: true,
         maximumAge: 10000,
         timeout: 20000
-    }
-    
-    );
-    }
-    
-    </script>
+    });
+
+}
+
+</script>
     
     <script>
     if ('serviceWorker' in navigator) {
@@ -760,7 +806,6 @@ nearestThree.forEach(function(item, index) {
         }
     }
      </script>
-       -->
     <div id="hintPopup" style="
     position:fixed;
     top:0;
@@ -960,6 +1005,29 @@ nearestThree.forEach(function(item, index) {
         document.getElementById("englishContent").style.display = "block";
     }
     
+    // ✅ NEW FAST LINE FUNCTION (এখানে বসান)
+function drawFastLine(coord1, coord2){
+
+    var line = new ol.Feature({
+        geometry: new ol.geom.LineString([coord1, coord2])
+    });
+
+    line.setStyle(new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: '#999',
+            width: 2,
+            lineDash: [5,5]
+        })
+    }));
+
+    var layer = new ol.layer.Vector({
+        source: new ol.source.Vector({ features: [line] })
+    });
+
+    map.addLayer(layer);
+    window.allLayers.push(layer);
+}
+
     // road line
    function drawRoadRoute(lat1, lon1, lat2, lon2){
 
