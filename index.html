@@ -151,9 +151,7 @@ function checkCode(){
         document.getElementById("lockScreen").style.display = "none";
         document.getElementById("map").style.display = "block";
 
-        loadMapScript(function(){
-    startMap();
-});
+        loadMapScript();
 
     } else {
 
@@ -528,8 +526,7 @@ function(position) {
         return;
     }
 
-    document.getElementById("gpsStatus").innerHTML =
-        document.getElementById("gpsStatus").innerHTML =
+   document.getElementById("gpsStatus").innerHTML =
     (isMobile ? "📱 Mobile GPS running" : "💻 Laptop location running") +
     "<br>Accuracy: " + Math.round(accuracy) + " m";
 
