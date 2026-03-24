@@ -658,18 +658,19 @@ features.forEach(function(f) {
     nearestThree.forEach(function(item, index) {
 
         var isNearest = (index === 0);
-        var isWalking = item.distance < 200; // short distance হলে walking ধরছি
         var name = item.feature.properties.Name || "Facility";
+        var isWalking = item.distance < 300; // short distance হলে walking ধরছি
 
         var speed = 83;
         var timeMin = Math.ceil(item.distance / speed);
 
         // 🟠 LINE
-      drawRoadRoute(
+     drawRoadRoute(
     ol.proj.toLonLat(userLocation)[1],
     ol.proj.toLonLat(userLocation)[0],
     ol.proj.toLonLat(item.coord)[1],
-    ol.proj.toLonLat(item.coord)[0]
+    ol.proj.toLonLat(item.coord)[0],
+    item.distance
 );
 
         // 🔴 / 🔵 POINT + TEXT
@@ -966,7 +967,9 @@ function showEnglish(){
 }
 
 // road line
-function drawRoadRoute(lat1, lon1, lat2, lon2){
+function drawRoadRoute(lat1, lon1, lat2, lon2, distance){
+
+    var isWalking = distance < 300;
 
     var url = `https://router.project-osrm.org/route/v1/walking/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
 
@@ -985,19 +988,20 @@ function drawRoadRoute(lat1, lon1, lat2, lon2){
         });
 
         line.setStyle(new ol.style.Style({
-    stroke: new ol.style.Stroke({
-        color: isWalking ? '#7393B3' : '#0096FF',
-        width: 3,
-        lineDash: isWalking ? [10,10] : null
-    }),
-      text: new ol.style.Text({
-        text: (isWalking ? "Walk " : "Road ") + Math.round(item.distance) + " m",
-        placement: 'line',
-        fill: new ol.style.Fill({ color: '#000' }),
-        stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
-    })
-}));
-         var layer = new ol.layer.Vector({
+            stroke: new ol.style.Stroke({
+                color: isWalking ? '#4F81BD' : '#F79646',
+                width: 3,
+                lineDash: isWalking ? [2,6] : null
+            }),
+            text: new ol.style.Text({
+                text: (isWalking ? "Walk " : "Road ") + Math.round(distance) + " m",
+                placement: 'line',
+                fill: new ol.style.Fill({ color: '#000' }),
+                stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
+            })
+        }));
+
+        var layer = new ol.layer.Vector({
             source: new ol.source.Vector({ features: [line] })
         });
 
@@ -1007,7 +1011,6 @@ function drawRoadRoute(lat1, lon1, lat2, lon2){
     })
     .catch(err => console.log("Route error:", err));
 }
-
 </script>
        
     </body>
