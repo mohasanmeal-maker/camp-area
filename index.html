@@ -943,15 +943,31 @@ function showEnglish(){
     document.getElementById("englishContent").style.display = "block";
 }
 
-// button চাপলে popup খুলবে
-document.getElementById("hintBtn").onclick = function(){
-    document.getElementById("hintPopup").style.display = "flex";
-};
+window.onload = function(){
 
-// popup বন্ধ করবে
-function closeHint(){
-    document.getElementById("hintPopup").style.display = "none";
-}
+    // hint button
+    document.getElementById("hintBtn").onclick = function(){
+        document.getElementById("hintPopup").style.display = "flex";
+    };
+
+    // close button
+    window.closeHint = function(){
+        document.getElementById("hintPopup").style.display = "none";
+    };
+
+    // বাংলা
+    window.showBangla = function(){
+        document.getElementById("banglaContent").style.display = "block";
+        document.getElementById("englishContent").style.display = "none";
+    };
+
+    // English
+    window.showEnglish = function(){
+        document.getElementById("banglaContent").style.display = "none";
+        document.getElementById("englishContent").style.display = "block";
+    };
+
+};
 
 <script>
 
