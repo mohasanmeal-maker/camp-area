@@ -596,24 +596,43 @@ accuracyFeature.getGeometry().setRadius(accuracy);
     window.allLayers.push(userLayer);
 
     // ===== DISTANCE CALC =====
-    var features = json_FacilityInfo_4.features;
-    var distances = [];
+    // ===== DISTANCE CALC =====
+var features = json_FacilityInfo_4.features;
+var distances = [];
 
-    var lonLat1 = ol.proj.toLonLat(userLocation);
+var lonLat1 = ol.proj.toLonLat(userLocation);
 
-    features.forEach(function(f) {
+// 🌍 Area type (একবারই set করো)
+var AREA_TYPE = "camp";
 
-        var coord = ol.proj.fromLonLat(f.geometry.coordinates);
-        var lonLat2 = ol.proj.toLonLat(coord);
+// 📏 Road factor
+var ROAD_FACTOR = 1.3;
 
-        var distance = getRealDistance(lonLat1, lonLat2);
+if(AREA_TYPE === "city"){
+    ROAD_FACTOR = 1.4;
+}
+else if(AREA_TYPE === "hill"){
+    ROAD_FACTOR = 1.5;
+}
 
-        distances.push({
-            feature: f,
-            distance: distance,
-            coord: coord
-        });
+features.forEach(function(f) {
+
+    var coord = ol.proj.fromLonLat(f.geometry.coordinates);
+    var lonLat2 = ol.proj.toLonLat(coord);
+
+    // 📍 Original straight distance
+    var distance = getRealDistance(lonLat1, lonLat2);
+
+    // 🚧 Road distance (approx)
+    distance = distance * ROAD_FACTOR;
+
+    // 📦 Store
+    distances.push({
+        feature: f,
+        distance: distance,
+        coord: coord
     });
+});
 
     distances.sort(function(a, b) {
         return a.distance - b.distance;
