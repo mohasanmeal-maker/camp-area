@@ -710,19 +710,53 @@ function(error) {
 
     let msg = "";
 
-    if(error.code === 1){
-        msg = "Permission denied ❌";
-    } else if(error.code === 2){
-        msg = "Location unavailable 📡";
-    } else if(error.code === 3){
-        msg = "Timeout ⏳ (try again)";
+    // 🔍 Check browser permission
+    if (navigator.permissions) {
+
+        navigator.permissions.query({ name: "geolocation" }).then(function(result) {
+
+            if (result.state === "denied") {
+                msg = "❌ Permission denied";
+            } 
+            else if (result.state === "prompt") {
+                msg = "📍 Please allow location";
+            } 
+            else {
+                // Permission allowed but still error → GPS issue
+                if (error.code === 2) {
+                    msg = "📡 GPS OFF";
+                } 
+                else if (error.code === 3) {
+                    msg = "⏳ Timeout";
+                } 
+                else {
+                    msg = "❌ Location error";
+                }
+            }
+
+            document.getElementById("gpsStatus").innerHTML = msg;
+
+        });
+
     } else {
-        msg = "Unknown error ❌";
+        // fallback (old browser)
+        if (error.code === 1) {
+            msg = "❌ অনুমতি দেওয়া হয়নি / Permission denied";
+        } 
+        else if (error.code === 2) {
+            msg = "📡 GPS বন্ধ / GPS OFF";
+        } 
+        else if (error.code === 3) {
+            msg = "⏳ Timeout";
+        } 
+        else {
+            msg = "❌ Unknown error";
+        }
+
+        document.getElementById("gpsStatus").innerHTML = msg;
     }
-
-    document.getElementById("gpsStatus").innerHTML = msg;
-},
-
+}
+    
 {
     enableHighAccuracy: true,
     maximumAge: 10000,
