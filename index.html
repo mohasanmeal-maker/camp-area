@@ -933,45 +933,39 @@ This map is a supportive tool. Always verify real-world conditions before taking
 </div>
 </div>
     <script>
+    <script>
+
+// সব কিছু page load হওয়ার পরে run হবে
+window.addEventListener("load", function(){
+
+    var hintBtn = document.getElementById("hintBtn");
+
+    if(hintBtn){
+        hintBtn.onclick = function(){
+            document.getElementById("hintPopup").style.display = "flex";
+        };
+    }
+
+});
+
+// Close
+function closeHint(){
+    document.getElementById("hintPopup").style.display = "none";
+}
+
+// বাংলা
 function showBangla(){
     document.getElementById("banglaContent").style.display = "block";
     document.getElementById("englishContent").style.display = "none";
 }
 
+// English
 function showEnglish(){
     document.getElementById("banglaContent").style.display = "none";
     document.getElementById("englishContent").style.display = "block";
 }
 
-window.onload = function(){
-
-    // hint button
-    document.getElementById("hintBtn").onclick = function(){
-        document.getElementById("hintPopup").style.display = "flex";
-    };
-
-    // close button
-    window.closeHint = function(){
-        document.getElementById("hintPopup").style.display = "none";
-    };
-
-    // বাংলা
-    window.showBangla = function(){
-        document.getElementById("banglaContent").style.display = "block";
-        document.getElementById("englishContent").style.display = "none";
-    };
-
-    // English
-    window.showEnglish = function(){
-        document.getElementById("banglaContent").style.display = "none";
-        document.getElementById("englishContent").style.display = "block";
-    };
-
-};
-
-<script>
-
-// 🔥 এইটার নিচে paste করো 👇
+// road line
 function drawRoadRoute(lat1, lon1, lat2, lon2){
 
     var url = `https://router.project-osrm.org/route/v1/walking/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
@@ -979,6 +973,8 @@ function drawRoadRoute(lat1, lon1, lat2, lon2){
     fetch(url)
     .then(res => res.json())
     .then(data => {
+
+        if(!data.routes || data.routes.length === 0) return;
 
         var route = data.routes[0].geometry.coordinates;
 
@@ -1001,7 +997,9 @@ function drawRoadRoute(lat1, lon1, lat2, lon2){
 
         map.addLayer(layer);
         window.allLayers.push(layer);
-    });
+
+    })
+    .catch(err => console.log("Route error:", err));
 }
 
 </script>
