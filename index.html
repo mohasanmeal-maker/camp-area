@@ -594,115 +594,104 @@
    // ===== DISTANCE CALC =====
 
 var features = json_FacilityInfo_4.features;
-var distances = [];
 
-var lonLat1 = ol.proj.toLonLat(userLocation);
+var results = [];
+var userLonLat = ol.proj.toLonLat(userLocation);
 
-// 🌍 Area type
-var AREA_TYPE = "camp";
+// 🔥 limit (performance)
+var MAX_CHECK = 5;
+var count = 0;
 
-// 📏 Road factor
-var ROAD_FACTOR = 1.3;
+features.forEach(function(f){
 
-if(AREA_TYPE === "city"){
-    ROAD_FACTOR = 1.4;
-}
-else if(AREA_TYPE === "hill"){
-    ROAD_FACTOR = 1.5;
-}
-
-// 1️⃣ সব distance collect
-features.forEach(function(f) {
+    if(count >= MAX_CHECK) return;
+    count++;
 
     var coord = ol.proj.fromLonLat(f.geometry.coordinates);
     var lonLat2 = ol.proj.toLonLat(coord);
 
-    var straightDistance = getRealDistance(lonLat1, lonLat2);
-    var approxDistance = straightDistance * ROAD_FACTOR;
+    var url = `https://router.project-osrm.org/route/v1/walking/${userLonLat[0]},${userLonLat[1]};${lonLat2[0]},${lonLat2[1]}?overview=false`;
 
-    distances.push({
-        feature: f,
-        distance: approxDistance,
-        coord: coord,
-        straight: straightDistance
+    fetch(url)
+    .then(res => res.json())
+    .then(data => {
+
+        if(data.routes && data.routes.length > 0){
+
+            results.push({
+                feature: f,
+                coord: coord,
+                distance: data.routes[0].distance,
+                duration: data.routes[0].duration
+            });
+
+            if(results.length === MAX_CHECK){
+
+                results.sort((a,b)=> a.distance - b.distance);
+
+                var nearestThree = results.slice(0,3);
+
+                drawReal(nearestThree);
+            }
+        }
     });
 
 });
 
-// 2️⃣ একবার sort
-distances.sort(function(a, b) {
-    return a.distance - b.distance;
-});
+    function drawReal(list){
 
-// 3️⃣ nearest 3টা
-var nearestThree = distances.slice(0, 3);
+    list.forEach(function(item, index){
 
-// 4️⃣ AUTO ZOOM (একবার)
-var extent = ol.extent.boundingExtent([
-    userLocation,
-    nearestThree[0].coord
-]);
+        var isNearest = (index === 0);
+        var name = item.feature.properties.Name || "Facility";
 
-map.getView().fit(extent, {
-    padding: [100,100,100,100],
-    duration: 800
-});
+        var timeMin = Math.ceil(item.duration / 60);
 
-// 5️⃣ DRAW
-nearestThree.forEach(function(item, index) {
+        // 🛣️ route
+        drawRoadRoute(
+            ol.proj.toLonLat(userLocation)[1],
+            ol.proj.toLonLat(userLocation)[0],
+            ol.proj.toLonLat(item.coord)[1],
+            ol.proj.toLonLat(item.coord)[0]
+        );
 
-    var isNearest = (index === 0);
-    var name = item.feature.properties.Name || "Facility";
+        // 🔴 / 🔵 point
+        var point = new ol.Feature({
+            geometry: new ol.geom.Point(item.coord)
+        });
 
-    var speed = 83;
-    var timeMin = Math.ceil(item.distance / speed);
-
-    // 🟠 LINE
-    drawRoadRoute(
-        ol.proj.toLonLat(userLocation)[1],
-        ol.proj.toLonLat(userLocation)[0],
-        ol.proj.toLonLat(item.coord)[1],
-        ol.proj.toLonLat(item.coord)[0],
-    );
-
-    // 🔴 / 🔵 POINT
-    var point = new ol.Feature({
-        geometry: new ol.geom.Point(item.coord)
-    });
-
-    point.setStyle(new ol.style.Style({
-        image: new ol.style.Circle({
-            radius: isNearest ? 9 : 6,
-            fill: new ol.style.Fill({
-                color: isNearest ? '#FF3333' : '#66CCFF'
+        point.setStyle(new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: isNearest ? 9 : 6,
+                fill: new ol.style.Fill({
+                    color: isNearest ? '#FF3333' : '#66CCFF'
+                }),
+                stroke: new ol.style.Stroke({
+                    color: 'white',
+                    width: 2
+                })
             }),
-            stroke: new ol.style.Stroke({
-                color: 'white',
-                width: 2
+            text: new ol.style.Text({
+                text:
+                    (isNearest ? "Nearest\n" : "") +
+                    name + "\n" +
+                    Math.round(item.distance) + " m (" +
+                    timeMin + " min)",
+                offsetY: -15,
+                fill: new ol.style.Fill({ color: '#cc0000' }),
+                stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
             })
-        }),
-        text: new ol.style.Text({
-            text:
-                (isNearest ? "Nearest\n" : "") +
-                name + "\n" +
-                Math.round(item.distance) + " m (" +
-                timeMin + " min)",
-            offsetY: -15,
-            fill: new ol.style.Fill({ color: '#cc0000' }),
-            stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
-        })
-    }));
+        }));
 
-    var pointLayer = new ol.layer.Vector({
-        source: new ol.source.Vector({ features: [point] })
+        var layer = new ol.layer.Vector({
+            source: new ol.source.Vector({ features: [point] })
+        });
+
+        map.addLayer(layer);
+        window.allLayers.push(layer);
+
     });
-
-    map.addLayer(pointLayer);
-    window.allLayers.push(pointLayer);
-
-});
-    
-    },
+}
     
     function(error) {
         console.log(error);
