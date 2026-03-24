@@ -663,7 +663,6 @@ nearestThree.forEach(function(item, index) {
         ol.proj.toLonLat(userLocation)[0],
         ol.proj.toLonLat(item.coord)[1],
         ol.proj.toLonLat(item.coord)[0],
-        item.distance
     );
 
     // 🔴 / 🔵 POINT
@@ -962,116 +961,53 @@ nearestThree.forEach(function(item, index) {
     }
     
     // road line
-    function drawRoadRoute(lat1, lon1, lat2, lon2, distance){
-    
-        var isWalking = distance < 300;
-    
-        // 📡 Check internet
-        if(!navigator.onLine){
-    
-            // 🔵 OFFLINE fallback (straight line)
-            var start = ol.proj.fromLonLat([lon1, lat1]);
-            var end = ol.proj.fromLonLat([lon2, lat2]);
-    
-            var line = new ol.Feature({
-                geometry: new ol.geom.LineString([start, end])
-            });
-    
-            line.setStyle(new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: '#999',
-                    width: 2,
-                    lineDash: [5,5]
-                }),
-                text: new ol.style.Text({
-                    text: "Approx " + Math.round(distance) + " m",
-                    placement: 'line',
-                    fill: new ol.style.Fill({ color: '#000' }),
-                    stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
-                })
-            }));
-    
-            var layer = new ol.layer.Vector({
-                source: new ol.source.Vector({ features: [line] })
-            });
-    
-            map.addLayer(layer);
-            window.allLayers.push(layer);
-    
+   function drawRoadRoute(lat1, lon1, lat2, lon2){
+
+    var url = `https://router.project-osrm.org/route/v1/walking/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
+
+    fetch(url)
+    .then(res => res.json())
+    .then(data => {
+
+        // ❌ route না থাকলে fallback
+        if(!data.routes || data.routes.length === 0){
             return;
         }
-    
-        // 🌐 ONLINE → real route
-        var url = `https://router.project-osrm.org/route/v1/walking/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
-    
-        fetch(url)
-        .then(res => res.json())
-        .then(data => {
-    if(!data.routes || data.routes.length === 0){
-    
-        // 🔵 fallback straight line
-        var start = ol.proj.fromLonLat([lon1, lat1]);
-        var end = ol.proj.fromLonLat([lon2, lat2]);
-    
-        var fallbackLine = new ol.Feature({
-            geometry: new ol.geom.LineString([start, end])
+
+        // 🔥 REAL ROAD DISTANCE
+        var realDistance = data.routes[0].distance;
+
+        var route = data.routes[0].geometry.coordinates;
+        var transformed = route.map(c => ol.proj.fromLonLat(c));
+
+        var line = new ol.Feature({
+            geometry: new ol.geom.LineString(transformed)
         });
-    
-        fallbackLine.setStyle(new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: '#999',
-            width: 2,
-            lineDash: [5,5]
-        }),
-        text: new ol.style.Text({
-            text: "Approx " + Math.round(distance) + " m",
-            placement: 'line',
-            fill: new ol.style.Fill({ color: '#000' }),
-            stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
-        })
-    }));
-        
-    
+
+        line.setStyle(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: realDistance < 300 ? '#4F81BD' : '#F79646',
+                width: 3,
+                lineDash: realDistance < 300 ? [2,6] : null
+            }),
+            text: new ol.style.Text({
+                text: "Road " + Math.round(realDistance) + " m",
+                placement: 'line',
+                fill: new ol.style.Fill({ color: '#000' }),
+                stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
+            })
+        }));
+
         var layer = new ol.layer.Vector({
-            source: new ol.source.Vector({ features: [fallbackLine] })
+            source: new ol.source.Vector({ features: [line] })
         });
-    
+
         map.addLayer(layer);
         window.allLayers.push(layer);
-    
-        return;
-    }
-            var route = data.routes[0].geometry.coordinates;
-            var transformed = route.map(c => ol.proj.fromLonLat(c));
-    
-            var line = new ol.Feature({
-                geometry: new ol.geom.LineString(transformed)
-            });
-    
-            line.setStyle(new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: isWalking ? '#4F81BD' : '#F79646',
-                    width: 3,
-                    lineDash: isWalking ? [2,6] : null
-                }),
-                text: new ol.style.Text({
-                    text: (isWalking ? "Walk " : "Road ") + Math.round(distance) + " m",
-                    placement: 'line',
-                    fill: new ol.style.Fill({ color: '#000' }),
-                    stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
-                })
-            }));
-    
-            var layer = new ol.layer.Vector({
-                source: new ol.source.Vector({ features: [line] })
-            });
-    
-            map.addLayer(layer);
-            window.allLayers.push(layer);
-    
-        })
-        .catch(err => console.log("Route error:", err));
-    }
+
+    })
+    .catch(err => console.log("Route error:", err));
+}
     </script>
            
         </body>
