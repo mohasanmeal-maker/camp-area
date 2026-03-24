@@ -567,7 +567,7 @@ function(position) {
     // খুব ঘন ঘন remove না করে delay দাও
 if (!window.lastClearTime) window.lastClearTime = Date.now();
 
-if (Date.now() - window.lastClearTime > 2000) {
+if (Date.now() - window.lastClearTime > 4000) {
     window.allLayers.forEach(function(layer) {
         map.removeLayer(layer);
     });
@@ -1006,7 +1006,9 @@ function drawRoadRoute(lat1, lon1, lat2, lon2, distance){
         });
 
         map.addLayer(layer);
-        window.allLayers.push(layer);
+      if(window.allLayers){
+    window.allLayers.push(layer);
+}
 
     })
     .catch(err => console.log("Route error:", err));
