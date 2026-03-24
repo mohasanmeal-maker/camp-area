@@ -633,14 +633,6 @@ distances.push({
     straight: straightDistance
 });
 
-    // 📦 Store
-    distances.push({
-        feature: f,
-        distance: distance,
-        coord: coord
-    });
-});
-
     distances.sort(function(a, b) {
         return a.distance - b.distance;
     });
@@ -672,10 +664,6 @@ distances.push({
         var timeMin = Math.ceil(item.distance / speed);
 
         // 🟠 LINE
-    if(!navigator.onLine){
-    console.log("Offline - no route");
-    return;
-}
     drawRoadRoute(
     ol.proj.toLonLat(userLocation)[1],
     ol.proj.toLonLat(userLocation)[0],
