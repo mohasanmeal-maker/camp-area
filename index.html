@@ -971,6 +971,42 @@ function drawRoadRoute(lat1, lon1, lat2, lon2, distance){
 
     var isWalking = distance < 300;
 
+    // 📡 Check internet
+    if(!navigator.onLine){
+
+        // 🔵 OFFLINE fallback (straight line)
+        var start = ol.proj.fromLonLat([lon1, lat1]);
+        var end = ol.proj.fromLonLat([lon2, lat2]);
+
+        var line = new ol.Feature({
+            geometry: new ol.geom.LineString([start, end])
+        });
+
+        line.setStyle(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: '#999',
+                width: 2,
+                lineDash: [5,5]
+            }),
+            text: new ol.style.Text({
+                text: "Approx " + Math.round(distance) + " m",
+                placement: 'line',
+                fill: new ol.style.Fill({ color: '#000' }),
+                stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
+            })
+        }));
+
+        var layer = new ol.layer.Vector({
+            source: new ol.source.Vector({ features: [line] })
+        });
+
+        map.addLayer(layer);
+        window.allLayers.push(layer);
+
+        return;
+    }
+
+    // 🌐 ONLINE → real route
     var url = `https://router.project-osrm.org/route/v1/walking/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
 
     fetch(url)
@@ -980,7 +1016,6 @@ function drawRoadRoute(lat1, lon1, lat2, lon2, distance){
         if(!data.routes || data.routes.length === 0) return;
 
         var route = data.routes[0].geometry.coordinates;
-
         var transformed = route.map(c => ol.proj.fromLonLat(c));
 
         var line = new ol.Feature({
@@ -1006,9 +1041,7 @@ function drawRoadRoute(lat1, lon1, lat2, lon2, distance){
         });
 
         map.addLayer(layer);
-      if(window.allLayers){
-    window.allLayers.push(layer);
-}
+        window.allLayers.push(layer);
 
     })
     .catch(err => console.log("Route error:", err));
