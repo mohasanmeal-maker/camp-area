@@ -757,8 +757,10 @@ function loadMapScript(callback) {
         script.onload = function(){
             window.mapLoaded = true;
             if(callback) callback();
-        };
-
+        setTimeout(function(){
+    startMap();
+}, 1000);
+  };
         document.body.appendChild(script);
     } else {
         if(callback) callback();
