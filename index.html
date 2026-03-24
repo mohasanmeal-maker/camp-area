@@ -658,6 +658,7 @@ features.forEach(function(f) {
     nearestThree.forEach(function(item, index) {
 
         var isNearest = (index === 0);
+        var isWalking = item.distance < 200; // short distance হলে walking ধরছি
         var name = item.feature.properties.Name || "Facility";
 
         var speed = 83;
@@ -984,13 +985,19 @@ function drawRoadRoute(lat1, lon1, lat2, lon2){
         });
 
         line.setStyle(new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: '#00AAFF',
-                width: 4
-            })
-        }));
-
-        var layer = new ol.layer.Vector({
+    stroke: new ol.style.Stroke({
+        color: isWalking ? '#7393B3' : '#0096FF',
+        width: 3,
+        lineDash: isWalking ? [10,10] : null
+    }),
+      text: new ol.style.Text({
+        text: (isWalking ? "Walk " : "Road ") + Math.round(item.distance) + " m",
+        placement: 'line',
+        fill: new ol.style.Fill({ color: '#000' }),
+        stroke: new ol.style.Stroke({ color: '#fff', width: 3 })
+    })
+}));
+         var layer = new ol.layer.Vector({
             source: new ol.source.Vector({ features: [line] })
         });
 
