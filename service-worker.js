@@ -36,7 +36,7 @@ self.addEventListener('fetch', function(event) {
       return response || fetch(event.request).then(function(res) {
 
         // 👉 tile cache করো
-        if (event.request.url.includes('tile')) {
+       if (event.request.url.includes('google.com') || event.request.url.includes('vt/lyrs'))
           const clone = res.clone();
           caches.open(CACHE_NAME).then(cache => {
             cache.put(event.request, clone);
